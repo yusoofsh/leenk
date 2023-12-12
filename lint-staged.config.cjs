@@ -1,5 +1,3 @@
-/* eslint-env node */
-
 const eslintCommand = (filenames) =>
   `eslint --quiet --fix ${filenames.join(" ")}`;
 const prettierCommand = (filenames) =>
