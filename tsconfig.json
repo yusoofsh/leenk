@@ -2,17 +2,6 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "astro/tsconfigs/strictest",
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  },
-  "include": [
-    "**/*.astro",
-    "**/*.ts",
-    "**/*.cjs",
-    ".eslintrc.cjs",
-    ".prettierrc.cjs"
-  ],
+  "include": ["**/*.astro", "**/*.ts", "**/*.cjs", "**/.*.cjs"],
   "exclude": ["node_modules"]
 }

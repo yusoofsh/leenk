@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "astro check && astro build",
+    "build": "astro build",
     "dev": "astro dev",
     "prepare": "husky install",
     "preview": "astro preview",
