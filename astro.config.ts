@@ -7,7 +7,7 @@ import {
 
 // https://astro.build/config
 export default {
-  adapter: cloudflare({ mode: "directory" }),
+  adapter: cloudflare(),
   image: { service: passthroughImageService() },
   integrations: [tailwind()],
   output: "server",
