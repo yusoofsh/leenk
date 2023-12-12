@@ -1,0 +1,7 @@
+import { type AstroUserConfig as Config } from "astro/config";
+import tailwind from "@astrojs/tailwind";
+
+// https://astro.build/config
+export default {
+  integrations: [tailwind()],
+} satisfies Config;
