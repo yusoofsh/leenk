@@ -10,6 +10,7 @@
     "quality": "eslint --fix . && prettier --write ."
   },
   "dependencies": {
+    "@astrojs/cloudflare": "^8.0.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.0.19",
     "astro": "^4.0.3"
   },
