@@ -6,7 +6,8 @@
     "build": "astro check && astro build",
     "dev": "astro dev",
     "prepare": "husky install",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "quality": "eslint --fix . && prettier --write ."
   },
   "dependencies": {
     "@fontsource-variable/plus-jakarta-sans": "^5.0.19",
