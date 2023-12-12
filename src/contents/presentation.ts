@@ -1,17 +1,16 @@
-type Social = {
+interface Social {
   label: string;
   link: string;
-};
+}
 
-type Presentation = {
+interface Presentation {
   mail: string;
-  title: string;
   socials: Social[];
-};
+  title: string;
+}
 
 const presentation: Presentation = {
   mail: "me@yusoofsh.id",
-  title: "Hi, I’m Yusoof 👋",
   socials: [
     {
       label: "Twiiter",
@@ -22,6 +21,7 @@ const presentation: Presentation = {
       link: "https://github.com/yusoofsh",
     },
   ],
+  title: "Hi, I’m Yusoof 👋",
 };
 
 export default presentation;

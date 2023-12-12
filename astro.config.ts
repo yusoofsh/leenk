@@ -1,10 +1,14 @@
-import { type AstroUserConfig as Config } from "astro/config";
-import tailwind from "@astrojs/tailwind";
 import cloudflare from "@astrojs/cloudflare";
+import tailwind from "@astrojs/tailwind";
+import {
+  type AstroUserConfig as Config,
+  passthroughImageService,
+} from "astro/config";
 
 // https://astro.build/config
 export default {
-  output: "server",
   adapter: cloudflare(),
+  image: { service: passthroughImageService() },
   integrations: [tailwind()],
+  output: "server",
 } satisfies Config;
