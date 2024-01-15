@@ -2,6 +2,13 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "astro/tsconfigs/strictest",
-  "include": ["**/*.astro", "**/*.ts", "**/.*.cjs"],
+  "include": [
+    "**/*.astro",
+    "**/*.ts",
+    ".prettierrc.cjs",
+    ".eslintrc.cjs",
+    "lint-staged.config.cjs",
+    "commitlint.config.cjs"
+  ],
   "exclude": ["node_modules", "dist"]
 }

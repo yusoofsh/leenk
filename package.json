@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
+    "build": "astro build",
     "dev": "astro dev",
     "prepare": "husky install",
-    "preview": "astro build && astro preview",
+    "preview": "astro preview",
     "quality": "eslint --fix . && prettier --write ."
   },
   "dependencies": {
@@ -29,7 +30,7 @@
     "lint-staged": "^15.2.0",
     "prettier": "^3.1.1",
     "prettier-plugin-astro": "^0.12.2",
-    "prettier-plugin-pkgsort": "^0.2.1",
+    "prettier-plugin-packagejson": "^2.4.9",
     "prettier-plugin-tailwindcss": "^0.5.9",
     "tailwindcss": "^3.0.24",
     "typescript": "^5.3.3"
