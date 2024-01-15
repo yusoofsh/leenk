@@ -3,18 +3,17 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "astro build",
     "dev": "astro dev",
     "prepare": "husky install",
-    "preview": "astro preview",
+    "preview": "astro build && astro preview",
     "quality": "eslint --fix . && prettier --write ."
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^8.0.0",
     "@fontsource-variable/plus-jakarta-sans": "^5.0.19",
     "astro": "^4.0.3"
   },
   "devDependencies": {
+    "@astrojs/cloudflare": "^8.0.0",
     "@astrojs/tailwind": "^5.0.3",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
