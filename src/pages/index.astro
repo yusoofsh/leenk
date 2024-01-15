@@ -1,14 +1,19 @@
 ---
-import SocialLinks from "../components/SocialLinks.astro";
-import presentation from "../contents/presentation";
-import Layout from "../layouts/Layout.astro";
+import SocialLinks from "../components/social-links.astro";
+import presentation from "../contents";
+import Layout from "../layouts/layout.astro";
 ---
 
 <Layout title="Leenk - Yusoof Moh">
-  <main class="flex flex-col gap-20">
-    <article class="flex flex-col gap-8">
-      <h1 class="text-5xl">{presentation.title}</h1>
-      <SocialLinks />
-    </article>
+  <main
+    class="flex min-h-screen flex-col items-start justify-start bg-gradient-to-r from-gray-50 via-gray-200 to-gray-300 p-12 text-gray-800 md:p-52"
+  >
+    <h1 class="text-4xl md:text-5xl font-extrabold">{presentation.title}</h1>
+    <h2 class="text-2xl md:text-3xl font-bold mt-6 md:mt-8">I build microservices that scales.</h2>
+    <p class="text-md md:text-xl mt-2 md:mt-4 font-extralight">
+      I enjoy to develop systems that <span class="font-medium">adopt an experimental state-of-the-art approach</span> to produce scalable solutions.
+      While ensuring these systems are stable enough to reach production in a timely manner.
+    </p>
+    <SocialLinks />
   </main>
 </Layout>

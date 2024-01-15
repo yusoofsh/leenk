@@ -1,11 +1,11 @@
 ---
-import presentation from "../contents/presentation";
-import Link from "./shared/Link.astro";
+import presentation from "../contents";
+import Link from "./shared/link.astro";
 
 const { socials } = presentation;
 ---
 
-<ul class="flex flex-row gap-2">
+<ul class="mt-8 flex flex-row gap-2 md:mt-10">
   {
     socials.map(
       (social, index): JSX.Element => (
