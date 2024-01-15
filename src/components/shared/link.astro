@@ -6,11 +6,11 @@ type Props = HTMLAttributes<"a"> & {
   label: string;
 };
 
-const {  label, ...props } = Astro.props;
+const { label, ...props } = Astro.props;
 ---
 
 <a
-  class="cursor-pointer hover:underline font-medium"
+  class="cursor-pointer font-medium hover:underline"
   href={props.href}
   rel="noreferrer"
   target="_blank"
