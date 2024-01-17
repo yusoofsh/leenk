@@ -1,21 +1,56 @@
 ---
-import SocialLinks from "../components/social-links.astro";
-import presentation from "../contents";
 import Layout from "../layouts/index.astro";
 ---
 
 <Layout title="Index">
-  <h1 class="text-4xl font-extrabold md:text-5xl">{presentation.title}</h1>
-  <h2 class="mt-6 text-2xl font-bold md:mt-8 md:text-3xl">
-    I build microservices that scales.
-  </h2>
-  <p class="text-md mt-2 font-extralight md:mt-4 md:text-xl">
-    I enjoy to develop systems that
-    <span class="font-medium"
-      >adopt an experimental state-of-the-art approach</span
-    >
-     to produce scalable solutions. While ensuring these systems are stable
-    enough to reach production in a timely manner.
-  </p>
-  <SocialLinks />
+  <div class="prose-grey prose dark:prose-invert">
+    <div class="text-md mt-2 font-extralight md:mt-4 md:text-xl">
+      <p class="indent-4">
+        Once upon a time, in the bustling city of Malang, Indonesia, lived a
+        full-stack engineer named Yusoof. He was a man of many talents, known
+        for his proficiency in modern web technologies, as well as his expertise
+        in DevOps tools. His motivation for becoming a software engineer was the
+        flexibility and financial stability it offered, but his interests
+        extended beyond the realm of code.
+      </p>
+      <p class="indent-4">
+        Yusoof was deeply fascinated by Islamic culture, particularly the
+        teachings based on the Quran, authentic Hadith, and the people among
+        Ahlus Sunnah. He had a particular focus on Tawheed and Tafseer, the
+        fundamental concepts of Islamic monotheism and interpretation of the
+        Quran. He believed that understanding these concepts, it means
+        understanding the religion as a whole.
+      </p>
+      <p class="indent-4">
+        In this era of virtual interconnectedness, Yusoof welcomes all to engage
+        and explore the convergence of technology and spirituality. You can
+        connect with him through <a
+          class="not-prose cursor-pointer !font-normal hover:underline"
+          href="me@yusoofsh.id"
+          rel="noreferrer"
+          target="_blank">Mail</a
+        > / <a
+          class="not-prose cursor-pointer !font-normal hover:underline"
+          href="https://twitter.com/yusoofsh"
+          rel="noreferrer"
+          target="_blank">Twitter</a
+        > / <a
+          class="not-prose cursor-pointer !font-normal hover:underline"
+          href="https://linkedin.com/in/yusoofsh"
+          rel="noreferrer"
+          target="_blank">LinkedIn</a
+        > / <a
+          class="not-prose cursor-pointer !font-normal hover:underline"
+          href="https://github.com/yusoofsh"
+          rel="noreferrer"
+          target="_blank">GitHub</a
+        >.
+      </p>
+      <p class="indent-4">
+        May your endeavors be as fulfilling and diverse as the intricate and
+        vibrant tapestry that weaves together the threads of his own unique
+        journey through life.
+      </p>
+    </div>
+  </div>
 </Layout>
