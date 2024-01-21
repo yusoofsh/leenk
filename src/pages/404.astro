@@ -2,10 +2,13 @@
 import Layout from "../layouts/index.astro";
 ---
 
-<Layout title="404">
-  <h1 class="text-4xl font-extrabold md:text-5xl">404. That’s an error 🚧</h1>
-  <p class="mt-6 text-2xl font-bold md:mt-8 md:text-3xl">
-    Resource not found. Click
-    <a class="cursor-pointer hover:underline" href="/">here</a> to go home
-  </p>
+<Layout>
+  <div class="flex flex-col">
+    <h1 class="text-4xl font-bold md:text-5xl">404. That’s an error.</h1>
+    <p class="mt-6 text-2xl font-light md:mt-8 md:text-3xl">
+      Resource not found. Click
+      <a class="cursor-pointer font-semibold hover:underline" href="/">here</a>
+      to go home.
+    </p>
+  </div>
 </Layout>
