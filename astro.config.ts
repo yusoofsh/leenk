@@ -11,4 +11,23 @@ export default {
   image: { service: passthroughImageService() },
   integrations: [tailwind()],
   output: "server",
+  vite: {
+    resolve: {
+      alias: {
+        crypto: "node:crypto",
+        fs: "node:fs",
+        os: "node:os",
+        path: "node:path",
+      },
+    },
+    ssr: {
+      external: [
+        "node:buffer",
+        "node:path",
+        "node:fs",
+        "node:os",
+        "node:crypto",
+      ],
+    },
+  },
 } satisfies Config;

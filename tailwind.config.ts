@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Plus Jakarta Sans Variable", ...fontFamily.sans],
+        sans: ["Plus Jakarta Sans", ...fontFamily.sans],
       },
     },
   },

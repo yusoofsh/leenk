@@ -1,5 +1,5 @@
 ---
-import "@fontsource-variable/plus-jakarta-sans";
+import { AstroFont } from "astro-font";
 ---
 
 <!doctype html>
@@ -7,6 +7,7 @@ import "@fontsource-variable/plus-jakarta-sans";
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
+    <link href="favicon.ico" rel="icon" type="image/svg+xml" />
     <meta
       content="#f9fafb"
       media="(prefers-color-scheme: light)"
@@ -17,9 +18,26 @@ import "@fontsource-variable/plus-jakarta-sans";
       media="(prefers-color-scheme: dark)"
       name="theme-color"
     />
-    <link href="favicon.ico" rel="icon" type="image/svg+xml" />
     <meta content={Astro.generator} name="generator" />
+    <meta
+      content="Explore the teachings of Islam, modern front-end engineering, and sustainable vegetable farming with YusoofSH. Discover insights, tutorials, and resources to enrich your knowledge and skills."
+      name="description"
+    />
     <title>Yusoof Moh</title>
+    <AstroFont
+      config={[
+        {
+          display: "swap",
+          fallback: "sans-serif",
+          googleFontsURL:
+            "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap",
+          name: "Plus Jakarta Sans",
+          preload: true,
+          selector: "body",
+          src: [],
+        },
+      ]}
+    />
   </head>
   <body>
     <main
@@ -27,20 +45,19 @@ import "@fontsource-variable/plus-jakarta-sans";
     >
       <slot />
     </main>
+    <script is:inline>
+      const theme = (() => {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          return "dark";
+        }
+        return "light";
+      })();
+
+      if (theme === "light") {
+        document.documentElement.classList.remove("dark");
+      } else {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
   </body>
 </html>
-
-<script is:inline>
-  const theme = (() => {
-    if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      return "dark";
-    }
-    return "light";
-  })();
-
-  if (theme === "light") {
-    document.documentElement.classList.remove("dark");
-  } else {
-    document.documentElement.classList.add("dark");
-  }
-</script>
