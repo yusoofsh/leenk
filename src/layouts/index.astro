@@ -46,14 +46,7 @@ import { AstroFont } from "astro-font";
       <slot />
     </main>
     <script is:inline>
-      const theme = (() => {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-          return "dark";
-        }
-        return "light";
-      })();
-
-      if (theme === "light") {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
         document.documentElement.classList.remove("dark");
       } else {
         document.documentElement.classList.add("dark");
