@@ -10,11 +10,11 @@
     "quality": "eslint --fix . && prettier --write ."
   },
   "dependencies": {
-    "astro": "4.9.1",
+    "astro": "4.10.0",
     "astro-font": "^0.0.81"
   },
   "devDependencies": {
-    "@astrojs/cloudflare": "10.2.6",
+    "@astrojs/cloudflare": "10.3.0",
     "@astrojs/tailwind": "5.1.0",
     "@commitlint/cli": "^18.4.3",
     "@commitlint/config-conventional": "^18.4.3",
