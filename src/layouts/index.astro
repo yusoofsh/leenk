@@ -1,5 +1,6 @@
 ---
 import { AstroFont } from "astro-font";
+import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
 ---
 
 <!doctype html>
@@ -49,5 +50,6 @@ import { AstroFont } from "astro-font";
         document.documentElement.classList.add("dark");
       }
     </script>
+    <SimpleAnalytics />
   </body>
 </html>
