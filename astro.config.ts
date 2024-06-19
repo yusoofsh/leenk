@@ -1,5 +1,4 @@
 import cloudflare from "@astrojs/cloudflare";
-import partytown from "@astrojs/partytown";
 import tailwind from "@astrojs/tailwind";
 import {
   type AstroUserConfig as Config,
@@ -10,14 +9,7 @@ import {
 export default {
   adapter: cloudflare(),
   image: { service: passthroughImageService() },
-  integrations: [
-    tailwind(),
-    partytown({
-      config: {
-        forward: ["dataLayer.push"],
-      },
-    }),
-  ],
+  integrations: [tailwind()],
   output: "server",
   vite: {
     resolve: {
