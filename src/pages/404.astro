@@ -3,14 +3,16 @@ import Layout from "../layouts/index.astro";
 ---
 
 <Layout>
-  <div class="prose flex flex-col dark:prose-invert">
-    <h1 class="not-prose text-3xl font-bold md:text-4xl">
-      404. That’s an error.
-    </h1>
-    <p class="mt-6 text-xl font-light md:mt-8 md:text-2xl">
+  <div
+    class="text-md prose prose-slate my-2 hyphens-manual text-balance font-extralight dark:prose-invert md:my-12 md:text-xl"
+  >
+    <h1 class="text-left text-3xl md:text-4xl">404. That’s an error.</h1>
+    <p>
       Resource not found. Click
-      <a class="cursor-pointer font-semibold hover:underline" href="/">here</a>
-       to go home.
+      <a class="not-prose cursor-pointer font-semibold hover:underline" href="/"
+        >here</a
+      >
+      to go home.
     </p>
   </div>
 </Layout>
