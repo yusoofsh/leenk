@@ -1,6 +1,8 @@
 ---
 import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
+
+import "./index.css";
 ---
 
 <!doctype html>
@@ -55,7 +57,7 @@ import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
   </head>
   <body>
     <main
-      class="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 p-8 md:p-12 dark:from-gray-950 dark:to-gray-900"
+      class="p-safe-bottom p-safe-top flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 p-8 md:p-12 dark:from-gray-950 dark:to-gray-900"
     >
       <slot />
     </main>

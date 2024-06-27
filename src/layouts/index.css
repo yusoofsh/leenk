@@ -1,0 +1,7 @@
+.p-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.p-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
