@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "astro": "5.1.5",
-    "astro-font": "^0.0.81",
+    "astro-font": "^0.1.81",
     "astro-simpleanalytics-plugin": "^0.3.13"
   },
   "devDependencies": {
