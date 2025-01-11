@@ -2,15 +2,18 @@ import type { AstroUserConfig } from "astro";
 
 import cloudflare from "@astrojs/cloudflare";
 import tailwind from "@astrojs/tailwind";
-import { passthroughImageService } from "astro/config";
 
 // https://astro.build/config
 export default {
-  adapter: cloudflare(),
-  image: { service: passthroughImageService() },
+  adapter: cloudflare({
+    imageService: "cloudflare",
+  }),
   integrations: [tailwind()],
   output: "server",
   vite: {
+    build: {
+      minify: false,
+    },
     resolve: {
       alias: {
         crypto: "node:crypto",
