@@ -1,6 +1,7 @@
 ---
 import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
+import { join } from "node:path";
 ---
 
 <!doctype html>
@@ -25,14 +26,21 @@ import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
     <AstroFont
       config={[
         {
-          display: "swap",
+          display: "optional",
           fallback: "sans-serif",
-          googleFontsURL:
-            "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap",
           name: "Plus Jakarta Sans",
-          preload: true,
           selector: "body",
-          src: [],
+          src: [
+            {
+              path: join(
+                process.cwd(),
+                "public",
+                "fonts",
+                "PlusJakartaSans-VariableFont_wght.woff2",
+              ),
+              style: "normal",
+            },
+          ],
         },
       ]}
     />

@@ -1,9 +1,8 @@
+import type { AstroUserConfig } from "astro";
+
 import cloudflare from "@astrojs/cloudflare";
 import tailwind from "@astrojs/tailwind";
-import {
-  type AstroUserConfig as Config,
-  passthroughImageService,
-} from "astro/config";
+import { passthroughImageService } from "astro/config";
 
 // https://astro.build/config
 export default {
@@ -30,4 +29,4 @@ export default {
       ],
     },
   },
-} satisfies Config;
+} satisfies AstroUserConfig;
