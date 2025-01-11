@@ -1,7 +1,6 @@
 ---
 import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
-import { join } from "node:path";
 ---
 
 <!doctype html>
@@ -32,12 +31,7 @@ import { join } from "node:path";
           selector: "body",
           src: [
             {
-              path: join(
-                process.cwd(),
-                "public",
-                "fonts",
-                "PlusJakartaSans-VariableFont_wght.woff2",
-              ),
+              path: "/fonts/PlusJakartaSans-VariableFont_wght.woff2",
               style: "normal",
             },
           ],
