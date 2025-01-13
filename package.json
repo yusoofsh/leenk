@@ -17,7 +17,7 @@
   "devDependencies": {
     "@astrojs/cloudflare": "12.1.0",
     "@astrojs/tailwind": "5.1.4",
-    "@commitlint/cli": "^18.4.3",
+    "@commitlint/cli": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
     "@tailwindcss/typography": "^0.5.16",
     "@types/node": "^20.10.4",
