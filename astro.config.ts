@@ -1,14 +1,16 @@
-import type { AstroUserConfig } from "astro";
+import { defineConfig } from "astro/config";
 
 import cloudflare from "@astrojs/cloudflare";
+import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
-export default {
+export default defineConfig({
   adapter: cloudflare({
     imageService: "cloudflare",
   }),
   output: "server",
   vite: {
+    plugins: [tailwindcss()],
     build: {
       minify: false,
     },
@@ -30,4 +32,4 @@ export default {
       ],
     },
   },
-} satisfies AstroUserConfig;
+});
