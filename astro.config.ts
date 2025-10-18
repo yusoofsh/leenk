@@ -1,14 +1,12 @@
 import type { AstroUserConfig } from "astro";
 
 import cloudflare from "@astrojs/cloudflare";
-import tailwind from "@astrojs/tailwind";
 
 // https://astro.build/config
 export default {
   adapter: cloudflare({
     imageService: "cloudflare",
   }),
-  integrations: [tailwind()],
   output: "server",
   vite: {
     build: {
