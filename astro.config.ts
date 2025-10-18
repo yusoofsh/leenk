@@ -1,19 +1,16 @@
-import { defineConfig } from "astro/config";
-
 import cloudflare from "@astrojs/cloudflare";
 import tailwindcss from "@tailwindcss/vite";
+import { defineConfig } from "astro/config";
 
 // https://astro.build/config
 export default defineConfig({
-  adapter: cloudflare({
-    imageService: "cloudflare",
-  }),
+  adapter: cloudflare(),
   output: "server",
   vite: {
-    plugins: [tailwindcss()],
     build: {
       minify: false,
     },
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         crypto: "node:crypto",
