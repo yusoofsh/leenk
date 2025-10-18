@@ -2,7 +2,7 @@
 
 [![Astro](https://img.shields.io/badge/Astro-5.1.5-000000?style=for-the-badge&logo=astro&logoColor=white)](https://astro.build/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3.3-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.1.14-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare_Pages-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://pages.cloudflare.com/)
 
 A modern, minimalist personal portfolio website built with Astro, showcasing the work and interests of Yusoof Moh, a full-stack engineer based in Indonesia.
@@ -42,12 +42,14 @@ A modern, minimalist personal portfolio website built with Astro, showcasing the
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yusoofsh/leenk.git
 cd leenk
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 # or
@@ -55,6 +57,7 @@ bun install
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 # or
@@ -125,4 +128,4 @@ Yusoof Moh - [me@yusoofsh.id](mailto:me@yusoofsh.id)
 
 ---
 
-*Built with ❤️ in Malang, Indonesia*
+_Built with ❤️ in Malang, Indonesia_
