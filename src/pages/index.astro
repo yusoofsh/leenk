@@ -1,160 +1,173 @@
 ---
 import Layout from "../layouts/index.astro";
+import { StarsBackground } from "../components/animate-ui/components/backgrounds/stars";
+import { cn } from "~/lib/utils";
 ---
 
 <Layout>
-  <div
-    class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base md:prose-p:text-lg lg:prose-p:text-xl xl:prose-p:text-2xl text-justify font-extralight text-balance hyphens-manual md:my-12"
+  <StarsBackground
+    client:load
+    starColor="#000"
+    className={cn(
+      "absolute inset-0 flex items-center justify-center rounded-xl",
+      "bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
+    )}
   >
     <div
-      class="flex flex-wrap items-center justify-between gap-3 tracking-[0.2em]"
+      class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base md:prose-p:text-lg lg:prose-p:text-xl xl:prose-p:text-2xl text-justify font-extralight text-balance hyphens-manual md:my-12"
     >
-      <h1
-        class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
-      >
-        Meet me, Yusoof Moh
-      </h1>
       <div
-        class="not-prose flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700"
+        class="flex flex-wrap items-center justify-between gap-3 tracking-[0.2em]"
       >
-        <span class="font-semibold tracking-[0.3em]">Bio mode</span>
-        <button
-          type="button"
-          class="relative inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[0.7rem] font-semibold tracking-[0.3em] text-slate-800 uppercase shadow transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-          data-mode-toggle
-          data-state="detail"
-          aria-pressed="false"
+        <h1
+          class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
         >
-          <span aria-hidden="true" data-label-detail>Switch to TL;DR</span>
-          <span aria-hidden="true" class="hidden" data-label-tldr
-            >Switch to full bio</span
+          Meet me, Yusoof Moh
+        </h1>
+        <div
+          class="not-prose flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700"
+        >
+          <span class="font-semibold tracking-[0.3em]">Bio mode</span>
+          <button
+            type="button"
+            class="relative inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[0.7rem] font-semibold tracking-[0.3em] text-slate-800 uppercase shadow transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+            data-mode-toggle
+            data-state="detail"
+            aria-pressed="false"
           >
-          <span class="sr-only"
-            >Toggle between full biography and TL;DR views</span
+            <span aria-hidden="true" data-label-detail>Switch to TL;DR</span>
+            <span aria-hidden="true" class="hidden" data-label-tldr
+              >Switch to full bio</span
+            >
+            <span class="sr-only"
+              >Toggle between full biography and TL;DR views</span
+            >
+          </button>
+        </div>
+      </div>
+      <div data-mode="detail" class="space-y-4">
+        <p>
+          In the name of Allah, and by His grace. My name is pronounced <i
+            >yu-soof</i
+          >. Born and raised in Malang, now collaborating remotely across
+          Indonesia. I am a
+          <strong>full-stack engineer</strong> building reliable products for SMEs.
+          <strong>Web:</strong> TypeScript/React (TanStack), Node/Bun, Hono;
+          <strong>DevOps:</strong> Docker, Traefik, CI/CD;
+          <strong>Mobile:</strong> React Native/Capacitor;
+          <strong>Observability:</strong> Sentry, SigNoz. Recently, I have been standardizing
+          CI/CD across monorepos and shipping a
+          <strong>multi-tenant booking &amp; operations platform</strong> (web +
+          mobile) end-to-end&mdash;from schema and APIs to Docker Swarm deployments
+          and dashboards. Beyond code, I cultivate edamame, enjoy regional motorcycle
+          tours, and keep a steady habit of deep research. I base my understanding
+          of Islam in accordance with the first three generations of the ummah, focusing
+          on <strong>tawhid</strong>
+          and <strong>tafsir</strong>. To further that commitment, I conduct
+          private
+          <i>tahsin</i> classes and support local Muslim communities, aspiring to
+          contribute&mdash;however small&mdash;to the da'wah.
+          <span class="font-semibold"
+            >Open to meaningful remote/contract collaborations.</span
           >
-        </button>
+          You can reach out via
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="mailto:me@yusoofsh.id"
+            onclick="sa_event('email_clicked')"
+            rel="noreferrer"
+            target="_blank">Mail</a
+          > /
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="/twitter"
+            onclick="sa_event('twitter_clicked')"
+            rel="noreferrer"
+            target="_blank">Twitter</a
+          > /
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="/linkedin"
+            onclick="sa_event('linkedin_clicked')"
+            rel="noreferrer"
+            target="_blank">LinkedIn</a
+          > /
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="/github"
+            onclick="sa_event('github_clicked')"
+            rel="noreferrer"
+            target="_blank">GitHub</a
+          >. May Allah bless our endeavors, and lead us to His everlasting
+          mercy.
+        </p>
+      </div>
+      <div data-mode="tldr" class="hidden space-y-4">
+        <p>
+          Bismillah. I'm a Malang-based, remote
+          <strong>full-stack engineer</strong> for SMEs delivering end-to-end
+          <strong>TypeScript/React (TanStack)</strong>, Node/Bun, Hono systems
+          with Docker, Traefik, CI/CD, React Native/Capacitor mobile, and
+          observability via Sentry/SigNoz, currently shipping a
+          <strong>multi-tenant booking &amp; operations platform</strong> while pursuing
+          deep research, edamame cultivation, regional motorcycle tours, and Islamic
+          learning centered on <strong>tawhid</strong> and <strong
+            >tafsir</strong
+          >
+          through private <i>tahsin</i> classes, open to meaningful
+          <strong>remote/contract collaborations</strong> via
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="mailto:me@yusoofsh.id"
+            onclick="sa_event('email_clicked')"
+            rel="noreferrer"
+            target="_blank">Mail</a
+          > /
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="/twitter"
+            onclick="sa_event('twitter_clicked')"
+            rel="noreferrer"
+            target="_blank">Twitter</a
+          > /
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="/linkedin"
+            onclick="sa_event('linkedin_clicked')"
+            rel="noreferrer"
+            target="_blank">LinkedIn</a
+          > /
+          <a
+            class="not-prose cursor-pointer font-semibold hover:underline"
+            href="/github"
+            onclick="sa_event('github_clicked')"
+            rel="noreferrer"
+            target="_blank">GitHub</a
+          >. Baarakallahu fiik.
+        </p>
       </div>
     </div>
-    <div data-mode="detail" class="space-y-4">
-      <p>
-        In the name of Allah, and by His grace. My name is pronounced <i
-          >yu-soof</i
-        >. Born and raised in Malang, now collaborating remotely across
-        Indonesia. I am a
-        <strong>full-stack engineer</strong> building reliable products for SMEs.
-        <strong>Web:</strong> TypeScript/React (TanStack), Node/Bun, Hono;
-        <strong>DevOps:</strong> Docker, Traefik, CI/CD;
-        <strong>Mobile:</strong> React Native/Capacitor;
-        <strong>Observability:</strong> Sentry, SigNoz. Recently, I have been standardizing
-        CI/CD across monorepos and shipping a
-        <strong>multi-tenant booking &amp; operations platform</strong> (web + mobile)
-        end-to-end&mdash;from schema and APIs to Docker Swarm deployments and dashboards.
-        Beyond code, I cultivate edamame, enjoy regional motorcycle tours, and keep
-        a steady habit of deep research. I base my understanding of Islam in accordance
-        with the first three generations of the ummah, focusing on <strong
-          >tawhid</strong
-        >
-        and <strong>tafsir</strong>. To further that commitment, I conduct
-        private
-        <i>tahsin</i> classes and support local Muslim communities, aspiring to contribute&mdash;however
-        small&mdash;to the da'wah.
-        <span class="font-semibold"
-          >Open to meaningful remote/contract collaborations.</span
-        >
-        You can reach out via
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="mailto:me@yusoofsh.id"
-          onclick="sa_event('email_clicked')"
-          rel="noreferrer"
-          target="_blank">Mail</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/twitter"
-          onclick="sa_event('twitter_clicked')"
-          rel="noreferrer"
-          target="_blank">Twitter</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/linkedin"
-          onclick="sa_event('linkedin_clicked')"
-          rel="noreferrer"
-          target="_blank">LinkedIn</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/github"
-          onclick="sa_event('github_clicked')"
-          rel="noreferrer"
-          target="_blank">GitHub</a
-        >. May Allah bless our endeavors, and lead us to His everlasting mercy.
-      </p>
-    </div>
-    <div data-mode="tldr" class="hidden space-y-4">
-      <p>
-        Bismillah. I'm a Malang-based, remote
-        <strong>full-stack engineer</strong> for SMEs delivering end-to-end
-        <strong>TypeScript/React (TanStack)</strong>, Node/Bun, Hono systems
-        with Docker, Traefik, CI/CD, React Native/Capacitor mobile, and
-        observability via Sentry/SigNoz, currently shipping a
-        <strong>multi-tenant booking &amp; operations platform</strong> while pursuing
-        deep research, edamame cultivation, regional motorcycle tours, and Islamic
-        learning centered on <strong>tawhid</strong> and <strong>tafsir</strong>
-        through private <i>tahsin</i> classes, open to meaningful
-        <strong>remote/contract collaborations</strong> via
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="mailto:me@yusoofsh.id"
-          onclick="sa_event('email_clicked')"
-          rel="noreferrer"
-          target="_blank">Mail</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/twitter"
-          onclick="sa_event('twitter_clicked')"
-          rel="noreferrer"
-          target="_blank">Twitter</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/linkedin"
-          onclick="sa_event('linkedin_clicked')"
-          rel="noreferrer"
-          target="_blank">LinkedIn</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/github"
-          onclick="sa_event('github_clicked')"
-          rel="noreferrer"
-          target="_blank">GitHub</a
-        >. Baarakallahu fiik.
-      </p>
-    </div>
-  </div>
-  <script is:inline>
-    const toggle = document.querySelector("[data-mode-toggle]");
-    const detail = document.querySelector("[data-mode='detail']");
-    const tldr = document.querySelector("[data-mode='tldr']");
+    <script is:inline>
+      const toggle = document.querySelector("[data-mode-toggle]");
+      const detail = document.querySelector("[data-mode='detail']");
+      const tldr = document.querySelector("[data-mode='tldr']");
 
-    if (toggle && detail && tldr) {
-      const detailLabel = toggle.querySelector("[data-label-detail]");
-      const tldrLabel = toggle.querySelector("[data-label-tldr]");
+      if (toggle && detail && tldr) {
+        const detailLabel = toggle.querySelector("[data-label-detail]");
+        const tldrLabel = toggle.querySelector("[data-label-tldr]");
 
-      toggle.addEventListener("click", () => {
-        const showingDetail = toggle.dataset.state !== "tldr";
-        toggle.dataset.state = showingDetail ? "tldr" : "detail";
-        toggle.setAttribute("aria-pressed", showingDetail ? "true" : "false");
+        toggle.addEventListener("click", () => {
+          const showingDetail = toggle.dataset.state !== "tldr";
+          toggle.dataset.state = showingDetail ? "tldr" : "detail";
+          toggle.setAttribute("aria-pressed", showingDetail ? "true" : "false");
 
-        detail.classList.toggle("hidden", showingDetail);
-        tldr.classList.toggle("hidden", !showingDetail);
+          detail.classList.toggle("hidden", showingDetail);
+          tldr.classList.toggle("hidden", !showingDetail);
 
-        detailLabel?.classList.toggle("hidden", !showingDetail);
-        tldrLabel?.classList.toggle("hidden", showingDetail);
-      });
-    }
-  </script>
+          detailLabel?.classList.toggle("hidden", !showingDetail);
+          tldrLabel?.classList.toggle("hidden", showingDetail);
+        });
+      }
+    </script>
+  </StarsBackground>
 </Layout>
