@@ -9,7 +9,7 @@ import {
   type Transition,
 } from "motion/react";
 
-import { bioMode, initBioMode } from "~/lib/stores/mode";
+import { bioMode } from "~/lib/stores/mode";
 import { cn } from "~/lib/utils";
 type StarLayerProps = HTMLMotionProps<"div"> & {
   count: number;
@@ -162,10 +162,6 @@ export const Background: React.FC<BackgroundProps> = ({
   ...props
 }) => {
   const mode = useStore(bioMode);
-
-  React.useEffect(() => {
-    initBioMode();
-  }, []);
 
   const starColor = mode === "tldr" ? "#FFF" : "#000";
 

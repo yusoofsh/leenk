@@ -3,7 +3,6 @@ import { atom } from "nanostores";
 export type BioMode = "detail" | "tldr";
 
 const STORAGE_KEY = "bio-mode";
-const LEGACY_KEY = "theme";
 const VALID_MODES = new Set<BioMode>(["detail", "tldr"]);
 
 const isBrowser = typeof window !== "undefined";
@@ -13,18 +12,9 @@ const readStoredMode = (): BioMode | null => {
     return null;
   }
 
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored && VALID_MODES.has(stored as BioMode)) {
-      return stored as BioMode;
-    }
-
-    const legacy = window.localStorage.getItem(LEGACY_KEY);
-    if (legacy === "dark" || legacy === "light") {
-      return legacy === "dark" ? "tldr" : "detail";
-    }
-  } catch (error) {
-    console.warn("Unable to read stored bio mode", error);
+  const stored = window.localStorage.getItem(STORAGE_KEY);
+  if (stored && VALID_MODES.has(stored as BioMode)) {
+    return stored as BioMode;
   }
 
   return null;
@@ -45,12 +35,7 @@ const persistMode = (mode: BioMode) => {
     return;
   }
 
-  try {
-    window.localStorage.setItem(STORAGE_KEY, mode);
-    window.localStorage.setItem(LEGACY_KEY, mode === "tldr" ? "dark" : "light");
-  } catch (error) {
-    console.warn("Unable to persist bio mode", error);
-  }
+  window.localStorage.setItem(STORAGE_KEY, mode);
 };
 
 const syncControllers = (mode: BioMode) => {
@@ -58,19 +43,18 @@ const syncControllers = (mode: BioMode) => {
     return;
   }
 
-  const toggles =
-    window.document.querySelectorAll<HTMLButtonElement>("[data-mode-toggle]");
-  toggles.forEach((toggle) => {
-    toggle.dataset.state = mode;
-    toggle.setAttribute("aria-pressed", mode === "tldr" ? "true" : "false");
-  });
+  window.document
+    .querySelectorAll<HTMLButtonElement>("[data-mode-toggle]")
+    .forEach((toggle) => {
+      toggle.dataset.state = mode;
+      toggle.setAttribute("aria-pressed", mode === "tldr" ? "true" : "false");
+    });
 
-  const controllers = window.document.querySelectorAll<HTMLElement>(
-    "[data-mode-controller]",
-  );
-  controllers.forEach((controller) => {
-    controller.dataset.state = mode;
-  });
+  window.document
+    .querySelectorAll<HTMLElement>("[data-mode-controller]")
+    .forEach((controller) => {
+      controller.dataset.state = mode;
+    });
 };
 
 const applyModeToDom = (mode: BioMode) => {
@@ -84,11 +68,15 @@ const applyModeToDom = (mode: BioMode) => {
   syncControllers(mode);
 };
 
-export const bioMode = atom<BioMode>("tldr");
+const initialMode: BioMode = isBrowser
+  ? (readStoredMode() ?? getSystemMode())
+  : "detail";
+
+export const bioMode = atom<BioMode>(initialMode);
 
 let initialized = false;
 let persistNextChange = true;
-let hasExplicitPreference = false;
+let hasExplicitPreference = isBrowser ? readStoredMode() !== null : false;
 
 export const setBioMode = (
   mode: BioMode,
@@ -103,18 +91,15 @@ export const toggleBioMode = () => {
   setBioMode(current === "tldr" ? "detail" : "tldr");
 };
 
-export const initBioMode = () => {
+const startSync = () => {
   if (!isBrowser || initialized) {
     return;
   }
 
-  const storedMode = readStoredMode();
-  hasExplicitPreference = storedMode !== null;
-  const initialMode = storedMode ?? getSystemMode();
-
-  applyModeToDom(initialMode);
+  initialized = true;
+  hasExplicitPreference = readStoredMode() !== null;
   persistNextChange = hasExplicitPreference;
-  bioMode.set(initialMode);
+  applyModeToDom(bioMode.get());
 
   const unsubscribe = bioMode.listen((mode) => {
     applyModeToDom(mode);
@@ -156,6 +141,8 @@ export const initBioMode = () => {
   window.addEventListener("astro:page-leave", () => {
     unsubscribe();
   });
-
-  initialized = true;
 };
+
+if (isBrowser) {
+  startSync();
+}

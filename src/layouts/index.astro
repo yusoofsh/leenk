@@ -30,7 +30,6 @@ import "../styles/global.css";
         }
 
         const STORAGE_KEY = "bio-mode";
-        const LEGACY_KEY = "theme";
         const root = document.documentElement;
 
         const readStoredMode = () => {
@@ -39,14 +38,9 @@ import "../styles/global.css";
             if (stored === "detail" || stored === "tldr") {
               return stored;
             }
-
-            const legacy = window.localStorage.getItem(LEGACY_KEY);
-            if (legacy === "dark" || legacy === "light") {
-              return legacy === "dark" ? "tldr" : "detail";
-            }
-          } catch (error) {}
-
-          return null;
+          } catch (error) {
+            return null;
+          }
         };
 
         const systemMode = () =>
