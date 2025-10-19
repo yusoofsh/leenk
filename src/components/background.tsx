@@ -110,7 +110,7 @@ function StarsBackground({
     <div
       data-slot="stars-background"
       className={cn(
-        "relative size-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
+        "relative min-h-screen w-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
         className,
       )}
       onMouseMove={handleMouseMove}
@@ -169,7 +169,7 @@ export const Background: React.FC<BackgroundProps> = ({
     <StarsBackground
       starColor={starColor}
       className={cn(
-        "absolute inset-0 flex items-center justify-center rounded-xl",
+        "flex items-center justify-center rounded-xl",
         "bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
       )}
       {...props}
