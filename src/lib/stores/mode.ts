@@ -84,7 +84,7 @@ const applyModeToDom = (mode: BioMode) => {
   syncControllers(mode);
 };
 
-export const bioMode = atom<BioMode>("detail");
+export const bioMode = atom<BioMode>("tldr");
 
 let initialized = false;
 let persistNextChange = true;

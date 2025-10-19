@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/index.astro";
 import { Background } from "../components/background";
-import BioModeToggle from "../components/bio-mode-toggle";
+import ModeToggle from "../components/mode-toggle";
 ---
 
 <Layout>
@@ -17,7 +17,7 @@ import BioModeToggle from "../components/bio-mode-toggle";
         >
           Meet me, Yusoof Moh
         </h1>
-        <BioModeToggle client:load />
+        <ModeToggle client:load />
       </div>
       <div data-mode="detail" class="space-y-4">
         <p>

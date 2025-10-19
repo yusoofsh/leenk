@@ -1,9 +1,9 @@
 import React from "react";
 import { useStore } from "@nanostores/react";
 
-import { bioMode, initBioMode, toggleBioMode } from "~/lib/stores/bio-mode";
+import { bioMode, initBioMode, toggleBioMode } from "~/lib/stores/mode";
 
-export function BioModeToggle() {
+export function Mode() {
   const mode = useStore(bioMode);
 
   React.useEffect(() => {
@@ -16,6 +16,7 @@ export function BioModeToggle() {
     <div
       className="not-prose flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700"
       data-mode-controller
+      data-state={mode}
     >
       <span className="font-semibold tracking-[0.3em]">Bio mode</span>
       <button
@@ -27,10 +28,10 @@ export function BioModeToggle() {
         onClick={() => toggleBioMode()}
       >
         <span aria-hidden="true" data-label-detail>
-          Switch to TL;DR
+          Switch to full-bio
         </span>
         <span aria-hidden="true" data-label-tldr>
-          Switch to full bio
+          Switch to TL;DR
         </span>
         <span className="sr-only">
           Toggle between full biography and TL;DR views
@@ -40,4 +41,4 @@ export function BioModeToggle() {
   );
 }
 
-export default BioModeToggle;
+export default Mode;

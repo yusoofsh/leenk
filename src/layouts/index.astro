@@ -23,6 +23,43 @@ import "../styles/global.css";
     />
     <meta content={Astro.generator} name="generator" />
     <meta content="Quick introduction of my interests." name="description" />
+    <script is:inline>
+      (() => {
+        if (typeof document === "undefined") {
+          return;
+        }
+
+        const STORAGE_KEY = "bio-mode";
+        const LEGACY_KEY = "theme";
+        const root = document.documentElement;
+
+        const readStoredMode = () => {
+          try {
+            const stored = window.localStorage.getItem(STORAGE_KEY);
+            if (stored === "detail" || stored === "tldr") {
+              return stored;
+            }
+
+            const legacy = window.localStorage.getItem(LEGACY_KEY);
+            if (legacy === "dark" || legacy === "light") {
+              return legacy === "dark" ? "tldr" : "detail";
+            }
+          } catch (error) {}
+
+          return null;
+        };
+
+        const systemMode = () =>
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "tldr"
+            : "detail";
+
+        const mode = readStoredMode() ?? systemMode();
+        root.dataset.bioMode = mode;
+        root.classList.toggle("dark", mode === "tldr");
+      })();
+    </script>
     <title>Meet me, Yusoof Moh</title>
     <AstroFont
       config={[
@@ -40,10 +77,6 @@ import "../styles/global.css";
         },
       ]}
     />
-    <script>
-      import { initBioMode } from "~/lib/stores/bio-mode";
-      initBioMode();
-    </script>
     <script>
       declare global {
         interface Window {

@@ -9,7 +9,7 @@ import {
   type Transition,
 } from "motion/react";
 
-import { bioMode, initBioMode } from "~/lib/stores/bio-mode";
+import { bioMode, initBioMode } from "~/lib/stores/mode";
 import { cn } from "~/lib/utils";
 type StarLayerProps = HTMLMotionProps<"div"> & {
   count: number;
