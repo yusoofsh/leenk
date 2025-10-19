@@ -2,6 +2,7 @@ import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
+import path from "path";
 
 // https://astro.build/config
 export default defineConfig({
@@ -20,20 +21,8 @@ export default defineConfig({
     plugins: [tailwindcss()],
     resolve: {
       alias: {
-        crypto: "node:crypto",
-        fs: "node:fs",
-        os: "node:os",
-        path: "node:path",
+        "~": path.resolve("./src"),
       },
-    },
-    ssr: {
-      external: [
-        "node:buffer",
-        "node:path",
-        "node:fs",
-        "node:os",
-        "node:crypto",
-      ],
     },
   },
 });
