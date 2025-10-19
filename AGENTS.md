@@ -22,7 +22,6 @@
 - **Imports**: Use natural sorting (perfectionist ESLint plugin)
 - **Formatting**: Prettier with Astro, Tailwind, and package.json plugins
 - **Linting**: ESLint with TypeScript recommended + stylistic rules, JSX accessibility
-- **Commits**: Standard git commit messages
 - **Naming**: camelCase for variables/functions, PascalCase for components/types
 - **Error handling**: TypeScript strict mode enforces proper error handling
 - **File structure**: src/pages/ for routes, src/layouts/ for layouts, public/ for static assets

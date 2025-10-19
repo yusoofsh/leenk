@@ -1,70 +1,73 @@
 ---
 import Layout from "../layouts/index.astro";
+import BeamsBackground from "../components/kokonutui/beams-background.tsx";
 ---
 
 <Layout>
-  <div
-    class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base md:prose-p:text-lg lg:prose-p:text-xl xl:prose-p:text-2xl text-justify font-extralight text-balance hyphens-manual md:my-12"
-  >
-    <h1
-      class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+  <BeamsBackground client:load>
+    <div
+      class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base md:prose-p:text-lg lg:prose-p:text-xl xl:prose-p:text-2xl text-justify font-extralight text-balance hyphens-manual md:my-12"
     >
-      Meet me, Yusoof Moh
-    </h1>
-    <p>
-      In the name of Allah, and by His grace. My name is pronounced <i
-        >yu-soof</i
-      >. Born and raised in Malang, now collaborating remotely across Indonesia.
-      I am a
-      <strong>full-stack engineer</strong> building reliable products for SMEs.
-      <strong>Web:</strong> TypeScript/React (TanStack), Node/Bun, Hono;
-      <strong>DevOps:</strong> Docker, Traefik, CI/CD;
-      <strong>Mobile:</strong> React Native/Capacitor;
-      <strong>Observability:</strong> Sentry, SigNoz. Recently, I have been standardizing
-      CI/CD across monorepos and shipping a
-      <strong>multi-tenant booking &amp; operations platform</strong> (web + mobile)
-      end-to-end&mdash;from schema and APIs to Docker Swarm deployments and dashboards.
-      Beyond code, I cultivate edamame, enjoy regional motorcycle tours, and keep
-      a steady habit of deep research. I base my understanding of Islam in accordance
-      with the first three generations of the ummah, focusing on <strong
-        >tawhid</strong
-      > and
-      <strong>tafsir</strong>. To further that commitment, I conduct private <i
-        >tahsin</i
+      <h1
+        class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
       >
-      classes and support local Muslim communities, aspiring to contribute&mdash;however
-      small&mdash;to the da'wah. <span class="font-semibold"
-        >Open to meaningful remote/contract collaborations.</span
-      >
-      You can reach out via
-      <a
-        class="not-prose cursor-pointer font-semibold hover:underline"
-        href="mailto:me@yusoofsh.id"
-        onclick="sa_event('email_clicked')"
-        rel="noreferrer"
-        target="_blank">Mail</a
-      > /
-      <a
-        class="not-prose cursor-pointer font-semibold hover:underline"
-        href="/twitter"
-        onclick="sa_event('twitter_clicked')"
-        rel="noreferrer"
-        target="_blank">Twitter</a
-      > /
-      <a
-        class="not-prose cursor-pointer font-semibold hover:underline"
-        href="/linkedin"
-        onclick="sa_event('linkedin_clicked')"
-        rel="noreferrer"
-        target="_blank">LinkedIn</a
-      > /
-      <a
-        class="not-prose cursor-pointer font-semibold hover:underline"
-        href="/github"
-        onclick="sa_event('github_clicked')"
-        rel="noreferrer"
-        target="_blank">GitHub</a
-      >. May Allah bless our endeavors, and lead us to His everlasting mercy.
-    </p>
-  </div>
+        Meet me, Yusoof Moh
+      </h1>
+      <p>
+        In the name of Allah, and by His grace. My name is pronounced <i
+          >yu-soof</i
+        >. Born and raised in Malang, now collaborating remotely across
+        Indonesia. I am a
+        <strong>full-stack engineer</strong> building reliable products for SMEs.
+        <strong>Web:</strong> TypeScript/React (TanStack), Node/Bun, Hono;
+        <strong>DevOps:</strong> Docker, Traefik, CI/CD;
+        <strong>Mobile:</strong> React Native/Capacitor;
+        <strong>Observability:</strong> Sentry, SigNoz. Recently, I have been standardizing
+        CI/CD across monorepos and shipping a
+        <strong>multi-tenant booking &amp; operations platform</strong> (web + mobile)
+        end-to-end&mdash;from schema and APIs to Docker Swarm deployments and dashboards.
+        Beyond code, I cultivate edamame, enjoy regional motorcycle tours, and keep
+        a steady habit of deep research. I base my understanding of Islam in accordance
+        with the first three generations of the ummah, focusing on <strong
+          >tawhid</strong
+        > and
+        <strong>tafsir</strong>. To further that commitment, I conduct private <i
+          >tahsin</i
+        >
+        classes and support local Muslim communities, aspiring to contribute&mdash;however
+        small&mdash;to the da'wah. <span class="font-semibold"
+          >Open to meaningful remote/contract collaborations.</span
+        >
+        You can reach out via
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="mailto:me@yusoofsh.id"
+          onclick="sa_event('email_clicked')"
+          rel="noreferrer"
+          target="_blank">Mail</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/twitter"
+          onclick="sa_event('twitter_clicked')"
+          rel="noreferrer"
+          target="_blank">Twitter</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/linkedin"
+          onclick="sa_event('linkedin_clicked')"
+          rel="noreferrer"
+          target="_blank">LinkedIn</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/github"
+          onclick="sa_event('github_clicked')"
+          rel="noreferrer"
+          target="_blank">GitHub</a
+        >. May Allah bless our endeavors, and lead us to His everlasting mercy.
+      </p>
+    </div>
+  </BeamsBackground>
 </Layout>

@@ -30,7 +30,6 @@ A modern, minimalist personal portfolio website built with Astro, showcasing the
   - ESLint with TypeScript and accessibility rules
   - Prettier with Astro, Tailwind, and package.json plugins
   - Husky pre-commit hooks with lint-staged
-  - Commitlint for conventional commits
 
 ## 🚀 Getting Started
 
