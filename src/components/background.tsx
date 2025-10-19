@@ -1,5 +1,5 @@
 import React from "react";
-import { cn } from "~/lib/utils";
+import { useStore } from "@nanostores/react";
 import {
   type HTMLMotionProps,
   motion,
@@ -9,6 +9,8 @@ import {
   type Transition,
 } from "motion/react";
 
+import { bioMode, initBioMode } from "~/lib/stores/bio-mode";
+import { cn } from "~/lib/utils";
 type StarLayerProps = HTMLMotionProps<"div"> & {
   count: number;
   size: number;
@@ -155,25 +157,17 @@ interface BackgroundProps {
   [key: string]: any;
 }
 
-export const Background: React.FC<BackgroundProps> = ({ className, ...props }) => {
-  const [starColor, setStarColor] = React.useState("#000");
+export const Background: React.FC<BackgroundProps> = ({
+  className,
+  ...props
+}) => {
+  const mode = useStore(bioMode);
 
   React.useEffect(() => {
-    const updateStarColor = () => {
-      const isDark = document.documentElement.classList.contains("dark");
-      setStarColor(isDark ? "#FFF" : "#000");
-    };
-
-    updateStarColor();
-
-    const observer = new MutationObserver(updateStarColor);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["class"],
-    });
-
-    return () => observer.disconnect();
+    initBioMode();
   }, []);
+
+  const starColor = mode === "tldr" ? "#FFF" : "#000";
 
   return (
     <StarsBackground

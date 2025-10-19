@@ -1,6 +1,7 @@
 ---
 import Layout from "../layouts/index.astro";
 import { Background } from "../components/background";
+import BioModeToggle from "../components/bio-mode-toggle";
 ---
 
 <Layout>
@@ -16,26 +17,7 @@ import { Background } from "../components/background";
         >
           Meet me, Yusoof Moh
         </h1>
-        <div
-          class="not-prose flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700"
-        >
-          <span class="font-semibold tracking-[0.3em]">Bio mode</span>
-          <button
-            type="button"
-            class="relative inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[0.7rem] font-semibold tracking-[0.3em] text-slate-800 uppercase shadow transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-slate-400 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-            data-mode-toggle
-            data-state="detail"
-            aria-pressed="false"
-          >
-            <span aria-hidden="true" data-label-detail>Switch to TL;DR</span>
-            <span aria-hidden="true" class="hidden" data-label-tldr
-              >Switch to full bio</span
-            >
-            <span class="sr-only"
-              >Toggle between full biography and TL;DR views</span
-            >
-          </button>
-        </div>
+        <BioModeToggle client:load />
       </div>
       <div data-mode="detail" class="space-y-4">
         <p>
@@ -94,7 +76,7 @@ import { Background } from "../components/background";
           mercy.
         </p>
       </div>
-      <div data-mode="tldr" class="hidden space-y-4">
+      <div data-mode="tldr" class="space-y-4">
         <p>
           Bismillah. I'm a Malang-based, remote
           <strong>full-stack engineer</strong> for SMEs delivering end-to-end
@@ -139,39 +121,5 @@ import { Background } from "../components/background";
         </p>
       </div>
     </div>
-    <script is:inline>
-      const toggle = document.querySelector("[data-mode-toggle]");
-      const detail = document.querySelector("[data-mode='detail']");
-      const tldr = document.querySelector("[data-mode='tldr']");
-
-      if (toggle && detail && tldr) {
-        const detailLabel = toggle.querySelector("[data-label-detail]");
-        const tldrLabel = toggle.querySelector("[data-label-tldr]");
-
-        // Initialize based on current theme
-        const updateDisplay = () => {
-          const isDark = document.documentElement.classList.contains("dark");
-          const showingTldr = isDark; // TLDR when dark, Detail when light
-          toggle.dataset.state = showingTldr ? "tldr" : "detail";
-          toggle.setAttribute("aria-pressed", showingTldr ? "true" : "false");
-
-          detail.classList.toggle("hidden", showingTldr);
-          tldr.classList.toggle("hidden", !showingTldr);
-
-          detailLabel?.classList.toggle("hidden", !showingTldr);
-          tldrLabel?.classList.toggle("hidden", showingTldr);
-        };
-
-        // Initial setup
-        updateDisplay();
-
-        toggle.addEventListener("click", () => {
-          const isDark = document.documentElement.classList.contains("dark");
-          // Toggle theme: TLDR -> dark, Detail -> light
-          document.documentElement.classList.toggle("dark", !isDark);
-          updateDisplay();
-        });
-      }
-    </script>
   </Background>
 </Layout>
