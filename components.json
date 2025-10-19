@@ -5,10 +5,10 @@
   "tsx": true,
   "tailwind": {
     "config": "",
+    "prefix": "",
     "css": "src/styles/global.css",
     "baseColor": "zinc",
-    "cssVariables": true,
-    "prefix": ""
+    "cssVariables": true
   },
   "iconLibrary": "lucide",
   "aliases": {

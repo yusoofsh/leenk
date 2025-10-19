@@ -1,18 +1,10 @@
 ---
 import Layout from "../layouts/index.astro";
-import { StarsBackground } from "../components/animate-ui/components/backgrounds/stars";
-import { cn } from "~/lib/utils";
+import { Background } from "../components/background";
 ---
 
 <Layout>
-  <StarsBackground
-    client:load
-    starColor="#000"
-    className={cn(
-      "absolute inset-0 flex items-center justify-center rounded-xl",
-      "bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
-    )}
-  >
+  <Background client:load>
     <div
       class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base md:prose-p:text-lg lg:prose-p:text-xl xl:prose-p:text-2xl text-justify font-extralight text-balance hyphens-manual md:my-12"
     >
@@ -156,18 +148,30 @@ import { cn } from "~/lib/utils";
         const detailLabel = toggle.querySelector("[data-label-detail]");
         const tldrLabel = toggle.querySelector("[data-label-tldr]");
 
+        // Initialize based on current theme
+        const updateDisplay = () => {
+          const isDark = document.documentElement.classList.contains("dark");
+          const showingTldr = isDark; // TLDR when dark, Detail when light
+          toggle.dataset.state = showingTldr ? "tldr" : "detail";
+          toggle.setAttribute("aria-pressed", showingTldr ? "true" : "false");
+
+          detail.classList.toggle("hidden", showingTldr);
+          tldr.classList.toggle("hidden", !showingTldr);
+
+          detailLabel?.classList.toggle("hidden", !showingTldr);
+          tldrLabel?.classList.toggle("hidden", showingTldr);
+        };
+
+        // Initial setup
+        updateDisplay();
+
         toggle.addEventListener("click", () => {
-          const showingDetail = toggle.dataset.state !== "tldr";
-          toggle.dataset.state = showingDetail ? "tldr" : "detail";
-          toggle.setAttribute("aria-pressed", showingDetail ? "true" : "false");
-
-          detail.classList.toggle("hidden", showingDetail);
-          tldr.classList.toggle("hidden", !showingDetail);
-
-          detailLabel?.classList.toggle("hidden", !showingDetail);
-          tldrLabel?.classList.toggle("hidden", showingDetail);
+          const isDark = document.documentElement.classList.contains("dark");
+          // Toggle theme: TLDR -> dark, Detail -> light
+          document.documentElement.classList.toggle("dark", !isDark);
+          updateDisplay();
         });
       }
     </script>
-  </StarsBackground>
+  </Background>
 </Layout>

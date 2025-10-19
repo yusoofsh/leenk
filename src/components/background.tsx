@@ -1,3 +1,5 @@
+import React from "react";
+import { cn } from "~/lib/utils";
 import {
   type HTMLMotionProps,
   motion,
@@ -6,9 +8,6 @@ import {
   type SpringOptions,
   type Transition,
 } from "motion/react";
-import React from "react";
-
-import { cn } from "~/lib/utils";
 
 type StarLayerProps = HTMLMotionProps<"div"> & {
   count: number;
@@ -151,9 +150,39 @@ function StarsBackground({
   );
 }
 
-export {
-  StarLayer,
-  StarsBackground,
-  type StarLayerProps,
-  type StarsBackgroundProps,
+interface BackgroundProps {
+  className?: string;
+  [key: string]: any;
+}
+
+export const Background: React.FC<BackgroundProps> = ({ className, ...props }) => {
+  const [starColor, setStarColor] = React.useState("#000");
+
+  React.useEffect(() => {
+    const updateStarColor = () => {
+      const isDark = document.documentElement.classList.contains("dark");
+      setStarColor(isDark ? "#FFF" : "#000");
+    };
+
+    updateStarColor();
+
+    const observer = new MutationObserver(updateStarColor);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <StarsBackground
+      starColor={starColor}
+      className={cn(
+        "absolute inset-0 flex items-center justify-center rounded-xl",
+        "bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
+      )}
+      {...props}
+    />
+  );
 };
