@@ -9,14 +9,22 @@ export default defineConfig({
   adapter: cloudflare({
     imageService: "cloudflare",
   }),
-
   integrations: [react()],
-
   output: "server",
-
   vite: {
     build: {
-      minify: false,
+      minify: true,
+      rollupOptions: {
+        external: [
+          "node:fs/promises",
+          "node:path",
+          "node:url",
+          "node:crypto",
+          "node:buffer",
+          "node:fs",
+          "node:os",
+        ],
+      },
     },
     plugins: [tailwindcss()],
     resolve: {
