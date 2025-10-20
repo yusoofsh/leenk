@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "astro build",
+    "deploy": "wrangler deploy",
     "dev": "astro dev",
     "prepare": "husky",
     "preview": "astro preview",
@@ -26,7 +27,8 @@
     "nanostores": "^1.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "wrangler": "^4.43.0"
   },
   "devDependencies": {
     "@astrojs/cloudflare": "12.6.10",
