@@ -1,21 +1,23 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "leenk",
-  "main": "./dist/_worker.js/index.js",
-  "compatibility_date": "2025-10-20",
-  "compatibility_flags": ["nodejs_compat"],
-  "workers_dev": false,
-  "observability": {
-    "enabled": true,
-  },
-  "assets": {
-    "binding": "ASSETS",
-    "directory": "./dist",
-  },
-  "kv_namespaces": [
-    {
-      "binding": "leenk",
-      "id": "5fcb4389667f43a29d192484d9ad83b4",
-    },
-  ],
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "leenk",
+	"main": "./dist/_worker.js/index.js",
+	"compatibility_date": "2025-10-20",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"workers_dev": false,
+	"observability": {
+		"enabled": true,
+	},
+	"assets": {
+		"binding": "ASSETS",
+		"directory": "./dist",
+	},
+	"kv_namespaces": [
+		{
+			"binding": "SESSION",
+			"id": "a0688dbfe63e41c987295e28abee68ec"
+		}
+	]
 }
