@@ -1,6 +1,7 @@
 ---
 import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
+import { Background } from "../components/background";
 
 import "../styles/global.css";
 ---
@@ -89,10 +90,10 @@ import "../styles/global.css";
     </script>
   </head>
   <body>
-    <main
-      class="flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 dark:from-gray-950 dark:to-gray-900"
-    >
-      <slot />
+    <main>
+      <Background client:load>
+        <slot />
+      </Background>
     </main>
     <SimpleAnalytics allEnvironments={true} collectDNT={true} />
   </body>

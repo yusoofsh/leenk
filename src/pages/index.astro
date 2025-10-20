@@ -1,127 +1,122 @@
 ---
 import Layout from "../layouts/index.astro";
-import { Background } from "../components/background";
 import ModeToggle from "../components/mode-toggle";
 ---
 
 <Layout>
-  <Background client:load>
-    <div
-      class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base sm:prose-p:text-lg md:prose-p:text-xl lg:prose-p:text-2xl xl:prose-p:text-3xl mx-auto my-6 w-full max-w-prose px-6 text-justify font-extralight text-balance hyphens-manual sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-6xl xl:px-4"
-    >
-      <div class="flex flex-col gap-4 tracking-[0.2em]">
-        <h1
-          class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
-        >
-          Meet me, Yusoof Moh
-        </h1>
-      </div>
-      <div
-        class="mt-1 flex flex-wrap items-center justify-between gap-1 tracking-[0.2em] sm:my-2 sm:gap-2 md:my-3 md:gap-3 lg:my-4 lg:gap-4 xl:my-5 xl:gap-5"
+  <div
+    class="prose prose-slate dark:prose-invert prose-p:indent-4 prose-p:text-base sm:prose-p:text-lg md:prose-p:text-xl lg:prose-p:text-2xl xl:prose-p:text-3xl mx-auto my-6 w-full max-w-prose px-6 text-justify font-extralight text-balance hyphens-manual sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-6xl xl:px-4"
+  >
+    <div class="flex flex-col gap-4 tracking-[0.2em]">
+      <h1
+        class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
       >
-        <ModeToggle client:load />
-      </div>
-      <div data-mode="detail" class="space-y-4">
-        <p>
-          In the name of Allah, and by His grace. My name is pronounced <i
-            >yu-soof</i
-          >. Born and raised in Malang, now collaborating remotely across
-          Indonesia. I am a
-          <strong>full-stack engineer</strong> building reliable products for SMEs.
-          <strong>Web:</strong> TypeScript/React (TanStack), Node/Bun, Hono;
-          <strong>DevOps:</strong> Docker, Traefik, CI/CD;
-          <strong>Mobile:</strong> React Native/Capacitor;
-          <strong>Observability:</strong> Sentry, SigNoz. Recently, I have been standardizing
-          CI/CD across monorepos and shipping a
-          <strong>multi-tenant booking &amp; operations platform</strong> (web +
-          mobile) end-to-end&mdash;from schema and APIs to Docker Swarm deployments
-          and dashboards. Beyond code, I cultivate edamame, enjoy regional motorcycle
-          tours, and keep a steady habit of deep research. I base my understanding
-          of Islam in accordance with the first three generations of the ummah, focusing
-          on <strong>tawhid</strong>
-          and <strong>tafsir</strong>. To further that commitment, I conduct
-          private
-          <i>tahsin</i> classes and support local Muslim communities, aspiring to
-          contribute&mdash;however small&mdash;to the da'wah.
-          <span class="font-semibold"
-            >Open to meaningful remote/contract collaborations.</span
-          >
-          You can reach out via
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="mailto:me@yusoofsh.id"
-            onclick="sa_event('email_clicked')"
-            rel="noreferrer"
-            target="_blank">Mail</a
-          > /
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="/twitter"
-            onclick="sa_event('twitter_clicked')"
-            rel="noreferrer"
-            target="_blank">Twitter</a
-          > /
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="/linkedin"
-            onclick="sa_event('linkedin_clicked')"
-            rel="noreferrer"
-            target="_blank">LinkedIn</a
-          > /
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="/github"
-            onclick="sa_event('github_clicked')"
-            rel="noreferrer"
-            target="_blank">GitHub</a
-          >. May Allah bless our endeavors, and lead us to His everlasting
-          mercy.
-        </p>
-      </div>
-      <div data-mode="tldr" class="space-y-4">
-        <p>
-          Bismillah. I'm a Malang-based, remote
-          <strong>full-stack engineer</strong> for SMEs delivering end-to-end
-          <strong>TypeScript/React (TanStack)</strong>, Node/Bun, Hono systems
-          with Docker, Traefik, CI/CD, React Native/Capacitor mobile, and
-          observability via Sentry/SigNoz, currently shipping a
-          <strong>multi-tenant booking &amp; operations platform</strong> while pursuing
-          deep research, edamame cultivation, regional motorcycle tours, and Islamic
-          learning centered on <strong>tawhid</strong> and <strong
-            >tafsir</strong
-          >
-          through private <i>tahsin</i> classes, open to meaningful
-          <strong>remote/contract collaborations</strong> via
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="mailto:me@yusoofsh.id"
-            onclick="sa_event('email_clicked')"
-            rel="noreferrer"
-            target="_blank">Mail</a
-          > /
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="/twitter"
-            onclick="sa_event('twitter_clicked')"
-            rel="noreferrer"
-            target="_blank">Twitter</a
-          > /
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="/linkedin"
-            onclick="sa_event('linkedin_clicked')"
-            rel="noreferrer"
-            target="_blank">LinkedIn</a
-          > /
-          <a
-            class="not-prose cursor-pointer font-semibold hover:underline"
-            href="/github"
-            onclick="sa_event('github_clicked')"
-            rel="noreferrer"
-            target="_blank">GitHub</a
-          >. Baarakallahu fiik.
-        </p>
-      </div>
+        Meet me, Yusoof Moh
+      </h1>
     </div>
-  </Background>
+    <div
+      class="mt-1 flex flex-wrap items-center justify-between gap-1 tracking-[0.2em] sm:my-2 sm:gap-2 md:my-3 md:gap-3 lg:my-4 lg:gap-4 xl:my-5 xl:gap-5"
+    >
+      <ModeToggle client:load />
+    </div>
+    <div data-mode="detail" class="space-y-4">
+      <p>
+        In the name of Allah, and by His grace. My name is pronounced <i
+          >yu-soof</i
+        >. Born and raised in Malang, now collaborating remotely across
+        Indonesia. I am a
+        <strong>full-stack engineer</strong> building reliable products for SMEs.
+        <strong>Web:</strong> TypeScript/React (TanStack), Node/Bun, Hono;
+        <strong>DevOps:</strong> Docker, Traefik, CI/CD;
+        <strong>Mobile:</strong> React Native/Capacitor;
+        <strong>Observability:</strong> Sentry, SigNoz. Recently, I have been standardizing
+        CI/CD across monorepos and shipping a
+        <strong>multi-tenant booking &amp; operations platform</strong> (web + mobile)
+        end-to-end&mdash;from schema and APIs to Docker Swarm deployments and dashboards.
+        Beyond code, I cultivate edamame, enjoy regional motorcycle tours, and keep
+        a steady habit of deep research. I base my understanding of Islam in accordance
+        with the first three generations of the ummah, focusing on <strong
+          >tawhid</strong
+        >
+        and <strong>tafsir</strong>. To further that commitment, I conduct
+        private
+        <i>tahsin</i> classes and support local Muslim communities, aspiring to contribute&mdash;however
+        small&mdash;to the da'wah.
+        <span class="font-semibold"
+          >Open to meaningful remote/contract collaborations.</span
+        >
+        You can reach out via
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="mailto:me@yusoofsh.id"
+          onclick="sa_event('email_clicked')"
+          rel="noreferrer"
+          target="_blank">Mail</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/twitter"
+          onclick="sa_event('twitter_clicked')"
+          rel="noreferrer"
+          target="_blank">Twitter</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/linkedin"
+          onclick="sa_event('linkedin_clicked')"
+          rel="noreferrer"
+          target="_blank">LinkedIn</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/github"
+          onclick="sa_event('github_clicked')"
+          rel="noreferrer"
+          target="_blank">GitHub</a
+        >. May Allah bless our endeavors, and lead us to His everlasting mercy.
+      </p>
+    </div>
+    <div data-mode="tldr" class="space-y-4">
+      <p>
+        Bismillah. I'm a Malang-based, remote
+        <strong>full-stack engineer</strong> for SMEs delivering end-to-end
+        <strong>TypeScript/React (TanStack)</strong>, Node/Bun, Hono systems
+        with Docker, Traefik, CI/CD, React Native/Capacitor mobile, and
+        observability via Sentry/SigNoz, currently shipping a
+        <strong>multi-tenant booking &amp; operations platform</strong> while pursuing
+        deep research, edamame cultivation, regional motorcycle tours, and Islamic
+        learning centered on <strong>tawhid</strong> and <strong>tafsir</strong>
+        through private <i>tahsin</i> classes, open to meaningful
+        <strong>remote/contract collaborations</strong> via
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="mailto:me@yusoofsh.id"
+          onclick="sa_event('email_clicked')"
+          rel="noreferrer"
+          target="_blank">Mail</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/twitter"
+          onclick="sa_event('twitter_clicked')"
+          rel="noreferrer"
+          target="_blank">Twitter</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/linkedin"
+          onclick="sa_event('linkedin_clicked')"
+          rel="noreferrer"
+          target="_blank">LinkedIn</a
+        > /
+        <a
+          class="not-prose cursor-pointer font-semibold hover:underline"
+          href="/github"
+          onclick="sa_event('github_clicked')"
+          rel="noreferrer"
+          target="_blank">GitHub</a
+        >. Baarakallahu fiik.
+      </p>
+    </div>
+  </div>
 </Layout>
