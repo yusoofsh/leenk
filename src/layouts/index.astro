@@ -2,7 +2,6 @@
 import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
 import { Background } from "../components/background";
-import { getImagePath } from "astro-opengraph-images";
 
 import "../styles/global.css";
 ---
@@ -54,10 +53,6 @@ import "../styles/global.css";
     />
     <meta property="og:url" content="https://www.yusoofsh.id/" />
     <meta
-      property="og:image"
-      content={getImagePath({ url: Astro.url, site: Astro.site })}
-    />
-    <meta
       property="og:image:alt"
       content="Portrait and tech stack summary of Yusoof Moh"
     />
@@ -72,17 +67,13 @@ import "../styles/global.css";
       name="twitter:description"
       content="Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TS/React, Hono/Bun, Docker/Traefik, OpenTelemetry/Sentry."
     />
-    <meta
-      name="twitter:image"
-      content={getImagePath({ url: Astro.url, site: Astro.site })}
-    />
     <script is:inline>
       (() => {
         if (typeof document === "undefined") {
           return;
         }
 
-        const STORAGE_KEY = "bio-mode";
+        const STORAGE_KEY = "bioMode";
         const root = document.documentElement;
 
         const readStoredMode = () => {
