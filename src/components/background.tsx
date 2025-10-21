@@ -121,28 +121,28 @@ function StarsBackground({
         className={cn({ "pointer-events-none": !pointerEvents })}
       >
         <StarLayer
-          count={1000}
-          size={1}
-          transition={{ repeat: Infinity, duration: speed, ease: "linear" }}
+          count={900}
+          size={2}
+          transition={{ repeat: Infinity, duration: speed, ease: "circInOut" }}
           starColor={starColor}
         />
         <StarLayer
-          count={400}
-          size={2}
+          count={600}
+          size={4}
           transition={{
             repeat: Infinity,
             duration: speed * 2,
-            ease: "linear",
+            ease: "circInOut",
           }}
           starColor={starColor}
         />
         <StarLayer
-          count={200}
-          size={3}
+          count={300}
+          size={6}
           transition={{
             repeat: Infinity,
             duration: speed * 3,
-            ease: "linear",
+            ease: "circInOut",
           }}
           starColor={starColor}
         />

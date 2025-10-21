@@ -1,0 +1,20 @@
+{
+  "name": "Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia",
+  "short_name": "Yusoof Moh",
+  "description": "Accelerated time-to-production at Nadi; built YDSF's Muslim crowdfunding platform end-to-end. TS/React, Hono/Bun, Docker/Traefik, OpenTelemetry/Sentry.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#f9fafb",
+  "lang": "en",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["personal", "portfolio"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

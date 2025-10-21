@@ -2,6 +2,7 @@
 import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
 import { Background } from "../components/background";
+import { getImagePath } from "astro-opengraph-images";
 
 import "../styles/global.css";
 ---
@@ -12,6 +13,14 @@ import "../styles/global.css";
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
     <link href="favicon.ico" rel="icon" type="image/svg+xml" />
+    <link rel="manifest" href="/manifest.json" />
+    <link
+      rel="preload"
+      href="/fonts/PlusJakartaSans-VariableFont_wght.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta
       content="#f9fafb"
       media="(prefers-color-scheme: light)"
@@ -23,7 +32,50 @@ import "../styles/global.css";
       name="theme-color"
     />
     <meta content={Astro.generator} name="generator" />
-    <meta content="Quick introduction of my interests." name="description" />
+    <meta
+      name="description"
+      content="Malang-based full-stack/DevOps engineer. Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TypeScript/React, Hono/Bun, Docker/Traefik/Tailscale, OpenTelemetry/Sentry, UU PDP-aware."
+    />
+    <link rel="canonical" href="https://www.yusoofsh.id/" />
+    <meta name="author" content="Yusoof Moh" />
+    <meta name="robots" content="index,follow" />
+    <meta
+      name="keywords"
+      content="Yusoof Moh, full-stack engineer Indonesia, DevOps Indonesia, TypeScript React, Hono Bun, Docker Traefik Tailscale, OpenTelemetry Sentry, UU PDP compliance, Nadi, YDSF, crowdfunding platform"
+    />
+    <meta property="og:type" content="profile" />
+    <meta
+      property="og:title"
+      content="Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia"
+    />
+    <meta
+      property="og:description"
+      content="Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TS/React, Hono/Bun, Docker/Traefik, OpenTelemetry/Sentry."
+    />
+    <meta property="og:url" content="https://www.yusoofsh.id/" />
+    <meta
+      property="og:image"
+      content={getImagePath({ url: Astro.url, site: Astro.site })}
+    />
+    <meta
+      property="og:image:alt"
+      content="Portrait and tech stack summary of Yusoof Moh"
+    />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="id_ID" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia"
+    />
+    <meta
+      name="twitter:description"
+      content="Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TS/React, Hono/Bun, Docker/Traefik, OpenTelemetry/Sentry."
+    />
+    <meta
+      name="twitter:image"
+      content={getImagePath({ url: Astro.url, site: Astro.site })}
+    />
     <script is:inline>
       (() => {
         if (typeof document === "undefined") {
@@ -55,7 +107,7 @@ import "../styles/global.css";
         root.classList.toggle("dark", mode === "tldr");
       })();
     </script>
-    <title>Meet me, Yusoof Moh</title>
+    <title>Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia</title>
     <AstroFont
       config={[
         {
@@ -87,6 +139,52 @@ import "../styles/global.css";
       };
 
       window.sa_event = window.sa_event || saEvent;
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Yusoof Moh",
+        "alternateName": "Yusoof",
+        "jobTitle": "Full-Stack/DevOps Engineer",
+        "url": "https://www.yusoofsh.id/",
+        "image": "https://www.yusoofsh.id/og-image.jpg",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Malang",
+          "addressRegion": "East Java",
+          "addressCountry": "ID"
+        },
+        "knowsAbout": [
+          "TypeScript",
+          "React",
+          "TanStack Start",
+          "Hono",
+          "Node.js",
+          "Bun",
+          "Docker",
+          "Traefik",
+          "Tailscale",
+          "GitHub Actions",
+          "React Native",
+          "Capacitor",
+          "OpenTelemetry",
+          "Sentry",
+          "SigNoz",
+          "CI/CD",
+          "On-call",
+          "Incident Response",
+          "UU PDP Compliance"
+        ],
+        "sameAs": [
+          "https://linkedin.com/in/yusoofsh",
+          "https://github.com/yusoofsh"
+        ],
+        "worksFor": {
+          "@type": "Organization",
+          "name": "Yusoofs Company"
+        }
+      }
     </script>
   </head>
   <body>

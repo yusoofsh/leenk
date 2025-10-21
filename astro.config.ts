@@ -8,9 +8,11 @@ import path from "path";
 export default defineConfig({
   adapter: cloudflare({
     imageService: "cloudflare",
+    sessionKVBindingName: "leenk",
   }),
   integrations: [react()],
   output: "server",
+  site: "https://www.yusoofsh.id/",
   vite: {
     build: {
       minify: true,
