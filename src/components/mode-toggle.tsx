@@ -24,7 +24,7 @@ export function ModeToggle() {
         aria-pressed={isTldr}
         onClick={() => toggleBioMode()}
       >
-        <span aria-hidden="true" data-label-detail>
+        <span aria-hidden="true" data-label-full>
           Switch to TL;DR
         </span>
         <span aria-hidden="true" data-label-tldr>

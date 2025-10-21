@@ -7,7 +7,7 @@ import "../styles/global.css";
 ---
 
 <!doctype html>
-<html lang="en" data-bio-mode="detail">
+<html lang="en" data-bio-mode="full">
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
@@ -36,7 +36,7 @@ import "../styles/global.css";
         const readStoredMode = () => {
           try {
             const stored = window.localStorage.getItem(STORAGE_KEY);
-            if (stored === "detail" || stored === "tldr") {
+            if (stored === "full" || stored === "tldr") {
               return stored;
             }
           } catch (error) {
@@ -48,7 +48,7 @@ import "../styles/global.css";
           window.matchMedia &&
           window.matchMedia("(prefers-color-scheme: dark)").matches
             ? "tldr"
-            : "detail";
+            : "full";
 
         const mode = readStoredMode() ?? systemMode();
         root.dataset.bioMode = mode;

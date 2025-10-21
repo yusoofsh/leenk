@@ -125,12 +125,12 @@
   body {
     @apply bg-background text-foreground;
   }
-  [data-bio-mode="detail"] [data-mode="tldr"],
-  [data-bio-mode="detail"] [data-label-tldr] {
+  [data-bio-mode="full"] [data-mode="tldr"],
+  [data-bio-mode="full"] [data-label-tldr] {
     display: none !important;
   }
-  [data-bio-mode="tldr"] [data-mode="detail"],
-  [data-bio-mode="tldr"] [data-label-detail] {
+  [data-bio-mode="tldr"] [data-mode="full"],
+  [data-bio-mode="tldr"] [data-label-full] {
     display: none !important;
   }
 }

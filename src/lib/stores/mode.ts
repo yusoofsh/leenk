@@ -1,14 +1,14 @@
 import { persistentAtom } from "@nanostores/persistent";
 import { atom, computed } from "nanostores";
 
-export type BioMode = "detail" | "tldr";
+export type BioMode = "full" | "tldr";
 type BioPreference = "system" | BioMode;
 
 const STORAGE_KEY = "bio-mode";
 const isBrowser = typeof window !== "undefined";
 
 const decodePreference = (value?: string): BioPreference => {
-  if (value === "detail" || value === "tldr") {
+  if (value === "full" || value === "tldr") {
     return value;
   }
   return "system";
@@ -16,12 +16,12 @@ const decodePreference = (value?: string): BioPreference => {
 
 const getSystemMode = (): BioMode => {
   if (!isBrowser || typeof window.matchMedia !== "function") {
-    return "detail";
+    return "full";
   }
 
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "tldr"
-    : "detail";
+    : "full";
 };
 
 export const bioPreference = persistentAtom<BioPreference>(
@@ -45,7 +45,7 @@ export const setBioMode = (mode: BioMode) => {
 };
 
 export const toggleBioMode = () => {
-  const next = bioMode.get() === "tldr" ? "detail" : "tldr";
+  const next = bioMode.get() === "tldr" ? "full" : "tldr";
   bioPreference.set(next);
 };
 
