@@ -1,19 +1,19 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-	"name": "leenk",
-	"main": "./dist/_worker.js/index.js",
-	"compatibility_date": "2025-10-20",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"observability": {
-		"enabled": true,
-	},
-	"kv_namespaces": [
-		{
-			"binding": "leenk",
-			"id": "23b07fae29904744b846594b6f6010a7",
-			"remote": true
-		}
-	],
+  "name": "leenk",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2025-10-20",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": true,
+  "observability": {
+    "enabled": true,
+  },
+  "kv_namespaces": [
+    {
+      "binding": "leenk",
+      "id": "23b07fae29904744b846594b6f6010a7",
+      "remote": true,
+    },
+  ],
 }
