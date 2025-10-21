@@ -1,6 +1,6 @@
 import { useStore } from "@nanostores/react";
 
-import { bioMode, toggleBioMode } from "~/lib/stores/mode";
+import { bioMode, toggleBioMode } from "~/lib/stores/bio-mode";
 
 export function ModeToggle() {
   const mode = useStore(bioMode);

@@ -4,7 +4,7 @@ import { atom, computed } from "nanostores";
 export type BioMode = "full" | "tldr";
 type BioPreference = "system" | BioMode;
 
-const STORAGE_KEY = "bio-mode";
+const STORAGE_KEY = "bioMode";
 const isBrowser = typeof window !== "undefined";
 
 const decodePreference = (value?: string): BioPreference => {
