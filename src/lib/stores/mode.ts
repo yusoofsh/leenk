@@ -80,22 +80,14 @@ if (isBrowser) {
     systemMode.set(getSystemMode());
   };
 
-  if (typeof mediaQuery.addEventListener === "function") {
-    mediaQuery.addEventListener("change", updateSystemMode);
-  } else if (typeof mediaQuery.addListener === "function") {
-    mediaQuery.addListener(updateSystemMode);
-  }
+  mediaQuery.addEventListener("change", updateSystemMode);
 
   applyModeToDom(bioMode.get());
 
   const unsubscribe = bioMode.listen(applyModeToDom);
   cleanup = () => {
     unsubscribe();
-    if (typeof mediaQuery.removeEventListener === "function") {
-      mediaQuery.removeEventListener("change", updateSystemMode);
-    } else if (typeof mediaQuery.removeListener === "function") {
-      mediaQuery.removeListener(updateSystemMode);
-    }
+    mediaQuery.removeEventListener("change", updateSystemMode);
   };
 
   window.addEventListener("astro:page-leave", () => {
