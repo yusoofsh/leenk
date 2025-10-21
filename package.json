@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "astro build",
+    "deploy": "wrangler deploy",
     "dev": "astro dev",
     "prepare": "husky",
     "preview": "wrangler dev",
