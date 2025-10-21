@@ -7,14 +7,6 @@
   "workers_dev": true,
   "placement": { "mode": "smart" },
   "preview_urls": true,
-  "observability": {
-    "enabled": true,
-  },
-  "kv_namespaces": [
-    {
-      "binding": "leenk",
-      "id": "23b07fae29904744b846594b6f6010a7",
-      "remote": true,
-    },
-  ],
+  "observability": { "enabled": true },
+  "assets": { "binding": "ASSETS", "directory": "./dist" },
 }

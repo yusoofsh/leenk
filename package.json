@@ -4,10 +4,9 @@
   "type": "module",
   "scripts": {
     "build": "astro build",
-    "deploy": "wrangler deploy",
     "dev": "astro dev",
     "prepare": "husky",
-    "preview": "astro preview",
+    "preview": "wrangler dev",
     "quality": "eslint --fix . && prettier --write ."
   },
   "dependencies": {
