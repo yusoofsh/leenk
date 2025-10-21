@@ -5,6 +5,7 @@
   "compatibility_date": "2025-10-20",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
+  "placement": { "mode": "smart" },
   "preview_urls": true,
   "observability": {
     "enabled": true,
