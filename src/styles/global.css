@@ -122,8 +122,8 @@
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
+  a {
+    @apply underline decoration-2 underline-offset-2;
   }
   [data-bio-mode="full"] [data-mode="tldr"],
   [data-bio-mode="full"] [data-label-tldr] {
