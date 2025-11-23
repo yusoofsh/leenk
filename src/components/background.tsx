@@ -11,6 +11,29 @@ import {
 
 import { bioMode } from "~/lib/stores/bio-mode";
 import { cn } from "~/lib/utils";
+
+/**
+ * Star field configuration constants
+ */
+const STAR_CONFIG = {
+  /** Number of stars in the large layer */
+  LARGE_COUNT: 900,
+  /** Number of stars in the medium layer */
+  MEDIUM_COUNT: 600,
+  /** Number of stars in the small layer */
+  SMALL_COUNT: 300,
+  /** Size in pixels for large stars */
+  LARGE_SIZE: 2,
+  /** Size in pixels for medium stars */
+  MEDIUM_SIZE: 4,
+  /** Size in pixels for small stars */
+  SMALL_SIZE: 6,
+  /** Animation cycle distance in pixels */
+  ANIMATION_DISTANCE: 2000,
+  /** Maximum random position offset */
+  MAX_OFFSET: 2000,
+} as const;
+
 type StarLayerProps = HTMLMotionProps<"div"> & {
   count: number;
   size: number;
@@ -21,8 +44,12 @@ type StarLayerProps = HTMLMotionProps<"div"> & {
 function generateStars(count: number, starColor: string) {
   const shadows: string[] = [];
   for (let i = 0; i < count; i++) {
-    const x = Math.floor(Math.random() * 4000) - 2000;
-    const y = Math.floor(Math.random() * 4000) - 2000;
+    const x =
+      Math.floor(Math.random() * (STAR_CONFIG.MAX_OFFSET * 2)) -
+      STAR_CONFIG.MAX_OFFSET;
+    const y =
+      Math.floor(Math.random() * (STAR_CONFIG.MAX_OFFSET * 2)) -
+      STAR_CONFIG.MAX_OFFSET;
     shadows.push(`${x}px ${y}px ${starColor}`);
   }
   return shadows.join(", ");
@@ -45,9 +72,13 @@ function StarLayer({
   return (
     <motion.div
       data-slot="star-layer"
-      animate={{ y: [0, -2000] }}
+      animate={{ y: [0, -STAR_CONFIG.ANIMATION_DISTANCE] }}
       transition={transition}
-      className={cn("absolute top-0 left-0 h-[2000px] w-full", className)}
+      className={cn(
+        "absolute top-0 left-0 w-full",
+        `h-[${STAR_CONFIG.ANIMATION_DISTANCE}px]`,
+        className
+      )}
       {...props}
     >
       <div
@@ -59,8 +90,9 @@ function StarLayer({
         }}
       />
       <div
-        className="absolute top-[2000px] rounded-full bg-transparent"
+        className="absolute rounded-full bg-transparent"
         style={{
+          top: `${STAR_CONFIG.ANIMATION_DISTANCE}px`,
           width: `${size}px`,
           height: `${size}px`,
           boxShadow: boxShadow,
@@ -121,14 +153,14 @@ function StarsBackground({
         className={cn({ "pointer-events-none": !pointerEvents })}
       >
         <StarLayer
-          count={900}
-          size={2}
+          count={STAR_CONFIG.LARGE_COUNT}
+          size={STAR_CONFIG.LARGE_SIZE}
           transition={{ repeat: Infinity, duration: speed, ease: "circInOut" }}
           starColor={starColor}
         />
         <StarLayer
-          count={600}
-          size={4}
+          count={STAR_CONFIG.MEDIUM_COUNT}
+          size={STAR_CONFIG.MEDIUM_SIZE}
           transition={{
             repeat: Infinity,
             duration: speed * 2,
@@ -137,8 +169,8 @@ function StarsBackground({
           starColor={starColor}
         />
         <StarLayer
-          count={300}
-          size={6}
+          count={STAR_CONFIG.SMALL_COUNT}
+          size={STAR_CONFIG.SMALL_SIZE}
           transition={{
             repeat: Infinity,
             duration: speed * 3,
@@ -152,13 +184,13 @@ function StarsBackground({
   );
 }
 
-interface BackgroundProps {
-  className?: string;
-  [key: string]: any;
+interface BackgroundProps extends Omit<StarsBackgroundProps, 'starColor'> {
+  children?: React.ReactNode;
 }
 
 export const Background: React.FC<BackgroundProps> = ({
   className,
+  children,
   ...props
 }) => {
   const mode = useStore(bioMode);
@@ -171,8 +203,11 @@ export const Background: React.FC<BackgroundProps> = ({
       className={cn(
         "flex items-center justify-center rounded-xl",
         "bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
+        className
       )}
       {...props}
-    />
+    >
+      {children}
+    </StarsBackground>
   );
 };

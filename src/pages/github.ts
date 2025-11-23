@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 
+import { siteConfig } from "~/config/site";
+
 export const GET: APIRoute = ({ redirect }) => {
-  return redirect("https://github.com/yusoofsh", 308);
+  return redirect(siteConfig.social.github, 308);
 };

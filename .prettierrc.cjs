@@ -8,9 +8,5 @@ module.exports = {
       },
     },
   ],
-  plugins: [
-    "prettier-plugin-astro",
-    "prettier-plugin-tailwindcss",
-    "prettier-plugin-packagejson",
-  ],
+  plugins: ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
 };

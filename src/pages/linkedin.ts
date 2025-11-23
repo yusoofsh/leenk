@@ -1,5 +1,7 @@
 import type { APIRoute } from "astro";
 
+import { siteConfig } from "~/config/site";
+
 export const GET: APIRoute = ({ redirect }) => {
-  return redirect("https://linkedin.com/in/yusoofsh", 308);
+  return redirect(siteConfig.social.linkedin, 308);
 };
