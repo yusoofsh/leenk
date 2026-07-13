@@ -15,7 +15,7 @@ module.exports = {
    * Lint & prettify TS and JS files
    * @param {string[]} filenames
    */
-  "**/*.(astro|ts|js|cjs)": (filenames) => [
+  "**/*.(astro|ts|tsx|js|jsx|cjs)": (filenames) => [
     eslintCommand(filenames),
     prettierCommand(filenames),
   ],

@@ -1,1 +1,17 @@
-.gitignore
+# build output
+dist/
+
+# generated types and caches
+.astro/
+.wrangler/
+worker-configuration.d.ts
+
+# dependencies
+node_modules/
+
+# local environment files
+.env*
+.dev.vars*
+
+# macOS-specific files
+.DS_Store

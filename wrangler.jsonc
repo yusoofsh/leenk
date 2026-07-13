@@ -1,12 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "leenk",
-  "main": "./dist/_worker.js/index.js",
-  "compatibility_date": "2025-10-20",
+  "compatibility_date": "2026-07-13",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
   "placement": { "mode": "smart" },
   "preview_urls": true,
   "observability": { "enabled": true },
-  "assets": { "binding": "ASSETS", "directory": "./dist" },
 }

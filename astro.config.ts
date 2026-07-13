@@ -8,7 +8,6 @@ import path from "path";
 export default defineConfig({
   adapter: cloudflare({
     imageService: "cloudflare",
-    sessionKVBindingName: "leenk",
   }),
   integrations: [react()],
   output: "server",

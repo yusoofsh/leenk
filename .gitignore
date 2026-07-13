@@ -10,5 +10,9 @@ dist/
 # dependencies
 node_modules/
 
+# local environment files
+.env*
+.dev.vars*
+
 # macOS-specific files
 .DS_Store
