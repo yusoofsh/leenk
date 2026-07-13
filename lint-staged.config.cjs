@@ -1,27 +1,34 @@
 /**
  * @param {string[]} filenames
  */
-const eslintCommand = (filenames) =>
-  `eslint --quiet --fix ${filenames.join(" ")}`;
+const quoteFilenames = (filenames) => filenames.map(JSON.stringify).join(" ");
+
 /**
  * @param {string[]} filenames
  */
-const prettierCommand = (filenames) =>
-  `prettier --ignore-unknown --write ${filenames.join(" ")}`;
+const oxlintCommand = (filenames) =>
+  `oxlint --type-aware --fix ${quoteFilenames(filenames)}`;
+
+/**
+ * @param {string[]} filenames
+ */
+const oxfmtCommand = (filenames) =>
+  `oxfmt --write ${quoteFilenames(filenames)}`;
 
 /** @type {import('@types/lint-staged').Config} */
 module.exports = {
   /**
-   * Lint & prettify TS and JS files
+   * Lint and format JavaScript and TypeScript files.
    * @param {string[]} filenames
    */
-  "**/*.(astro|ts|tsx|js|jsx|cjs)": (filenames) => [
-    eslintCommand(filenames),
-    prettierCommand(filenames),
+  "**/*.{ts,tsx,js,jsx,cjs,mjs}": (filenames) => [
+    oxlintCommand(filenames),
+    oxfmtCommand(filenames),
   ],
   /**
-   * Prettify CSS, Markdown, and JSON files
+   * Format file types supported by Oxfmt.
    * @param {string[]} filenames
    */
-  "**/*.(css|md|json)": (filenames) => prettierCommand(filenames),
+  "**/*.{css,html,json,jsonc,md,toml,yaml,yml}": (filenames) =>
+    oxfmtCommand(filenames),
 };

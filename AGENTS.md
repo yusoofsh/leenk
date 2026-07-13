@@ -2,32 +2,33 @@
 
 ## Package Manager
 
-- Use Bun 1.3.14, pinned by `packageManager` and `bun.lock`.
-- Install with `bun install --frozen-lockfile`; do not create another lockfile.
+- Use Nub 0.2.10, pinned by `packageManager` and `lock.yaml`.
+- Install with `nub install --frozen-lockfile`; do not create another lockfile.
 
 ## Commands
 
 | Task                   | Command                |
 | ---------------------- | ---------------------- |
-| Development server     | `bun run dev`          |
-| Production build       | `bun run build`        |
-| Local Worker preview   | `bun run preview`      |
-| Type and Astro checks  | `bun run check`        |
-| Lint                   | `bun run lint`         |
-| Format check           | `bun run format:check` |
-| Wrangler binding types | `bun run types:check`  |
-| Full verification      | `bun run verify`       |
+| Development server     | `nub run dev`          |
+| Production build       | `nub run build`        |
+| Local Worker preview   | `nub run preview`      |
+| TypeScript check       | `nub run check`        |
+| Unit tests             | `nub run test`         |
+| Lint                   | `nub run lint`         |
+| Format check           | `nub run format:check` |
+| Wrangler binding types | `nub run types:check`  |
+| Full verification      | `nub run verify`       |
 
-- No test suite is configured; use the full verification gate and focused runtime checks.
-- `bun run quality` mutates files; use the read-only commands for audits and CI.
-- Never run `bun run deploy` without explicit production-deployment approval.
+- Oxfmt does not format `.astro`; Astro's compiler/build validates those files.
+- `nub run quality` mutates files; use the read-only commands for audits and CI.
+- Never run `nub run deploy` without explicit production-deployment approval.
 
 ## Architecture
 
 - Astro 7 with server-side rendering and React islands.
 - Cloudflare Workers deployment via `@astrojs/cloudflare` and `wrangler.jsonc`.
 - Tailwind CSS 4 with the typography plugin.
-- Strict TypeScript, ESLint accessibility rules, Prettier, and Husky/lint-staged.
+- TypeScript 7, Oxlint, Oxfmt, Vitest, and Husky/lint-staged.
 - Simple Analytics and a local Plus Jakarta Sans font.
 
 ## Repository Layout

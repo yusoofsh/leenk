@@ -8,21 +8,22 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 - React 19 islands
 - Tailwind CSS 4 and typography styles
 - Cloudflare Workers through `@astrojs/cloudflare` and Wrangler
-- TypeScript, ESLint, Prettier, Husky, and lint-staged
+- TypeScript 7, Oxlint, Oxfmt, Husky, and lint-staged
+- Vite 8 with Rolldown and Vitest 4
 - Simple Analytics and a self-hosted Plus Jakarta Sans font
 
 ## Requirements
 
-- Bun 1.3.14
+- Nub 0.2.10
 - Node.js 22.12.0 or newer
 
-The repository uses `bun.lock` as its only package-manager lockfile.
+The repository uses Nub's `lock.yaml` as its only package-manager lockfile.
 
 ## Development
 
 ```bash
-bun install --frozen-lockfile
-bun run dev
+nub install --frozen-lockfile
+nub run dev
 ```
 
 The development server is available at <http://localhost:4321> by default.
@@ -31,17 +32,18 @@ The development server is available at <http://localhost:4321> by default.
 
 | Task                               | Command                |
 | ---------------------------------- | ---------------------- |
-| Start the Astro development server | `bun run dev`          |
-| Build the production Worker        | `bun run build`        |
-| Preview through Wrangler           | `bun run preview`      |
-| Run Astro and TypeScript checks    | `bun run check`        |
-| Run ESLint                         | `bun run lint`         |
-| Check formatting                   | `bun run format:check` |
-| Check generated Wrangler types     | `bun run types:check`  |
-| Run all local verification gates   | `bun run verify`       |
-| Apply lint and formatting fixes    | `bun run quality`      |
+| Start the Astro development server | `nub run dev`          |
+| Build the production Worker        | `nub run build`        |
+| Preview through Wrangler           | `nub run preview`      |
+| Run the TypeScript check           | `nub run check`        |
+| Run unit tests                     | `nub run test`         |
+| Run Oxlint                         | `nub run lint`         |
+| Check Oxfmt formatting             | `nub run format:check` |
+| Check generated Wrangler types     | `nub run types:check`  |
+| Run all local verification gates   | `nub run verify`       |
+| Apply lint and formatting fixes    | `nub run quality`      |
 
-There is no separate test suite. CI runs linting, formatting, Astro/TypeScript checks, the production build, and a high-severity dependency audit.
+Oxfmt formats supported JavaScript, TypeScript, CSS, Markdown, and configuration files. It currently skips `.astro` files, which remain validated by Astro's compiler and production build. CI runs linting, formatting, TypeScript checks, unit tests, the production build, and a high-severity dependency audit.
 
 ## Project Structure
 
@@ -62,14 +64,14 @@ wrangler.jsonc         Cloudflare Worker and static-assets configuration
 The build produces an Astro server entry point and static assets in `dist/`. Preview the exact Worker configuration locally before deploying:
 
 ```bash
-bun run build
-bun run preview
+nub run build
+nub run preview
 ```
 
 Production deployment is intentionally explicit:
 
 ```bash
-bun run deploy
+nub run deploy
 ```
 
 Deploy only after local and CI verification pass. The deploy command changes production state and requires separate approval when run by an agent.
@@ -78,7 +80,7 @@ Deploy only after local and CI verification pass. The deploy command changes pro
 
 1. Create a short-lived branch.
 2. Make a focused change.
-3. Run `bun run verify`.
+3. Run `nub run verify`.
 4. Commit with a conventional commit message.
 5. Open a pull request and wait for CI.
 

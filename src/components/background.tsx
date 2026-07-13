@@ -15,10 +15,10 @@ import { cn } from "~/lib/utils";
 type BackgroundProps = React.ComponentProps<"div">;
 
 type StarLayerProps = HTMLMotionProps<"div"> & {
-  count: number;
-  size: number;
-  starColor: string;
-  transition: Transition;
+  count?: number;
+  size?: number;
+  starColor?: string;
+  transition?: Transition;
 };
 
 type StarsBackgroundProps = React.ComponentProps<"div"> & {
@@ -27,6 +27,17 @@ type StarsBackgroundProps = React.ComponentProps<"div"> & {
   speed?: number;
   starColor?: string;
   transition?: SpringOptions;
+};
+
+const defaultStarTransition: Transition = {
+  duration: 50,
+  ease: "linear",
+  repeat: Infinity,
+};
+
+const defaultSpringTransition: SpringOptions = {
+  damping: 20,
+  stiffness: 50,
 };
 
 function generateStars(count: number, starColor: string) {
@@ -44,7 +55,7 @@ function StarLayer({
   count = 1000,
   size = 1,
   starColor = "#fff",
-  transition = { duration: 50, ease: "linear", repeat: Infinity },
+  transition = defaultStarTransition,
   ...props
 }: StarLayerProps) {
   const [boxShadow, setBoxShadow] = React.useState<string>("");
@@ -89,7 +100,7 @@ function StarsBackground({
   pointerEvents = true,
   speed = 50,
   starColor = "#fff",
-  transition = { damping: 20, stiffness: 50 },
+  transition = defaultSpringTransition,
   ...props
 }: StarsBackgroundProps) {
   const offsetX = useMotionValue(1);

@@ -1,0 +1,16 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "printWidth": 80,
+  "sortPackageJson": {},
+  "sortTailwindcss": {},
+  "ignorePatterns": [
+    "dist/",
+    ".astro/",
+    ".wrangler/",
+    "worker-configuration.d.ts",
+    "node_modules/",
+    ".env*",
+    ".dev.vars*",
+    ".DS_Store"
+  ]
+}

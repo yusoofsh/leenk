@@ -2,7 +2,6 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "astro/tsconfigs/strictest",
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./src/*"]
     },
@@ -16,8 +15,6 @@
     "**/*.tsx",
     "**/*.js",
     "**/*.jsx",
-    ".prettierrc.cjs",
-    ".eslintrc.cjs",
     "lint-staged.config.cjs"
   ],
   "exclude": ["node_modules", "dist"]
