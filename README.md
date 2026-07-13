@@ -15,7 +15,7 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 ## Requirements
 
 - Nub 0.2.10
-- Node.js 22.12.0 or newer
+- Node.js 22.15.0 or newer
 
 The repository uses Nub's `lock.yaml` as its only package-manager lockfile.
 
