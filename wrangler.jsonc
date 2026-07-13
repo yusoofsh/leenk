@@ -6,5 +6,14 @@
   "workers_dev": true,
   "placement": { "mode": "smart" },
   "preview_urls": true,
-  "observability": { "enabled": true },
+  "r2_buckets": [{ "binding": "STATIC_FILES", "bucket_name": "leenk-static" }],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+    },
+    "traces": {
+      "enabled": true,
+    },
+  },
 }

@@ -59,6 +59,31 @@ public/                Static assets copied into the Worker bundle
 wrangler.jsonc         Cloudflare Worker and static-assets configuration
 ```
 
+## Static file hosting
+
+Files uploaded to `/static/<path>` are stored in the `leenk-static` R2 bucket and served directly
+from the same URL. Reads are public; uploads require the `STATIC_UPLOAD_TOKEN` Worker secret and
+accept a raw request body up to 100 MiB.
+
+Create the R2 bucket and upload secret once before the first deployment:
+
+```bash
+nub exec wrangler r2 bucket create leenk-static
+nub exec wrangler secret put STATIC_UPLOAD_TOKEN
+```
+
+Upload any binary file while preserving its media type:
+
+```bash
+curl https://www.yusoofsh.id/static/docs/guide.pdf \
+  -X POST \
+  -H "Authorization: Bearer $STATIC_UPLOAD_TOKEN" \
+  -H "Content-Type: application/pdf" \
+  --data-binary @guide.pdf
+```
+
+The same URL supports `GET` and `HEAD`. Uploading the same path again replaces the existing file.
+
 ## Deployment
 
 The build produces an Astro server entry point and static assets in `dist/`. Preview the exact Worker configuration locally before deploying:
