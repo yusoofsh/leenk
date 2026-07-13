@@ -17,12 +17,12 @@ export function ModeToggle() {
         Bio mode
       </span>
       <button
-        type="button"
+        aria-pressed={isTldr}
         className="relative inline-flex items-center gap-2 rounded-full bg-white px-3 py-1 text-[0.5rem] font-semibold tracking-[0.3em] text-slate-800 uppercase shadow transition hover:bg-slate-50 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-slate-400 sm:text-[0.6rem] md:text-xs dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
         data-mode-toggle
         data-state={mode}
-        aria-pressed={isTldr}
         onClick={() => toggleBioMode()}
+        type="button"
       >
         <span aria-hidden="true" data-label-full>
           Switch to TL;DR

@@ -4,6 +4,23 @@ import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
 import { Background } from "../components/background";
 
 import "../styles/global.css";
+
+interface Props {
+  canonical?: false | string;
+  description?: string;
+  robots?: string;
+  title?: string;
+}
+
+const defaultDescription =
+  "Malang-based full-stack/DevOps engineer. Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TypeScript/React, Hono/Bun, Docker/Traefik/Tailscale, OpenTelemetry/Sentry, UU PDP-aware.";
+const defaultTitle = "Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia";
+const {
+  canonical = "https://www.yusoofsh.id/",
+  description = defaultDescription,
+  robots = "index,follow",
+  title = defaultTitle,
+} = Astro.props;
 ---
 
 <!doctype html>
@@ -11,7 +28,7 @@ import "../styles/global.css";
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
-    <link href="favicon.ico" rel="icon" type="image/svg+xml" />
+    <link href="/favicon.ico" rel="icon" type="image/x-icon" />
     <link rel="manifest" href="/manifest.json" />
     <link
       rel="preload"
@@ -31,42 +48,23 @@ import "../styles/global.css";
       name="theme-color"
     />
     <meta content={Astro.generator} name="generator" />
-    <meta
-      name="description"
-      content="Malang-based full-stack/DevOps engineer. Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TypeScript/React, Hono/Bun, Docker/Traefik/Tailscale, OpenTelemetry/Sentry, UU PDP-aware."
-    />
-    <link rel="canonical" href="https://www.yusoofsh.id/" />
+    <meta name="description" content={description} />
+    {canonical && <link rel="canonical" href={canonical} />}
     <meta name="author" content="Yusoof Moh" />
-    <meta name="robots" content="index,follow" />
+    <meta name="robots" content={robots} />
     <meta
       name="keywords"
       content="Yusoof Moh, full-stack engineer Indonesia, DevOps Indonesia, TypeScript React, Hono Bun, Docker Traefik Tailscale, OpenTelemetry Sentry, UU PDP compliance, Nadi, YDSF, crowdfunding platform"
     />
     <meta property="og:type" content="profile" />
-    <meta
-      property="og:title"
-      content="Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia"
-    />
-    <meta
-      property="og:description"
-      content="Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TS/React, Hono/Bun, Docker/Traefik, OpenTelemetry/Sentry."
-    />
-    <meta property="og:url" content="https://www.yusoofsh.id/" />
-    <meta
-      property="og:image:alt"
-      content="Portrait and tech stack summary of Yusoof Moh"
-    />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {canonical && <meta property="og:url" content={canonical} />}
     <meta property="og:locale" content="en_US" />
     <meta property="og:locale:alternate" content="id_ID" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia"
-    />
-    <meta
-      name="twitter:description"
-      content="Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TS/React, Hono/Bun, Docker/Traefik, OpenTelemetry/Sentry."
-    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <script is:inline>
       (() => {
         if (typeof document === "undefined") {
@@ -98,7 +96,7 @@ import "../styles/global.css";
         root.classList.toggle("dark", mode === "tldr");
       })();
     </script>
-    <title>Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia</title>
+    <title>{title}</title>
     <AstroFont
       config={[
         {
@@ -116,22 +114,23 @@ import "../styles/global.css";
       ]}
     />
     <script>
+      type AnalyticsEvent = ((...args: unknown[]) => void) & {
+        q?: unknown[][];
+      };
+
       declare global {
         interface Window {
-          sa_event: any;
+          sa_event?: AnalyticsEvent;
         }
       }
 
-      const saEvent = function () {
-        var a = [].slice.call(arguments);
-        window.sa_event.q
-          ? window.sa_event.q.push(a)
-          : (window.sa_event.q = [a]);
+      const saEvent: AnalyticsEvent = (...args) => {
+        saEvent.q ? saEvent.q.push(args) : (saEvent.q = [args]);
       };
 
-      window.sa_event = window.sa_event || saEvent;
+      window.sa_event ??= saEvent;
     </script>
-    <script type="application/ld+json">
+    <script is:inline type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Person",
@@ -139,7 +138,6 @@ import "../styles/global.css";
         "alternateName": "Yusoof",
         "jobTitle": "Full-Stack/DevOps Engineer",
         "url": "https://www.yusoofsh.id/",
-        "image": "https://www.yusoofsh.id/og-image.jpg",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "Malang",
@@ -179,7 +177,11 @@ import "../styles/global.css";
     </script>
   </head>
   <body>
-    <main>
+    <a
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-slate-950 focus:shadow-lg"
+      href="#main-content">Skip to content</a
+    >
+    <main id="main-content">
       <Background client:load>
         <slot />
       </Background>

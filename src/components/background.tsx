@@ -1,21 +1,32 @@
-import React from "react";
 import { useStore } from "@nanostores/react";
 import {
   type HTMLMotionProps,
   motion,
-  useMotionValue,
-  useSpring,
   type SpringOptions,
   type Transition,
+  useMotionValue,
+  useReducedMotion,
+  useSpring,
 } from "motion/react";
+import React from "react";
 
 import { bioMode } from "~/lib/stores/bio-mode";
 import { cn } from "~/lib/utils";
+type BackgroundProps = React.ComponentProps<"div">;
+
 type StarLayerProps = HTMLMotionProps<"div"> & {
   count: number;
   size: number;
-  transition: Transition;
   starColor: string;
+  transition: Transition;
+};
+
+type StarsBackgroundProps = React.ComponentProps<"div"> & {
+  factor?: number;
+  pointerEvents?: boolean;
+  speed?: number;
+  starColor?: string;
+  transition?: SpringOptions;
 };
 
 function generateStars(count: number, starColor: string) {
@@ -29,14 +40,15 @@ function generateStars(count: number, starColor: string) {
 }
 
 function StarLayer({
+  className,
   count = 1000,
   size = 1,
-  transition = { repeat: Infinity, duration: 50, ease: "linear" },
   starColor = "#fff",
-  className,
+  transition = { duration: 50, ease: "linear", repeat: Infinity },
   ...props
 }: StarLayerProps) {
   const [boxShadow, setBoxShadow] = React.useState<string>("");
+  const shouldReduceMotion = useReducedMotion();
 
   React.useEffect(() => {
     setBoxShadow(generateStars(count, starColor));
@@ -44,117 +56,109 @@ function StarLayer({
 
   return (
     <motion.div
-      data-slot="star-layer"
-      animate={{ y: [0, -2000] }}
-      transition={transition}
+      animate={shouldReduceMotion ? false : { y: [0, -2000] }}
       className={cn("absolute top-0 left-0 h-[2000px] w-full", className)}
+      data-slot="star-layer"
+      transition={transition}
       {...props}
     >
       <div
         className="absolute rounded-full bg-transparent"
         style={{
-          width: `${size}px`,
-          height: `${size}px`,
           boxShadow: boxShadow,
+          height: `${size}px`,
+          width: `${size}px`,
         }}
       />
       <div
         className="absolute top-[2000px] rounded-full bg-transparent"
         style={{
-          width: `${size}px`,
-          height: `${size}px`,
           boxShadow: boxShadow,
+          height: `${size}px`,
+          width: `${size}px`,
         }}
       />
     </motion.div>
   );
 }
 
-type StarsBackgroundProps = React.ComponentProps<"div"> & {
-  factor?: number;
-  speed?: number;
-  transition?: SpringOptions;
-  starColor?: string;
-  pointerEvents?: boolean;
-};
-
 function StarsBackground({
   children,
   className,
   factor = 0.05,
-  speed = 50,
-  transition = { stiffness: 50, damping: 20 },
-  starColor = "#fff",
   pointerEvents = true,
+  speed = 50,
+  starColor = "#fff",
+  transition = { damping: 20, stiffness: 50 },
   ...props
 }: StarsBackgroundProps) {
   const offsetX = useMotionValue(1);
   const offsetY = useMotionValue(1);
+  const shouldReduceMotion = useReducedMotion();
 
   const springX = useSpring(offsetX, transition);
   const springY = useSpring(offsetY, transition);
 
-  const handleMouseMove = React.useCallback(
-    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handlePointerMove = React.useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      if (shouldReduceMotion) {
+        return;
+      }
+
       const centerX = window.innerWidth / 2;
       const centerY = window.innerHeight / 2;
-      const newOffsetX = -(e.clientX - centerX) * factor;
-      const newOffsetY = -(e.clientY - centerY) * factor;
+      const newOffsetX = -(event.clientX - centerX) * factor;
+      const newOffsetY = -(event.clientY - centerY) * factor;
       offsetX.set(newOffsetX);
       offsetY.set(newOffsetY);
     },
-    [offsetX, offsetY, factor],
+    [factor, offsetX, offsetY, shouldReduceMotion],
   );
 
   return (
     <div
-      data-slot="stars-background"
       className={cn(
         "relative min-h-screen w-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
         className,
       )}
-      onMouseMove={handleMouseMove}
+      data-slot="stars-background"
+      onPointerMove={handlePointerMove}
       {...props}
     >
       <motion.div
-        style={{ x: springX, y: springY }}
         className={cn({ "pointer-events-none": !pointerEvents })}
+        style={shouldReduceMotion ? {} : { x: springX, y: springY }}
       >
         <StarLayer
           count={900}
           size={2}
-          transition={{ repeat: Infinity, duration: speed, ease: "circInOut" }}
           starColor={starColor}
+          transition={{ duration: speed, ease: "circInOut", repeat: Infinity }}
         />
         <StarLayer
           count={600}
           size={4}
+          starColor={starColor}
           transition={{
-            repeat: Infinity,
             duration: speed * 2,
             ease: "circInOut",
+            repeat: Infinity,
           }}
-          starColor={starColor}
         />
         <StarLayer
           count={300}
           size={6}
+          starColor={starColor}
           transition={{
-            repeat: Infinity,
             duration: speed * 3,
             ease: "circInOut",
+            repeat: Infinity,
           }}
-          starColor={starColor}
         />
       </motion.div>
       {children}
     </div>
   );
-}
-
-interface BackgroundProps {
-  className?: string;
-  [key: string]: any;
 }
 
 export const Background: React.FC<BackgroundProps> = ({
@@ -167,11 +171,12 @@ export const Background: React.FC<BackgroundProps> = ({
 
   return (
     <StarsBackground
-      starColor={starColor}
       className={cn(
         "flex items-center justify-center rounded-xl",
         "bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
+        className,
       )}
+      starColor={starColor}
       {...props}
     />
   );
