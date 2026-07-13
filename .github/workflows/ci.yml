@@ -20,7 +20,7 @@ jobs:
       - name: Set up Nub and Node.js
         uses: nubjs/setup-nub@v0.4.0
         with:
-          node-version: 24
+          node-version: 26.5.0
           nub-version: 0.2.10
 
       - name: Install dependencies
