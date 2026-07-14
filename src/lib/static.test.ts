@@ -6,7 +6,7 @@ import {
   type StaticFileMetadata,
   type StaticFileObject,
   type StaticFileStorage,
-} from "./static-files";
+} from "./static";
 
 class MemoryStaticFileStorage implements StaticFileStorage {
   readonly objects = new Map<
@@ -41,6 +41,10 @@ class MemoryStaticFileStorage implements StaticFileStorage {
     };
     this.objects.set(key, object);
     return this.toObject(key, object, false);
+  }
+
+  async delete(key: string): Promise<void> {
+    this.objects.delete(key);
   }
 
   private toObject(
@@ -267,10 +271,149 @@ describe("handleStaticFileRequest", () => {
     expect(storage.objects.size).toBe(0);
   });
 
+  it("rejects a delete without the bearer token", async () => {
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("docs/guide.pdf", {
+      body: new Uint8Array([37, 80, 68, 70]),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "application/pdf",
+      },
+      uploaded: new Date("2026-07-13T00:00:00Z"),
+    });
+    const request = new Request(
+      "https://www.yusoofsh.id/static/docs/guide.pdf",
+      { method: "DELETE" },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "docs/guide.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(401);
+    expect(storage.objects.has("docs/guide.pdf")).toBe(true);
+  });
+
+  it("rejects a delete with the wrong bearer token", async () => {
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("docs/guide.pdf", {
+      body: new Uint8Array([37, 80, 68, 70]),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "application/pdf",
+      },
+      uploaded: new Date("2026-07-13T00:00:00Z"),
+    });
+    const request = new Request(
+      "https://www.yusoofsh.id/static/docs/guide.pdf",
+      {
+        method: "DELETE",
+        headers: { authorization: "Bearer wrong-token" },
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "docs/guide.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(401);
+    expect(response.headers.get("www-authenticate")).toBe("Bearer");
+    expect(storage.objects.has("docs/guide.pdf")).toBe(true);
+  });
+
+  it("rejects a delete when the Worker secret is not configured", async () => {
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("docs/guide.pdf", {
+      body: new Uint8Array([37, 80, 68, 70]),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "application/pdf",
+      },
+      uploaded: new Date("2026-07-13T00:00:00Z"),
+    });
+    const request = new Request(
+      "https://www.yusoofsh.id/static/docs/guide.pdf",
+      {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token}` },
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "docs/guide.pdf",
+      storage,
+      undefined,
+    );
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: {
+        code: "DELETE_NOT_CONFIGURED",
+        message: "Static file deletion is not configured",
+      },
+    });
+    expect(storage.objects.has("docs/guide.pdf")).toBe(true);
+  });
+
+  it("deletes an object with the bearer token", async () => {
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("docs/guide.pdf", {
+      body: new Uint8Array([37, 80, 68, 70]),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "application/pdf",
+      },
+      uploaded: new Date("2026-07-13T00:00:00Z"),
+    });
+    const request = new Request(
+      "https://www.yusoofsh.id/static/docs/guide.pdf",
+      {
+        method: "DELETE",
+        headers: { authorization: `Bearer ${token}` },
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "docs/guide.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe("");
+    expect(storage.objects.has("docs/guide.pdf")).toBe(false);
+  });
+
+  it("treats deletion of a missing object as success", async () => {
+    const storage = new MemoryStaticFileStorage();
+    const request = new Request("https://www.yusoofsh.id/static/missing.pdf", {
+      method: "DELETE",
+      headers: { authorization: `Bearer ${token}` },
+    });
+
+    const response = await handleStaticFileRequest(
+      request,
+      "missing.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(204);
+    expect(storage.objects.size).toBe(0);
+  });
+
   it("returns Allow for unsupported methods", async () => {
     const storage = new MemoryStaticFileStorage();
     const request = new Request("https://www.yusoofsh.id/static/example.html", {
-      method: "DELETE",
+      method: "PATCH",
     });
 
     const response = await handleStaticFileRequest(
@@ -281,6 +424,6 @@ describe("handleStaticFileRequest", () => {
     );
 
     expect(response.status).toBe(405);
-    expect(response.headers.get("allow")).toBe("GET, HEAD, POST");
+    expect(response.headers.get("allow")).toBe("GET, HEAD, POST, DELETE");
   });
 });

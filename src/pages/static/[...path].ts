@@ -6,7 +6,7 @@ import {
   type StaticFileMetadata,
   type StaticFileObject,
   type StaticFileStorage,
-} from "~/lib/static-files";
+} from "~/lib/static";
 
 function toStaticFileObject(object: R2Object | R2ObjectBody): StaticFileObject {
   const metadata = object.httpMetadata;
@@ -32,6 +32,9 @@ function toStaticFileObject(object: R2Object | R2ObjectBody): StaticFileObject {
 
 function createStorage(bucket: R2Bucket): StaticFileStorage {
   return {
+    async delete(key) {
+      await bucket.delete(key);
+    },
     async get(key) {
       const object = await bucket.get(key);
       return object ? toStaticFileObject(object) : null;
@@ -64,4 +67,5 @@ const route: APIRoute = ({ params, request }) => {
 export const GET = route;
 export const HEAD = route;
 export const POST = route;
+export const DELETE = route;
 export const ALL = route;

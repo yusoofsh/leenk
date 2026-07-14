@@ -62,8 +62,8 @@ wrangler.jsonc         Cloudflare Worker and static-assets configuration
 ## Static file hosting
 
 Files uploaded to `/static/<path>` are stored in the `leenk-static` R2 bucket and served directly
-from the same URL. Reads are public; uploads require the `STATIC_UPLOAD_TOKEN` Worker secret and
-accept a raw request body up to 100 MiB.
+from the same URL. Reads are public; uploads and deletes require the `STATIC_UPLOAD_TOKEN` Worker
+secret. Uploads accept a raw request body up to 100 MiB.
 
 Create the R2 bucket and upload secret once before the first deployment:
 
@@ -75,14 +75,20 @@ nub exec wrangler secret put STATIC_UPLOAD_TOKEN
 Upload any binary file while preserving its media type:
 
 ```bash
-curl https://www.yusoofsh.id/static/docs/guide.pdf \
-  -X POST \
-  -H "Authorization: Bearer $STATIC_UPLOAD_TOKEN" \
-  -H "Content-Type: application/pdf" \
-  --data-binary @guide.pdf
+printf 'header = "Authorization: Bearer %s"\n' "$STATIC_UPLOAD_TOKEN" | \
+  curl --config - https://www.yusoofsh.id/static/docs/guide.pdf \
+    -X POST \
+    -H "Content-Type: application/pdf" \
+    --data-binary @guide.pdf
 ```
 
-The same URL supports `GET` and `HEAD`. Uploading the same path again replaces the existing file.
+The same URL supports public `GET` and `HEAD`. Uploading the same path again replaces the existing
+file. Authenticated deletion is idempotent and returns `204 No Content`:
+
+```bash
+printf 'header = "Authorization: Bearer %s"\n' "$STATIC_UPLOAD_TOKEN" | \
+  curl --config - https://www.yusoofsh.id/static/docs/guide.pdf -X DELETE
+```
 
 ## Deployment
 

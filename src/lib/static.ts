@@ -1,7 +1,7 @@
 export const MAX_STATIC_FILE_SIZE = 100 * 1024 * 1024;
 
 const DEFAULT_CACHE_CONTROL = "public, max-age=300";
-const ALLOWED_METHODS = "GET, HEAD, POST";
+const ALLOWED_METHODS = "GET, HEAD, POST, DELETE";
 const MAX_OBJECT_KEY_LENGTH = 1_024;
 
 export interface StaticFileMetadata {
@@ -21,6 +21,7 @@ export interface StaticFileObject {
 }
 
 export interface StaticFileStorage {
+  delete(key: string): Promise<void>;
   get(key: string): Promise<StaticFileObject | null>;
   head(key: string): Promise<StaticFileObject | null>;
   put(
@@ -50,6 +51,8 @@ export async function handleStaticFileRequest(
         return serveObject(await storage.head(key), true);
       case "POST":
         return uploadObject(request, key, storage, uploadToken);
+      case "DELETE":
+        return deleteObject(request, key, storage, uploadToken);
       default:
         return apiError(405, "METHOD_NOT_ALLOWED", "Method not allowed", {
           Allow: ALLOWED_METHODS,
@@ -82,23 +85,13 @@ async function uploadObject(
   storage: StaticFileStorage,
   uploadToken: string | undefined,
 ): Promise<Response> {
-  if (!uploadToken) {
-    return apiError(
-      503,
-      "UPLOAD_NOT_CONFIGURED",
-      "Static file uploads are not configured",
-    );
-  }
-
-  const authorization = request.headers.get("authorization");
-  const providedToken = authorization?.startsWith("Bearer ")
-    ? authorization.slice("Bearer ".length)
-    : "";
-  if (!providedToken || !(await tokensMatch(providedToken, uploadToken))) {
-    return apiError(401, "UNAUTHORIZED", "A valid upload token is required", {
-      "WWW-Authenticate": "Bearer",
-    });
-  }
+  const authError = await authorizeMutation(
+    request,
+    uploadToken,
+    "UPLOAD_NOT_CONFIGURED",
+    "Static file uploads are not configured",
+  );
+  if (authError) return authError;
 
   const contentLength = parseContentLength(
     request.headers.get("content-length"),
@@ -144,6 +137,50 @@ async function uploadObject(
       headers: { "Cache-Control": "no-store" },
     },
   );
+}
+
+async function deleteObject(
+  request: Request,
+  key: string,
+  storage: StaticFileStorage,
+  uploadToken: string | undefined,
+): Promise<Response> {
+  const authError = await authorizeMutation(
+    request,
+    uploadToken,
+    "DELETE_NOT_CONFIGURED",
+    "Static file deletion is not configured",
+  );
+  if (authError) return authError;
+
+  await storage.delete(key);
+  return new Response(null, {
+    status: 204,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
+
+async function authorizeMutation(
+  request: Request,
+  uploadToken: string | undefined,
+  unavailableCode: string,
+  unavailableMessage: string,
+): Promise<Response | null> {
+  if (!uploadToken) {
+    return apiError(503, unavailableCode, unavailableMessage);
+  }
+
+  const authorization = request.headers.get("authorization");
+  const providedToken = authorization?.startsWith("Bearer ")
+    ? authorization.slice("Bearer ".length)
+    : "";
+  if (!providedToken || !(await tokensMatch(providedToken, uploadToken))) {
+    return apiError(401, "UNAUTHORIZED", "A valid upload token is required", {
+      "WWW-Authenticate": "Bearer",
+    });
+  }
+
+  return null;
 }
 
 function serveObject(
