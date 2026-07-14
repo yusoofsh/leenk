@@ -87,7 +87,9 @@ file. Authenticated deletion is idempotent and returns `204 No Content`:
 
 ```bash
 printf 'header = "Authorization: Bearer %s"\n' "$STATIC_UPLOAD_TOKEN" | \
-  curl --config - https://www.yusoofsh.id/static/docs/guide.pdf -X DELETE
+  curl --config - https://www.yusoofsh.id/static/docs/guide.pdf \
+    -X DELETE \
+    -H "Content-Type: application/octet-stream"
 ```
 
 ## Deployment
