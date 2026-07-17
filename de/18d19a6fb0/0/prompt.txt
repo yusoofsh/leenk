@@ -1,0 +1,11 @@
+<user_shell_command>
+<command>
+code .
+</command>
+<result>
+Exit code: 0
+Duration: 1.6124 seconds
+Output:
+
+</result>
+</user_shell_command>
