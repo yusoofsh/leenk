@@ -1,0 +1,1 @@
+add a static file serve under yusoofs.id/static/ i.e. i want to put html/pdf/png that being served directly. uploading there must be a simple a post request with the binary data.
