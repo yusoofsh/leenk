@@ -1,0 +1,16 @@
+• You ran /Users/yusoofsh/.scripts/leenk-static auth
+  └
+     ⛅️ wrangler 4.110.0
+    ────────────────────
+    🌀 Creating the secret for the Worker "leenk"
+    ✨ Success! Uploaded secret STATIC_UPLOAD_TOKEN
+    Authentication configured in macOS Keychain.
+    password data for new item: retype password for new item: passwords don't match
+    password data for new item: retype password for new item: Rotating the production upload credential...
+
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+• You ran ~/.scripts/leenk-static upload /Users/yusoofsh/.agent/diagrams/w-logpro-prd-visual-1.9.html
+  └ Uploading /Users/yusoofsh/.agent/diagrams/w-logpro-prd-visual-1.9.html to https://www.yusoofsh.id/static/w-logpro-prd-visual-1.9.html...
+    curl: (22) The requested URL returned error: 401
+    Error: upload failed
