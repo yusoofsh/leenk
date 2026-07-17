@@ -1,0 +1,13 @@
+<user_shell_command>
+<command>
+git push origin main
+</command>
+<result>
+Exit code: 0
+Duration: 5.8527 seconds
+Output:
+To github.com:yusoofsh/leenk.git
+   d2b06ce..f57cb5c  main -> main
+
+</result>
+</user_shell_command>
