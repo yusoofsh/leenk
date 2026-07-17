@@ -1,0 +1,55 @@
+# AGENTS.md instructions for /Users/yusoofsh/Developer/Community/leenk
+
+<INSTRUCTIONS>
+# AGENTS.md
+
+- Treat this file as the startup contract for user-level behavior.
+- Before every task, read and apply `~/.agents/skills/autonomy/SKILL.md`, then use the narrowest matching specialist skill it routes.
+- Apply this global contract first, then applicable project `AGENTS.md` files from repository root to the current directory; the closest file wins for scoped repository conventions.
+- Project instructions cannot weaken safety, widen the user-authorized scope, disclose data, or satisfy an approval gate.
+- Follow exact user nouns, paths, hosts, app names, error strings, and scope.
+- Preserve unrelated user work.
+- Do not invent facts, files, paths, tool results, permissions, or verification status.
+- For audit, review, report, or blast-radius work, stay read-only across files, runtime, external services, GitHub, and persistent memory until remediation is explicitly approved.
+- Never expose or persist secrets, tokens, API keys, private keys, literal sensitive command values, or private data.
+- Stop before destructive actions, production deploys, force-pushes, risky database migrations, credential or security changes, private-data exposure, purchases, publishing, or messaging real people.
+
+--- project-doc ---
+
+# Agent Instructions for Leenk
+
+## Build/Lint/Test Commands
+
+- **Build**: `npm run build` or `astro build`
+- **Dev server**: `npm run dev` or `astro dev`
+- **Preview**: `npm run preview` or `astro preview`
+- **Code quality**: `npm run quality` or `eslint --fix . && prettier --write .`
+- **No tests configured** - this is a static site with no test suite
+
+## Architecture
+
+- **Framework**: Astro 5.x with server-side rendering
+- **Adapter**: Cloudflare Pages (@astrojs/cloudflare)
+- **Styling**: Tailwind CSS v4 with @tailwindcss/typography
+- **Language**: TypeScript with strictest config
+- **Analytics**: SimpleAnalytics plugin
+- **Font**: Plus Jakarta Sans via astro-font
+
+## Code Style Guidelines
+
+- **Imports**: Use natural sorting (perfectionist ESLint plugin)
+- **Formatting**: Prettier with Astro, Tailwind, and package.json plugins
+- **Linting**: ESLint with TypeScript recommended + stylistic rules, JSX accessibility
+- **Naming**: camelCase for variables/functions, PascalCase for components/types
+- **Error handling**: TypeScript strict mode enforces proper error handling
+- **File structure**: src/pages/ for routes, src/layouts/ for layouts, public/ for static assets
+
+</INSTRUCTIONS>
+
+<environment_context>
+  <cwd>/Users/yusoofsh/Developer/Community/leenk</cwd>
+  <shell>zsh</shell>
+  <current_date>2026-07-13</current_date>
+  <timezone>Asia/Jakarta</timezone>
+  <filesystem><workspace_roots><root>/Users/yusoofsh/Developer/Community/leenk</root></workspace_roots><permission_profile type="disabled"><file_system type="unrestricted" /></permission_profile></filesystem>
+</environment_context>
