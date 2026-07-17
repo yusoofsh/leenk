@@ -10,6 +10,11 @@ import {
 
 function toStaticFileObject(object: R2Object | R2ObjectBody): StaticFileObject {
   const metadata = object.httpMetadata;
+  const expiresAtValue = object.customMetadata?.expiresAt;
+  const expiresAt = expiresAtValue ? new Date(expiresAtValue) : undefined;
+  if (expiresAt && !Number.isFinite(expiresAt.getTime())) {
+    throw new Error("Static file has invalid expiration metadata");
+  }
   const result: StaticFileObject = {
     body: "body" in object ? object.body : null,
     httpEtag: object.httpEtag,
@@ -20,6 +25,7 @@ function toStaticFileObject(object: R2Object | R2ObjectBody): StaticFileObject {
     size: object.size,
     uploaded: object.uploaded,
   };
+  if (expiresAt) result.expiresAt = expiresAt;
   if (metadata?.contentDisposition) {
     result.metadata.contentDisposition = metadata.contentDisposition;
   }
@@ -43,8 +49,13 @@ function createStorage(bucket: R2Bucket): StaticFileStorage {
       const object = await bucket.head(key);
       return object ? toStaticFileObject(object) : null;
     },
-    async put(key, value, metadata: StaticFileMetadata) {
-      const object = await bucket.put(key, value, { httpMetadata: metadata });
+    async put(key, value, metadata: StaticFileMetadata, expiresAt?: Date) {
+      const object = await bucket.put(key, value, {
+        httpMetadata: metadata,
+        ...(expiresAt
+          ? { customMetadata: { expiresAt: expiresAt.toISOString() } }
+          : {}),
+      });
       return toStaticFileObject(object);
     },
   };

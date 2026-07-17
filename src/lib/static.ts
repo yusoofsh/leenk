@@ -1,8 +1,10 @@
 export const MAX_STATIC_FILE_SIZE = 100 * 1024 * 1024;
+export const DEFAULT_STATIC_FILE_TTL_MS = 14 * 24 * 60 * 60 * 1_000;
 
 const DEFAULT_CACHE_CONTROL = "public, max-age=300";
 const ALLOWED_METHODS = "GET, HEAD, POST, DELETE";
 const MAX_OBJECT_KEY_LENGTH = 1_024;
+const EXPIRATION_HEADER = "X-Static-Expires-In";
 
 export interface StaticFileMetadata {
   cacheControl: string;
@@ -14,6 +16,7 @@ export interface StaticFileMetadata {
 
 export interface StaticFileObject {
   body: ReadableStream<Uint8Array> | null;
+  expiresAt?: Date;
   httpEtag: string;
   metadata: StaticFileMetadata;
   size: number;
@@ -28,6 +31,7 @@ export interface StaticFileStorage {
     key: string,
     value: ReadableStream<Uint8Array>,
     metadata: StaticFileMetadata,
+    expiresAt?: Date,
   ): Promise<StaticFileObject>;
 }
 
@@ -118,9 +122,19 @@ async function uploadObject(
     );
   }
 
+  const expiration = parseExpiration(request.headers.get(EXPIRATION_HEADER));
+  if (expiration.error) {
+    return apiError(400, "INVALID_EXPIRATION", expiration.error);
+  }
+
   const metadata = requestMetadata(request.headers);
   // Keep the original request stream: R2 requires its Workers-specific known-length marker.
-  const object = await storage.put(key, request.body, metadata);
+  const object = await storage.put(
+    key,
+    request.body,
+    metadata,
+    expiration.expiresAt ?? undefined,
+  );
   const url = new URL(request.url);
   url.search = "";
   url.hash = "";
@@ -128,6 +142,7 @@ async function uploadObject(
   return Response.json(
     {
       etag: object.httpEtag,
+      expiresAt: expiration.expiresAt?.toISOString() ?? null,
       path: key,
       size: object.size,
       url: url.toString(),
@@ -189,8 +204,26 @@ function serveObject(
 ): Response {
   if (!object) return apiError(404, "NOT_FOUND", "Static file not found");
 
+  if (object.expiresAt && object.expiresAt.getTime() <= Date.now()) {
+    const headers = expirationHeaders(object.expiresAt);
+    const response = apiError(
+      410,
+      "EXPIRED",
+      "Static file has expired",
+      headers,
+    );
+    return headOnly
+      ? new Response(null, {
+          status: response.status,
+          headers: response.headers,
+        })
+      : response;
+  }
+
   const headers = new Headers({
-    "Cache-Control": object.metadata.cacheControl,
+    "Cache-Control": object.expiresAt
+      ? "no-store"
+      : object.metadata.cacheControl,
     "Content-Length": String(object.size),
     "Content-Type": object.metadata.contentType,
     ETag: object.httpEtag,
@@ -212,8 +245,51 @@ function serveObject(
     "Content-Language",
     object.metadata.contentLanguage,
   );
+  if (object.expiresAt) {
+    const expiresAtHeaders = expirationHeaders(object.expiresAt);
+    for (const [name, value] of expiresAtHeaders) headers.set(name, value);
+  }
 
   return new Response(headOnly ? null : object.body, { headers });
+}
+
+function parseExpiration(value: string | null): {
+  error?: string;
+  expiresAt?: Date | null;
+} {
+  if (value === "never") return { expiresAt: null };
+  if (value === null) {
+    return { expiresAt: new Date(Date.now() + DEFAULT_STATIC_FILE_TTL_MS) };
+  }
+
+  const match = /^(?<amount>[1-9]\d*)(?<unit>[mhd])$/.exec(value);
+  if (!match?.groups) return { error: invalidExpirationMessage() };
+
+  const amount = Number(match.groups.amount);
+  const multiplier =
+    match.groups.unit === "m"
+      ? 60 * 1_000
+      : match.groups.unit === "h"
+        ? 60 * 60 * 1_000
+        : 24 * 60 * 60 * 1_000;
+  const ttl = amount * multiplier;
+  const expiresAt = new Date(Date.now() + ttl);
+  if (!Number.isSafeInteger(ttl) || !Number.isFinite(expiresAt.getTime())) {
+    return { error: invalidExpirationMessage() };
+  }
+
+  return { expiresAt };
+}
+
+function invalidExpirationMessage(): string {
+  return "X-Static-Expires-In must be 'never' or a duration such as 30m, 12h, or 14d";
+}
+
+function expirationHeaders(expiresAt: Date): Headers {
+  return new Headers({
+    Expires: expiresAt.toUTCString(),
+    "X-Static-Expires-At": expiresAt.toISOString(),
+  });
 }
 
 function requestMetadata(headers: Headers): StaticFileMetadata {

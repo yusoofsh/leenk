@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   MAX_STATIC_FILE_SIZE,
@@ -11,7 +11,12 @@ import {
 class MemoryStaticFileStorage implements StaticFileStorage {
   readonly objects = new Map<
     string,
-    { body: Uint8Array; metadata: StaticFileMetadata; uploaded: Date }
+    {
+      body: Uint8Array;
+      expiresAt?: Date;
+      metadata: StaticFileMetadata;
+      uploaded: Date;
+    }
   >();
 
   async get(key: string): Promise<StaticFileObject | null> {
@@ -32,12 +37,14 @@ class MemoryStaticFileStorage implements StaticFileStorage {
     key: string,
     value: ReadableStream<Uint8Array>,
     metadata: StaticFileMetadata,
+    expiresAt?: Date,
   ): Promise<StaticFileObject> {
     const body = new Uint8Array(await new Response(value).arrayBuffer());
     const object = {
       body,
       metadata,
       uploaded: new Date("2026-07-13T00:00:00Z"),
+      ...(expiresAt ? { expiresAt } : {}),
     };
     this.objects.set(key, object);
     return this.toObject(key, object, false);
@@ -49,7 +56,12 @@ class MemoryStaticFileStorage implements StaticFileStorage {
 
   private toObject(
     key: string,
-    object: { body: Uint8Array; metadata: StaticFileMetadata; uploaded: Date },
+    object: {
+      body: Uint8Array;
+      expiresAt?: Date;
+      metadata: StaticFileMetadata;
+      uploaded: Date;
+    },
     includeBody: boolean,
   ): StaticFileObject {
     return {
@@ -65,11 +77,16 @@ class MemoryStaticFileStorage implements StaticFileStorage {
       metadata: object.metadata,
       size: object.body.byteLength,
       uploaded: object.uploaded,
+      ...(object.expiresAt ? { expiresAt: object.expiresAt } : {}),
     };
   }
 }
 
 const token = "correct-horse-battery-staple";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
 
 describe("handleStaticFileRequest", () => {
   it("rejects an upload without the bearer token", async () => {
@@ -97,6 +114,8 @@ describe("handleStaticFileRequest", () => {
   });
 
   it("streams a binary upload and preserves its HTTP metadata", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-13T00:00:00Z"));
     const storage = new MemoryStaticFileStorage();
     const bytes = new Uint8Array([137, 80, 78, 71]);
     const request = new Request(
@@ -123,17 +142,197 @@ describe("handleStaticFileRequest", () => {
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({
       etag: '"images/logo.png-4"',
+      expiresAt: "2026-07-27T00:00:00.000Z",
       path: "images/logo.png",
       size: 4,
       url: "https://www.yusoofsh.id/static/images/logo.png",
     });
     expect(storage.objects.get("images/logo.png")).toMatchObject({
       body: bytes,
+      expiresAt: new Date("2026-07-27T00:00:00.000Z"),
       metadata: {
         cacheControl: "public, max-age=3600",
         contentType: "image/png",
       },
     });
+  });
+
+  it("accepts an explicit upload lifetime", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-13T00:00:00Z"));
+    const storage = new MemoryStaticFileStorage();
+    const request = new Request(
+      "https://www.yusoofsh.id/static/reports/hourly.json",
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-length": "2",
+          "content-type": "application/json",
+          "x-static-expires-in": "2h",
+        },
+        body: "{}",
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "reports/hourly.json",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({
+      expiresAt: "2026-07-13T02:00:00.000Z",
+    });
+    expect(storage.objects.get("reports/hourly.json")?.expiresAt).toEqual(
+      new Date("2026-07-13T02:00:00.000Z"),
+    );
+  });
+
+  it("supports uploads that never expire", async () => {
+    const storage = new MemoryStaticFileStorage();
+    const request = new Request(
+      "https://www.yusoofsh.id/static/docs/permanent.pdf",
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-length": "4",
+          "x-static-expires-in": "never",
+        },
+        body: "data",
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "docs/permanent.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({ expiresAt: null });
+    expect(
+      storage.objects.get("docs/permanent.pdf")?.expiresAt,
+    ).toBeUndefined();
+  });
+
+  it("rejects an invalid upload lifetime before storing the object", async () => {
+    const storage = new MemoryStaticFileStorage();
+    const request = new Request(
+      "https://www.yusoofsh.id/static/docs/invalid.pdf",
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-length": "4",
+          "x-static-expires-in": "two weeks",
+        },
+        body: "data",
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "docs/invalid.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: {
+        code: "INVALID_EXPIRATION",
+        message:
+          "X-Static-Expires-In must be 'never' or a duration such as 30m, 12h, or 14d",
+      },
+    });
+    expect(storage.objects.size).toBe(0);
+  });
+
+  it("serves an unexpired object without allowing caches past its expiry", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-13T00:00:00Z"));
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("docs/current.pdf", {
+      body: new Uint8Array([37, 80, 68, 70]),
+      expiresAt: new Date("2026-07-14T00:00:00Z"),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "application/pdf",
+      },
+      uploaded: new Date("2026-07-13T00:00:00Z"),
+    });
+
+    const response = await handleStaticFileRequest(
+      new Request("https://www.yusoofsh.id/static/docs/current.pdf"),
+      "docs/current.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("no-store");
+    expect(response.headers.get("expires")).toBe(
+      "Tue, 14 Jul 2026 00:00:00 GMT",
+    );
+    expect(response.headers.get("x-static-expires-at")).toBe(
+      "2026-07-14T00:00:00.000Z",
+    );
+  });
+
+  it("returns 410 for an expired object without deleting it", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-14T00:00:00Z"));
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("docs/expired.pdf", {
+      body: new Uint8Array([37, 80, 68, 70]),
+      expiresAt: new Date("2026-07-13T23:59:59Z"),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "application/pdf",
+      },
+      uploaded: new Date("2026-07-01T00:00:00Z"),
+    });
+
+    const response = await handleStaticFileRequest(
+      new Request("https://www.yusoofsh.id/static/docs/expired.pdf"),
+      "docs/expired.pdf",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(410);
+    expect(await response.json()).toEqual({
+      error: { code: "EXPIRED", message: "Static file has expired" },
+    });
+    expect(storage.objects.has("docs/expired.pdf")).toBe(true);
+  });
+
+  it("keeps legacy objects without expiration metadata readable", async () => {
+    const storage = new MemoryStaticFileStorage();
+    storage.objects.set("legacy.txt", {
+      body: new TextEncoder().encode("legacy"),
+      metadata: {
+        cacheControl: "public, max-age=300",
+        contentType: "text/plain",
+      },
+      uploaded: new Date("2026-01-01T00:00:00Z"),
+    });
+
+    const response = await handleStaticFileRequest(
+      new Request("https://www.yusoofsh.id/static/legacy.txt"),
+      "legacy.txt",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("cache-control")).toBe("public, max-age=300");
+    expect(response.headers.has("x-static-expires-at")).toBe(false);
   });
 
   it("serves a stored object with its metadata", async () => {
