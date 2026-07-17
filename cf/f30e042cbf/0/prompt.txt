@@ -1,0 +1,1 @@
+add support for static upload to have expiration with default to 14days, but dont delte the actual file if expired. research the best solution and set a goal to have the functionlioty landed on live production yusoofsh.id
