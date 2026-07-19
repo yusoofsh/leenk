@@ -134,19 +134,39 @@
 
   .reading-veil {
     background: radial-gradient(
-      ellipse 62% 58% at center,
-      rgb(255 255 255 / 96%) 0%,
-      rgb(255 255 255 / 88%) 58%,
+      ellipse 90% 78% at center,
+      rgb(255 255 255 / 99%) 0%,
+      rgb(255 255 255 / 96%) 68%,
       transparent 100%
     );
   }
 
   .dark .reading-veil {
     background: radial-gradient(
-      ellipse 62% 58% at center,
-      rgb(0 0 0 / 92%) 0%,
-      rgb(0 0 0 / 82%) 58%,
+      ellipse 90% 78% at center,
+      rgb(0 0 0 / 98%) 0%,
+      rgb(0 0 0 / 94%) 68%,
       transparent 100%
     );
+  }
+
+  @media (min-width: 40rem) {
+    .reading-veil {
+      background: radial-gradient(
+        ellipse 72% 68% at center,
+        rgb(255 255 255 / 99%) 0%,
+        rgb(255 255 255 / 96%) 68%,
+        transparent 100%
+      );
+    }
+
+    .dark .reading-veil {
+      background: radial-gradient(
+        ellipse 72% 68% at center,
+        rgb(0 0 0 / 98%) 0%,
+        rgb(0 0 0 / 94%) 68%,
+        transparent 100%
+      );
+    }
   }
 }
