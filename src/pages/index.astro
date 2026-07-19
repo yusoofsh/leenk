@@ -1,18 +1,16 @@
 ---
 import Layout from "../layouts/index.astro";
 import ModeToggle from "../components/mode-toggle";
-import FullBio from "../content/bio/full.md";
-import TldrBio from "../content/bio/tldr.md";
 ---
 
 <Layout>
   <div
-    class="prose prose-slate dark:prose-invert prose-headings:my-0 prose-h2:text-base prose-h2:leading-tight prose-h2:tracking-normal prose-p:my-0 prose-p:text-base prose-p:leading-relaxed prose-ul:my-0 prose-li:my-1 sm:prose-h2:text-lg sm:prose-p:text-lg md:prose-h2:text-xl md:prose-p:text-xl lg:prose-h2:text-2xl lg:prose-p:text-2xl xl:prose-h2:text-xl xl:prose-p:text-xl relative z-10 mx-auto my-6 w-full max-w-prose px-6 text-left font-normal sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-4xl xl:px-4"
+    class="text-foreground relative z-10 mx-auto my-6 w-full max-w-prose px-6 text-left font-normal sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-4xl xl:px-4"
     data-reading-surface
   >
     <div class="flex flex-col gap-4 tracking-[0.2em]">
       <h1
-        class="mb-4 text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+        class="mb-4 text-left text-2xl font-bold sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
       >
         Meet me, Yusoof Moh
       </h1>
@@ -22,11 +20,113 @@ import TldrBio from "../content/bio/tldr.md";
     >
       <ModeToggle client:load />
     </div>
-    <div data-mode="full" class="mt-2 flex flex-col gap-3">
-      <FullBio />
+    <div
+      data-mode="full"
+      class="mt-2 text-[0.9375rem] sm:text-base md:text-lg lg:text-xl xl:text-lg"
+    >
+      <div class="typeset typeset-portfolio">
+        <p>
+          In the name of Allah, and by His grace. My name is pronounced <i
+            >yu-soof</i
+          >. I&rsquo;m a Malang-based <strong
+            >full-stack and platform engineer</strong
+          > delivering TypeScript applications, data workflows, CI/CD, Kubernetes
+          migrations, and production reliability improvements.
+        </p>
+
+        <h2>What I do</h2>
+        <ul>
+          <li>
+            <strong>Applications and data:</strong> TypeScript, React, TanStack,
+            Node.js, Hono, NestJS, Astro, PostgreSQL, and migration workflows.
+          </li>
+          <li>
+            <strong>Platforms and delivery:</strong> Docker, Kubernetes, Amazon EKS,
+            Helm, Argo CD, GitHub Actions, Kafka, Cloudflare Workers, and R2.
+          </li>
+          <li>
+            <strong>Quality and operations:</strong> Vitest, Playwright,
+            OpenTelemetry, Grafana, Loki, Tempo, Prometheus, staged rollouts, and
+            root-cause analysis.
+          </li>
+        </ul>
+
+        <h2>Selected work</h2>
+        <ul>
+          <li>
+            <strong>NADI:</strong> Migrated a payment workflow to DOKU and helped
+            improve reported transaction success from 60% to 95% over three months.
+          </li>
+          <li>
+            <strong>YDSF.org:</strong> Modernized donation, verification, analytics,
+            export, authentication, and database-migration workflows.
+          </li>
+          <li>
+            <strong>ElectGo / Tai Sin Group:</strong> Migrated <strong
+              >seven production PIM deployments</strong
+            > and <strong>300+ n8n workflows</strong> to Amazon EKS through verified
+            infrastructure and application cutovers.
+          </li>
+        </ul>
+
+        <h2>Beyond work</h2>
+        <p>
+          I cultivate edamame, enjoy regional motorcycle tours, and keep a steady
+          habit of deep research. I base my understanding of Islam on the first three
+          generations of the ummah, focusing on <strong>tawhid</strong> and <strong
+            >tafsir</strong
+          >. I conduct <i>tahsin</i> classes and support local communities.
+        </p>
+        <p>
+          <strong>Open to meaningful remote or contract collaborations.</strong>
+          Reach me via
+          <a href="mailto:me@yusoofsh.id" onclick="sa_event('email_clicked')"
+            >Mail</a
+          > /
+          <a href="/twitter" onclick="sa_event('twitter_clicked')">Twitter</a> /
+          <a href="/linkedin" onclick="sa_event('linkedin_clicked')">LinkedIn</a>
+          /
+          <a href="/github" onclick="sa_event('github_clicked')">GitHub</a>. May
+          Allah bless our endeavors and lead us to His everlasting mercy.
+        </p>
+      </div>
     </div>
-    <div data-mode="tldr" class="mt-2 flex flex-col gap-3">
-      <TldrBio />
+    <div
+      data-mode="tldr"
+      class="mt-2 text-[0.9375rem] sm:text-base md:text-lg lg:text-xl xl:text-lg"
+    >
+      <div class="typeset typeset-portfolio">
+        <p>
+          Bismillah. I&rsquo;m a Malang-based <strong
+            >full-stack and platform engineer</strong
+          > working across TypeScript applications, data workflows, CI/CD,
+          Kubernetes, and production reliability.
+        </p>
+        <h2>Recent highlights</h2>
+        <ul>
+          <li>Improved NADI payment reliability through a DOKU migration.</li>
+          <li>Modernized YDSF.org&rsquo;s donation-platform workflows.</li>
+          <li>
+            Migrated <strong>seven production PIM deployments</strong> and <strong
+              >300+ n8n workflows</strong
+            > to Amazon EKS.
+          </li>
+        </ul>
+        <p>
+          I use structured AI-assisted workflows with explicit tests and runtime
+          verification. <strong
+            >Open to meaningful remote or contract collaborations.</strong
+          > Reach me via
+          <a href="mailto:me@yusoofsh.id" onclick="sa_event('email_clicked')"
+            >Mail</a
+          > /
+          <a href="/twitter" onclick="sa_event('twitter_clicked')">Twitter</a> /
+          <a href="/linkedin" onclick="sa_event('linkedin_clicked')">LinkedIn</a>
+          /
+          <a href="/github" onclick="sa_event('github_clicked')">GitHub</a>.
+          Baarakallahu fiik.
+        </p>
+      </div>
     </div>
   </div>
 </Layout>
