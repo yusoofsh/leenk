@@ -22,10 +22,10 @@ export function ModeToggle() {
     <PreferenceControl
       buttonLabel="TL;DR biography mode"
       dataSlot="bio-mode-toggle"
-      label="Bio"
+      label="Bio mode"
       onToggle={toggleBioMode}
       pressed={isTldr}
-      value="TL;DR"
+      value={isTldr ? "Switch to full bio" : "Switch to TL;DR"}
     />
   );
 }

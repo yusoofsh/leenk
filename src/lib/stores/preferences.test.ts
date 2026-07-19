@@ -7,15 +7,20 @@ import { setThemeMode, themeMode, toggleThemeMode } from "./theme";
 
 describe("display preferences", () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    window.localStorage?.clear();
     setBioMode("full");
     setThemeMode("light");
   });
 
-  it("changes biography length without changing the visual theme", () => {
+  it("maps TL;DR to dark and the full biography to light", () => {
     toggleBioMode();
 
     expect(bioMode.get()).toBe("tldr");
+    expect(themeMode.get()).toBe("dark");
+
+    toggleBioMode();
+
+    expect(bioMode.get()).toBe("full");
     expect(themeMode.get()).toBe("light");
   });
 

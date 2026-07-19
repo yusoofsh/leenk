@@ -23,7 +23,7 @@ afterEach(() => {
 
 describe("display preference controls", () => {
   beforeEach(() => {
-    window.localStorage.clear();
+    window.localStorage?.clear();
     setBioMode("full");
     setThemeMode("light");
   });
@@ -44,13 +44,21 @@ describe("display preference controls", () => {
 
     expect(bioButton).toHaveAttribute("aria-pressed", "false");
     expect(themeButton).toHaveAttribute("aria-pressed", "false");
+    expect(bioButton).toHaveTextContent("Switch to TL;DR");
     expect(bioButton).toHaveClass("min-h-11", "min-w-11");
     expect(themeButton).toHaveClass("min-h-11", "min-w-11");
 
     await user.click(bioButton);
 
     expect(bioButton).toHaveAttribute("aria-pressed", "true");
+    expect(themeButton).toHaveAttribute("aria-pressed", "true");
+    expect(bioButton).toHaveTextContent("Switch to full bio");
+
+    await user.click(bioButton);
+
+    expect(bioButton).toHaveAttribute("aria-pressed", "false");
     expect(themeButton).toHaveAttribute("aria-pressed", "false");
+    expect(bioButton).toHaveTextContent("Switch to TL;DR");
   });
 
   it("has no detectable accessibility violations", async () => {

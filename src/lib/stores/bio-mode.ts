@@ -1,5 +1,7 @@
 import { persistentAtom } from "@nanostores/persistent";
 
+import { setThemeMode } from "./theme";
+
 export type BioMode = "full" | "tldr";
 
 const STORAGE_KEY = "bioMode";
@@ -22,7 +24,10 @@ export const setBioMode = (mode: BioMode) => {
 };
 
 export const toggleBioMode = () => {
-  setBioMode(bioMode.get() === "tldr" ? "full" : "tldr");
+  const nextMode = bioMode.get() === "tldr" ? "full" : "tldr";
+
+  setThemeMode(nextMode === "tldr" ? "dark" : "light");
+  setBioMode(nextMode);
 };
 
 const applyModeToDom = (mode: BioMode) => {
