@@ -24,7 +24,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-bio-mode="full">
+<html lang="en" data-bio-mode="full" data-theme-mode="light">
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
@@ -71,29 +71,36 @@ const {
           return;
         }
 
-        const STORAGE_KEY = "bioMode";
+        const BIO_STORAGE_KEY = "bioMode";
+        const THEME_STORAGE_KEY = "themeMode";
         const root = document.documentElement;
 
-        const readStoredMode = () => {
+        const readStoredValue = (key, allowedValues) => {
           try {
-            const stored = window.localStorage.getItem(STORAGE_KEY);
-            if (stored === "full" || stored === "tldr") {
+            const stored = window.localStorage.getItem(key);
+            if (allowedValues.includes(stored)) {
               return stored;
             }
-          } catch (error) {
+          } catch {
             return null;
           }
         };
 
-        const systemMode = () =>
+        const systemTheme = () =>
           window.matchMedia &&
           window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "tldr"
-            : "full";
+            ? "dark"
+            : "light";
 
-        const mode = readStoredMode() ?? systemMode();
-        root.dataset.bioMode = mode;
-        root.classList.toggle("dark", mode === "tldr");
+        const bioMode =
+          readStoredValue(BIO_STORAGE_KEY, ["full", "tldr"]) ?? "full";
+        const themeMode =
+          readStoredValue(THEME_STORAGE_KEY, ["dark", "light"]) ??
+          systemTheme();
+
+        root.dataset.bioMode = bioMode;
+        root.dataset.themeMode = themeMode;
+        root.classList.toggle("dark", themeMode === "dark");
       })();
     </script>
     <title>{title}</title>

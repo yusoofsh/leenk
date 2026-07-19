@@ -2,8 +2,8 @@
 
 ## Package Manager
 
-- Use Nub 0.2.10, pinned by `packageManager` and `lock.yaml`.
-- Install with `nub install --frozen-lockfile`; do not create another lockfile.
+- Use the latest stable Nub release; do not pin the Nub CLI version.
+- Install with `nub install --frozen-lockfile`; `nub.lock` is the only lockfile.
 
 ## Commands
 

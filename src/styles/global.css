@@ -125,12 +125,28 @@
   a {
     @apply underline decoration-2 underline-offset-2;
   }
-  [data-bio-mode="full"] [data-mode="tldr"],
-  [data-bio-mode="full"] [data-label-tldr] {
+  [data-bio-mode="full"] [data-mode="tldr"] {
     display: none !important;
   }
-  [data-bio-mode="tldr"] [data-mode="full"],
-  [data-bio-mode="tldr"] [data-label-full] {
+  [data-bio-mode="tldr"] [data-mode="full"] {
     display: none !important;
+  }
+
+  .reading-veil {
+    background: radial-gradient(
+      ellipse 62% 58% at center,
+      rgb(255 255 255 / 96%) 0%,
+      rgb(255 255 255 / 88%) 58%,
+      transparent 100%
+    );
+  }
+
+  .dark .reading-veil {
+    background: radial-gradient(
+      ellipse 62% 58% at center,
+      rgb(0 0 0 / 92%) 0%,
+      rgb(0 0 0 / 82%) 58%,
+      transparent 100%
+    );
   }
 }
