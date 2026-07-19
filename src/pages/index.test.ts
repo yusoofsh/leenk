@@ -16,14 +16,26 @@ const layoutSource = readFileSync(
   new URL("../layouts/index.astro", import.meta.url),
   "utf8",
 );
+const modeToggleSource = readFileSync(
+  new URL("../components/mode-toggle.astro", import.meta.url),
+  "utf8",
+);
 const fullBioUrl = new URL("../content/bio/full.md", import.meta.url);
 const tldrBioUrl = new URL("../content/bio/tldr.md", import.meta.url);
 
 describe("home page switch section", () => {
-  it("renders only the biography switch", () => {
-    expect(source).toContain("<ModeToggle client:load />");
+  it("renders the biography switch without client hydration", () => {
+    expect(source).toContain("<ModeToggle />");
     expect(source).not.toContain("ThemeToggle");
-    expect(source.match(/client:load/g)).toHaveLength(1);
+    expect(source).not.toContain("client:load");
+    expect(layoutSource).not.toContain("client:load");
+  });
+
+  it("keeps the switch's accessible name synchronized with its visible label", () => {
+    expect(modeToggleSource).toContain('aria-label="Switch to full bio"');
+    expect(modeToggleSource).toContain(
+      'isTldrMode ? "Switch to full bio" : "Switch to TL;DR"',
+    );
   });
 
   it("renders both biography modes as Typeset HTML", () => {
@@ -38,7 +50,9 @@ describe("home page switch section", () => {
     expect(source).toContain("text-foreground");
     expect(source).toContain("text-[0.9375rem]");
     expect(source).toContain('class="flex flex-wrap');
-    expect(source).toContain("mb-8 text-left");
+    expect(source).toContain("mb-10 text-left text-3xl");
+    expect(source).toContain("sm:mb-11");
+    expect(source).toContain("lg:mb-14");
     expect(source).toContain("font-bold");
     expect(source.match(/data-mode="(full|tldr)"\s+class="mt-5/g)).toHaveLength(
       2,
@@ -65,6 +79,14 @@ describe("home page switch section", () => {
     expect(layoutSource).toContain('bioMode === "tldr" ? "dark" : "light"');
   });
 
+  it("prerenders the static homepage", () => {
+    expect(source).toContain("export const prerender = true");
+    expect(layoutSource).toContain(
+      'import Background from "../components/background.astro"',
+    );
+    expect(layoutSource).not.toContain("AstroFont");
+  });
+
   it("summarizes the current evidence-based CV", () => {
     expect(source).toContain("full-stack and platform engineer");
     expect(source).toContain("seven production PIM deployments");
@@ -84,6 +106,10 @@ describe("home page switch section", () => {
   it("preserves explicit visual spacing around contact links", () => {
     expect(source.match(/via&#32;/g)).toHaveLength(2);
     expect(source.match(/&#32;\/&#32;/g)).toHaveLength(6);
+    expect(source).toContain("&#32;Reach me via&#32;");
+    expect(source).toContain(
+      "Migrated\n            &#32;<strong>seven production PIM deployments</strong",
+    );
   });
 
   it("uses semantic sections and scannable lists", () => {

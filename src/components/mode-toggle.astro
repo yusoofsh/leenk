@@ -1,0 +1,75 @@
+<div
+  class="not-prose flex items-center gap-1 rounded-full bg-slate-100 p-1 text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition-colors sm:gap-2 dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700"
+>
+  <span
+    class="pl-1.5 text-[0.5rem] font-semibold tracking-[0.25em] sm:pl-2 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs"
+  >
+    Bio mode
+  </span>
+  <button
+    aria-label="Switch to full bio"
+    aria-pressed="true"
+    class="relative grid min-h-6 min-w-6 items-center justify-center rounded-full bg-white px-2.5 py-1 text-[0.5rem] font-semibold tracking-[0.25em] text-slate-800 uppercase shadow transition-[color,background-color,box-shadow,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 active:scale-[0.97] motion-reduce:transition-colors motion-reduce:active:scale-100 sm:px-3 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
+    data-slot="bio-mode-toggle"
+    type="button"
+  >
+    <span aria-hidden="true" data-bio-label="tldr">Switch to full bio</span>
+    <span aria-hidden="true" data-bio-label="full">Switch to TL;DR</span>
+  </button>
+</div>
+
+<script is:inline>
+  (() => {
+    const button = document.querySelector("[data-slot='bio-mode-toggle']");
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
+    }
+
+    const root = document.documentElement;
+    const syncPressedState = () => {
+      const isTldrMode = root.dataset.bioMode === "tldr";
+      button.setAttribute(
+        "aria-pressed",
+        String(isTldrMode),
+      );
+      button.setAttribute(
+        "aria-label",
+        isTldrMode ? "Switch to full bio" : "Switch to TL;DR",
+      );
+    };
+
+    syncPressedState();
+    button.addEventListener("click", () => {
+      const bioMode = root.dataset.bioMode === "tldr" ? "full" : "tldr";
+      const themeMode = bioMode === "tldr" ? "dark" : "light";
+
+      root.dataset.bioMode = bioMode;
+      root.dataset.themeMode = themeMode;
+      root.classList.toggle("dark", themeMode === "dark");
+      syncPressedState();
+
+      try {
+        window.localStorage.setItem("bioMode", bioMode);
+        window.localStorage.setItem("themeMode", themeMode);
+      } catch {
+        // The switch remains functional when storage is unavailable.
+      }
+    });
+  })();
+</script>
+
+<style is:global>
+  [data-slot="bio-mode-toggle"] > [data-bio-label] {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+
+  [data-bio-mode="tldr"]
+    [data-slot="bio-mode-toggle"]
+    > [data-bio-label="tldr"],
+  [data-bio-mode="full"]
+    [data-slot="bio-mode-toggle"]
+    > [data-bio-label="full"] {
+    visibility: visible;
+  }
+</style>

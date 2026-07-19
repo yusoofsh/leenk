@@ -1,7 +1,6 @@
 ---
-import { AstroFont } from "astro-font";
 import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
-import { Background } from "../components/background";
+import Background from "../components/background.astro";
 
 import "../styles/global.css";
 
@@ -95,22 +94,6 @@ const {
       })();
     </script>
     <title>{title}</title>
-    <AstroFont
-      config={[
-        {
-          display: "optional",
-          fallback: "sans-serif",
-          name: "Plus Jakarta Sans",
-          selector: "body",
-          src: [
-            {
-              path: "/fonts/PlusJakartaSans-VariableFont_wght.woff2",
-              style: "normal",
-            },
-          ],
-        },
-      ]}
-    />
     <script>
       type AnalyticsEvent = ((...args: unknown[]) => void) & {
         q?: unknown[][];
@@ -180,7 +163,7 @@ const {
       href="#main-content">Skip to content</a
     >
     <main id="main-content">
-      <Background client:load>
+      <Background>
         <slot />
       </Background>
     </main>

@@ -1,0 +1,60 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div
+  class:list={[
+    "relative min-h-screen w-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] transition-colors duration-200 dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
+    className,
+  ]}
+  data-slot="stars-background"
+>
+  <div
+    aria-hidden="true"
+    class="star-field pointer-events-none absolute inset-0 dark:invert"
+    data-slot="star-field"
+  >
+    <div class="star-layer"></div>
+  </div>
+  <div
+    aria-hidden="true"
+    class="reading-veil pointer-events-none absolute inset-0 z-[1]"
+  >
+  </div>
+  <div class="relative z-10 flex min-h-screen w-full items-center justify-center">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .star-field {
+    contain: strict;
+    opacity: 0.72;
+  }
+
+  .star-layer {
+    position: absolute;
+    inset: -12rem -8rem;
+    background-image: url("/stars.svg");
+    background-repeat: repeat;
+    background-size: 320px 320px;
+    transform: translate3d(0, 0, 0);
+  }
+
+  @media (min-width: 48rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .star-layer {
+      will-change: transform;
+      animation: star-drift 180s linear infinite;
+    }
+  }
+
+  @keyframes star-drift {
+    to {
+      transform: translate3d(0, -12rem, 0);
+    }
+  }
+</style>

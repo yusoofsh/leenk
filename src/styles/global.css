@@ -8,6 +8,14 @@
 
 @source "../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}";
 
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: optional;
+  src: url("/fonts/PlusJakartaSans-VariableFont_wght.woff2") format("woff2");
+}
+
 @theme {
   --font-display: "Plus Jakarta Sans", "sans-serif";
 }
@@ -120,6 +128,10 @@
 }
 
 @layer base {
+  body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }

@@ -1,6 +1,8 @@
 ---
 import Layout from "../layouts/index.astro";
-import ModeToggle from "../components/mode-toggle";
+import ModeToggle from "../components/mode-toggle.astro";
+
+export const prerender = true;
 ---
 
 <Layout>
@@ -10,13 +12,13 @@ import ModeToggle from "../components/mode-toggle";
   >
     <div class="flex flex-col">
       <h1
-        class="mb-8 text-left text-2xl font-bold tracking-tight sm:mb-9 sm:text-3xl md:mb-10 md:text-4xl lg:mb-12 lg:text-5xl xl:text-6xl"
+        class="mb-10 text-left text-3xl font-bold tracking-tight sm:mb-11 sm:text-3xl md:mb-12 md:text-4xl lg:mb-14 lg:text-5xl xl:text-6xl"
       >
         Meet me, Yusoof Moh
       </h1>
     </div>
     <div class="flex flex-wrap items-center gap-1">
-      <ModeToggle client:load />
+      <ModeToggle />
     </div>
     <div
       data-mode="full"
@@ -63,7 +65,7 @@ import ModeToggle from "../components/mode-toggle";
           </li>
           <li>
             <strong><a href="https://electgo.com/">ElectGo</a>:</strong> Migrated
-            <strong>seven production PIM deployments</strong
+            &#32;<strong>seven production PIM deployments</strong
             > and <strong>300+ n8n workflows</strong> to Amazon EKS through verified
             infrastructure and application cutovers.
           </li>
@@ -79,7 +81,7 @@ import ModeToggle from "../components/mode-toggle";
         </p>
         <p>
           <strong>Open to meaningful remote or contract collaborations.</strong>
-          Reach me via&#32;
+          &#32;Reach me via&#32;
           <a href="mailto:me@yusoofsh.id" onclick="sa_event('email_clicked')"
             >Mail</a
           >&#32;/&#32;
