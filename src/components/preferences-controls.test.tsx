@@ -36,7 +36,7 @@ describe("display preference controls", () => {
     });
     expect(bioButton).toHaveAttribute("aria-pressed", "false");
     expect(bioButton).toHaveTextContent("Switch to TL;DR");
-    expect(bioButton).toHaveClass("min-h-11", "min-w-11");
+    expect(bioButton).toHaveClass("min-h-6", "min-w-6", "px-3", "py-1");
 
     await user.click(bioButton);
 

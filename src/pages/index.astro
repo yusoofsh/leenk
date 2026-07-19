@@ -1,104 +1,32 @@
 ---
 import Layout from "../layouts/index.astro";
 import ModeToggle from "../components/mode-toggle";
+import FullBio from "../content/bio/full.md";
+import TldrBio from "../content/bio/tldr.md";
 ---
 
 <Layout>
   <div
-    class="prose prose-slate dark:prose-invert prose-p:text-base prose-p:leading-relaxed sm:prose-p:text-lg md:prose-p:text-xl lg:prose-p:text-2xl xl:prose-p:text-xl relative z-10 mx-auto my-6 w-full max-w-prose px-6 text-left font-normal sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-4xl xl:px-4"
+    class="prose prose-slate dark:prose-invert prose-headings:my-0 prose-h2:text-base prose-h2:leading-tight prose-h2:tracking-normal prose-p:my-0 prose-p:text-base prose-p:leading-relaxed prose-ul:my-0 prose-li:my-1 sm:prose-h2:text-lg sm:prose-p:text-lg md:prose-h2:text-xl md:prose-p:text-xl lg:prose-h2:text-2xl lg:prose-p:text-2xl xl:prose-h2:text-xl xl:prose-p:text-xl relative z-10 mx-auto my-6 w-full max-w-prose px-6 text-left font-normal sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-4xl xl:px-4"
     data-reading-surface
   >
     <div class="flex flex-col gap-4 tracking-[0.2em]">
       <h1
-        class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
+        class="mb-4 text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
       >
         Meet me, Yusoof Moh
       </h1>
     </div>
     <div
-      class="mt-1 flex flex-wrap items-center justify-between gap-1 tracking-[0.2em] sm:my-2 sm:gap-2 md:my-3 md:gap-3 lg:my-4 lg:gap-4 xl:my-5 xl:gap-5"
+      class="my-0 flex flex-wrap items-center justify-between gap-1 tracking-[0.2em]"
     >
       <ModeToggle client:load />
     </div>
-    <div data-mode="full" class="space-y-4">
-      <p>
-        In the name of Allah, and by His grace. My name is pronounced <i
-          >yu-soof</i
-        >, born and raised in Malang, now collaborating remotely across
-        Indonesia. I am a <strong>full-stack/DevOps engineer</strong> running cost-efficient,
-        self-hosted stacks with UU PDP guardrails. <strong>Web:</strong> TypeScript/React,
-        Hono, Node/Bun; <strong>Infra:</strong> Docker, Traefik, Tailscale, GitHub
-        Actions; <strong>Mobile:</strong> React Native, Capacitor; <strong
-          >Observability:</strong
-        > OpenTelemetry, Sentry. Recently, I <strong
-          >accelerated time-to-production</strong
-        > at Nadi—delivering faster, steadier releases—while engineering YDSF’s <strong
-          >Muslim crowdfunding platform</strong
-        > end-to-end: typed schemas and accounting records, web app, production APIs,
-        and containerized deployments. I&rsquo;m also exploring pragmatic AI and &quot;boring
-        enterprise&quot; SaaS for Indonesia. Beyond code, I cultivate edamame, enjoy
-        regional motorcycle tours, and keep a steady habit of deep research. I base
-        my understanding of Islam in accordance with the first three generations of
-        the ummah, focusing on <strong>tawhid</strong> and <strong
-          >tafsir</strong
-        >. To further that commitment, I conduct <i>tahsin</i> classes and support
-        local communities, aspiring to contribute&mdash;however small&mdash;to the
-        da'wah.
-        <span class="font-semibold"
-          >Open to meaningful remote or contract collaborations.</span
-        >
-        You can reach out via
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="mailto:me@yusoofsh.id"
-          onclick="sa_event('email_clicked')">Mail</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/twitter"
-          onclick="sa_event('twitter_clicked')">Twitter</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/linkedin"
-          onclick="sa_event('linkedin_clicked')">LinkedIn</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/github"
-          onclick="sa_event('github_clicked')">GitHub</a
-        >. May Allah bless our endeavors, and lead us to His everlasting mercy.
-      </p>
+    <div data-mode="full" class="mt-2 flex flex-col gap-3">
+      <FullBio />
     </div>
-    <div data-mode="tldr" class="space-y-4">
-      <p>
-        Bismillah. I’m a Malang-based, remote full-stack/DevOps engineer focused
-        on cost-efficient self-hosted stacks with UU PDP guardrails. Recently I <strong
-          >accelerated time-to-production</strong
-        > at <strong>Nadi</strong> and delivered <strong
-          >YDSF’s Muslim crowdfunding platform</strong
-        > end-to-end. Open to meaningful remote/contract collaborations via
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="mailto:me@yusoofsh.id"
-          onclick="sa_event('email_clicked')">Mail</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/twitter"
-          onclick="sa_event('twitter_clicked')">Twitter</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/linkedin"
-          onclick="sa_event('linkedin_clicked')">LinkedIn</a
-        > /
-        <a
-          class="not-prose cursor-pointer font-semibold hover:underline"
-          href="/github"
-          onclick="sa_event('github_clicked')">GitHub</a
-        >. Baarakallahu fiik.
-      </p>
+    <div data-mode="tldr" class="mt-2 flex flex-col gap-3">
+      <TldrBio />
     </div>
   </div>
 </Layout>
