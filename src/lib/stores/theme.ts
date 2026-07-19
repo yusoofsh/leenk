@@ -44,10 +44,6 @@ export const setThemeMode = (mode: ThemeMode) => {
   themePreference.set(mode);
 };
 
-export const toggleThemeMode = () => {
-  setThemeMode(themeMode.get() === "dark" ? "light" : "dark");
-};
-
 const applyThemeToDom = (mode: ThemeMode) => {
   if (!isBrowser) {
     return;
