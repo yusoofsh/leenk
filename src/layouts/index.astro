@@ -24,7 +24,7 @@ const {
 ---
 
 <!doctype html>
-<html lang="en" data-bio-mode="full" data-theme-mode="light">
+<html lang="en" data-bio-mode="tldr" data-theme-mode="dark">
   <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width" name="viewport" />
@@ -72,7 +72,6 @@ const {
         }
 
         const BIO_STORAGE_KEY = "bioMode";
-        const THEME_STORAGE_KEY = "themeMode";
         const root = document.documentElement;
 
         const readStoredValue = (key, allowedValues) => {
@@ -86,17 +85,9 @@ const {
           }
         };
 
-        const systemTheme = () =>
-          window.matchMedia &&
-          window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
-
         const bioMode =
-          readStoredValue(BIO_STORAGE_KEY, ["full", "tldr"]) ?? "full";
-        const themeMode =
-          readStoredValue(THEME_STORAGE_KEY, ["dark", "light"]) ??
-          systemTheme();
+          readStoredValue(BIO_STORAGE_KEY, ["full", "tldr"]) ?? "tldr";
+        const themeMode = bioMode === "tldr" ? "dark" : "light";
 
         root.dataset.bioMode = bioMode;
         root.dataset.themeMode = themeMode;

@@ -4,6 +4,8 @@ import { atom, computed } from "nanostores";
 export type ThemeMode = "dark" | "light";
 type ThemePreference = "system" | ThemeMode;
 
+export const DEFAULT_THEME_MODE: ThemeMode = "dark";
+
 const STORAGE_KEY = "themeMode";
 const isBrowser = typeof window !== "undefined";
 
@@ -26,7 +28,7 @@ const getSystemMode = (): ThemeMode => {
 
 export const themePreference = persistentAtom<ThemePreference>(
   STORAGE_KEY,
-  "system",
+  DEFAULT_THEME_MODE,
   {
     decode: decodePreference,
     encode: (value) => value,

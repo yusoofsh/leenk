@@ -23,8 +23,8 @@ afterEach(() => {
 describe("display preference controls", () => {
   beforeEach(() => {
     window.localStorage?.clear();
-    setBioMode("full");
-    setThemeMode("light");
+    setBioMode("tldr");
+    setThemeMode("dark");
   });
 
   it("exposes stable pressed-state names and motor-accessible targets", async () => {
@@ -34,19 +34,25 @@ describe("display preference controls", () => {
     const bioButton = screen.getByRole("button", {
       name: "TL;DR biography mode",
     });
+    expect(bioButton).toHaveAttribute("aria-pressed", "true");
+    expect(bioButton).toHaveTextContent("Switch to full bio");
+    expect(bioButton).toHaveClass(
+      "min-h-6",
+      "min-w-6",
+      "px-2.5",
+      "py-1",
+      "sm:px-3",
+    );
+
+    await user.click(bioButton);
+
     expect(bioButton).toHaveAttribute("aria-pressed", "false");
     expect(bioButton).toHaveTextContent("Switch to TL;DR");
-    expect(bioButton).toHaveClass("min-h-6", "min-w-6", "px-3", "py-1");
 
     await user.click(bioButton);
 
     expect(bioButton).toHaveAttribute("aria-pressed", "true");
     expect(bioButton).toHaveTextContent("Switch to full bio");
-
-    await user.click(bioButton);
-
-    expect(bioButton).toHaveAttribute("aria-pressed", "false");
-    expect(bioButton).toHaveTextContent("Switch to TL;DR");
   });
 
   it("has no detectable accessibility violations", async () => {
@@ -65,8 +71,8 @@ describe("display preference controls", () => {
     container.innerHTML = markup;
     document.body.appendChild(container);
 
-    setBioMode("tldr");
-    setThemeMode("dark");
+    setBioMode("full");
+    setThemeMode("light");
 
     const consoleError = vi
       .spyOn(console, "error")
@@ -79,7 +85,7 @@ describe("display preference controls", () => {
     expect(consoleError).not.toHaveBeenCalled();
     expect(
       screen.getByRole("button", { name: "TL;DR biography mode" }),
-    ).toHaveAttribute("aria-pressed", "true");
+    ).toHaveAttribute("aria-pressed", "false");
     await act(async () => root.unmount());
     container.remove();
   });

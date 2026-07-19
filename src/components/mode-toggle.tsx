@@ -7,7 +7,7 @@ import { PreferenceControl } from "./preference-control";
 const subscribeToBioMode = (onStoreChange: () => void) =>
   bioMode.subscribe(onStoreChange);
 const getBioModeSnapshot = () => bioMode.get();
-const getServerBioModeSnapshot = () => "full" as const;
+const getServerBioModeSnapshot = () => "tldr" as const;
 
 export function ModeToggle() {
   const mode = useSyncExternalStore(

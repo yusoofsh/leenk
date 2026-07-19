@@ -4,6 +4,8 @@ import { setThemeMode } from "./theme";
 
 export type BioMode = "full" | "tldr";
 
+export const DEFAULT_BIO_MODE: BioMode = "tldr";
+
 const STORAGE_KEY = "bioMode";
 const isBrowser = typeof window !== "undefined";
 
@@ -11,10 +13,10 @@ const decodePreference = (value?: string): BioMode => {
   if (value === "full" || value === "tldr") {
     return value;
   }
-  return "full";
+  return DEFAULT_BIO_MODE;
 };
 
-export const bioMode = persistentAtom<BioMode>(STORAGE_KEY, "full", {
+export const bioMode = persistentAtom<BioMode>(STORAGE_KEY, DEFAULT_BIO_MODE, {
   decode: decodePreference,
   encode: (value) => value,
 });
@@ -40,6 +42,7 @@ const applyModeToDom = (mode: BioMode) => {
 };
 
 if (isBrowser) {
+  setThemeMode(bioMode.get() === "tldr" ? "dark" : "light");
   applyModeToDom(bioMode.get());
   const unsubscribe = bioMode.listen(applyModeToDom);
   window.addEventListener("astro:page-leave", unsubscribe, { once: true });
