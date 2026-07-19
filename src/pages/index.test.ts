@@ -63,6 +63,8 @@ describe("home page switch section", () => {
     expect(source).toContain('href="https://electgo.com/"');
     expect(source).toContain('href="https://ydsf.org/">YDSF</a>');
     expect(source).not.toContain(">YDSF.org</a>");
+    expect(source).toContain('href="https://electgo.com/">ElectGo</a>');
+    expect(source).not.toContain("Tai Sin Group");
   });
 
   it("preserves explicit visual spacing around contact links", () => {
