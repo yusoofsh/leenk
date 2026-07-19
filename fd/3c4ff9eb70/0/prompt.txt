@@ -1,0 +1,102 @@
+[Image #1] [Image #2] $improve the accesibility and $improve-animations
+
+---
+
+address all findings, make no mistakes
+
+---
+
+dont pin the version, always use latest available
+
+---
+
+push to main
+
+---
+
+keep the switcher switches the theme too
+
+---
+
+restore the previous toggle wording text too
+
+---
+
+please also fix the contrast
+
+---
+
+just restore the original switch section block. no individual theme switcher toggle
+
+---
+
+also now the background particles dot are less visible (only happen in the outer) please increase the visibility while keeping the content easly readable (play with contrast)
+
+---
+
+authorized
+
+---
+
+reduce the toggle height as the og, also fix the proportion or scale, reduce the section toggle spacing/height with the content
+
+---
+
+update the content as /Users/yusoofsh/Developer/Playground/jobsearch/cv/main_example.tex
+
+---
+
+increase the title bottom margin
+
+---
+
+its hard to have all that much content under one single paragraph, improves and please advice for the best formatting then do it
+
+---
+
+/Users/yusoofsh/Developer/Playground/jobsearch/cv/main_example.tex
+
+---
+
+better formatting, paragraph, lists, heading etc. proper format. also would be nice if the content itself is a markdown and properly formatted to the html view output
+
+---
+
+undo markdown. also concise content, use paragraph and spacing, lists. use https://ui.shadcn.com/typeset
+
+---
+
+push
+
+---
+
+push them all too, so local is clean
+
+---
+
+wrong spacing / margins [Image #1]
+link out the project [Image #2]
+fix the text space [Image #3]
+
+also revise the content format to be more or less like the og [Image #4]
+default to the tldr mode, while the full rich text format stays on full mode
+
+---
+
+push
+
+---
+
+YDSF title not YDSF.org
+
+---
+
+selected project, beyond them
+
+---
+
+electgo without the tai sin group text
+
+---
+
+push
