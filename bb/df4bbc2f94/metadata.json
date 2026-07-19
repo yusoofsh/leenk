@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "bbdf4bbc2f94",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 4,
+  "files_touched": [
+    ".oxfmtrc.json",
+    ".oxlintrc.json",
+    "src/components/mode-toggle.tsx",
+    "src/components/preference-control.tsx",
+    "src/components/preferences-controls.test.tsx",
+    "src/layouts/index.astro",
+    "src/lib/stores/bio-mode.ts",
+    "src/lib/stores/preferences.test.ts",
+    "src/lib/stores/theme.ts",
+    "src/pages/index.astro",
+    "src/pages/index.test.ts",
+    "src/styles/typeset.css"
+  ],
+  "sessions": [
+    {
+      "metadata": "/bb/df4bbc2f94/0/metadata.json",
+      "transcript": "/bb/df4bbc2f94/0/full.jsonl",
+      "compact_transcript": "/bb/df4bbc2f94/0/transcript.jsonl",
+      "content_hash": "/bb/df4bbc2f94/0/content_hash.txt",
+      "prompt": "/bb/df4bbc2f94/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2344975,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 85090816,
+    "output_tokens": 174392,
+    "api_call_count": 644
+  }
+}
