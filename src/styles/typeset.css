@@ -6,6 +6,9 @@
     --typeset-size: 1em;
     --typeset-leading: 1.75;
     --typeset-flow: 1.25em;
+    --typeset-section-flow: calc(var(--typeset-flow) * 1.25);
+    --typeset-heading-content-flow: 0.65em;
+    --typeset-list-item-flow: 0.4em;
     --typeset-muted: var(
       --color-muted-foreground,
       color-mix(in oklab, currentColor 60%, transparent)
@@ -20,7 +23,10 @@
 
   .typeset-portfolio {
     --typeset-leading: 1.65;
-    --typeset-flow: 0.9em;
+    --typeset-flow: 0.65em;
+    --typeset-section-flow: 0.8em;
+    --typeset-heading-content-flow: 0.4em;
+    --typeset-list-item-flow: 0.25em;
   }
 
   .dark .typeset-portfolio {
@@ -57,12 +63,12 @@
       font-size: 1.125em;
       font-weight: 600;
       line-height: 1.4;
-      margin-block-start: calc(var(--typeset-flow) * 1.25);
+      margin-block-start: var(--typeset-section-flow);
       margin-block-end: 0;
     }
 
     &:where(h2 + *) {
-      margin-block-start: 0.65em;
+      margin-block-start: var(--typeset-heading-content-flow);
     }
 
     &:where(a) {
@@ -95,7 +101,7 @@
     }
 
     &:where(li) {
-      margin-block-start: 0.4em;
+      margin-block-start: var(--typeset-list-item-flow);
       padding-inline-start: 0.15em;
     }
 

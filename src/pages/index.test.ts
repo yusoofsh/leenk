@@ -8,6 +8,10 @@ const globalStyles = readFileSync(
   new URL("../styles/global.css", import.meta.url),
   "utf8",
 );
+const typesetStyles = readFileSync(
+  new URL("../styles/typeset.css", import.meta.url),
+  "utf8",
+);
 const layoutSource = readFileSync(
   new URL("../layouts/index.astro", import.meta.url),
   "utf8",
@@ -38,6 +42,16 @@ describe("home page switch section", () => {
     expect(source).toContain("font-bold");
     expect(source.match(/data-mode="(full|tldr)"\s+class="mt-5/g)).toHaveLength(
       2,
+    );
+  });
+
+  it("uses a compact vertical rhythm between full biography sections", () => {
+    expect(typesetStyles).toContain("--typeset-flow: 0.65em");
+    expect(typesetStyles).toContain("--typeset-section-flow: 0.8em");
+    expect(typesetStyles).toContain("--typeset-heading-content-flow: 0.4em");
+    expect(typesetStyles).toContain("--typeset-list-item-flow: 0.25em");
+    expect(typesetStyles).toContain(
+      "margin-block-start: var(--typeset-section-flow)",
     );
   });
 
