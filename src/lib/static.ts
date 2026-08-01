@@ -1,10 +1,24 @@
+import { apiError, authorizeMutation } from "./http";
+import { validateObjectKey } from "./object-keys";
+import {
+  createShortlink,
+  parseCampaignHeaders,
+  type CreateShortlinkOptions,
+  type RandomBytes,
+  type ShortlinkResult,
+  type ShortlinkStorage,
+} from "./shortlinks";
+
+export { apiError, authorizeMutation } from "./http";
+export { validateObjectKey } from "./object-keys";
+
 export const MAX_STATIC_FILE_SIZE = 100 * 1024 * 1024;
 export const DEFAULT_STATIC_FILE_TTL_MS = 14 * 24 * 60 * 60 * 1_000;
 
 const DEFAULT_CACHE_CONTROL = "public, max-age=300";
 const ALLOWED_METHODS = "GET, HEAD, POST, DELETE";
-const MAX_OBJECT_KEY_LENGTH = 1_024;
 const EXPIRATION_HEADER = "X-Static-Expires-In";
+const SHORTLINK_HEADER = "X-Static-Shortlink";
 
 export interface StaticFileMetadata {
   cacheControl: string;
@@ -42,6 +56,8 @@ export async function handleStaticFileRequest(
   key: string | undefined,
   storage: StaticFileStorage,
   uploadToken: string | undefined,
+  shortlinkStorage?: ShortlinkStorage,
+  randomBytes?: RandomBytes,
 ): Promise<Response> {
   if (!key) return apiError(400, "INVALID_PATH", "A file path is required");
   const pathError = validateObjectKey(key);
@@ -54,7 +70,14 @@ export async function handleStaticFileRequest(
       case "HEAD":
         return serveObject(await storage.head(key), true);
       case "POST":
-        return uploadObject(request, key, storage, uploadToken);
+        return uploadObject(
+          request,
+          key,
+          storage,
+          uploadToken,
+          shortlinkStorage,
+          randomBytes,
+        );
       case "DELETE":
         return deleteObject(request, key, storage, uploadToken);
       default:
@@ -88,6 +111,8 @@ async function uploadObject(
   key: string,
   storage: StaticFileStorage,
   uploadToken: string | undefined,
+  shortlinkStorage: ShortlinkStorage | undefined,
+  randomBytes: RandomBytes | undefined,
 ): Promise<Response> {
   const authError = await authorizeMutation(
     request,
@@ -127,6 +152,13 @@ async function uploadObject(
     return apiError(400, "INVALID_EXPIRATION", expiration.error);
   }
 
+  const shortlinkRequested =
+    request.headers.get(SHORTLINK_HEADER)?.toLowerCase() === "true";
+  const campaign = shortlinkRequested
+    ? parseCampaignHeaders(request.headers)
+    : {};
+  if (campaign.error) return apiError(400, "INVALID_CAMPAIGN", campaign.error);
+
   const metadata = requestMetadata(request.headers);
   // Keep the original request stream: R2 requires its Workers-specific known-length marker.
   const object = await storage.put(
@@ -139,19 +171,55 @@ async function uploadObject(
   url.search = "";
   url.hash = "";
 
-  return Response.json(
-    {
-      etag: object.httpEtag,
-      expiresAt: expiration.expiresAt?.toISOString() ?? null,
-      path: key,
-      size: object.size,
-      url: url.toString(),
-    },
-    {
-      status: 201,
-      headers: { "Cache-Control": "no-store" },
-    },
-  );
+  const responseBody: {
+    etag: string;
+    expiresAt: string | null;
+    path: string;
+    shortlink?: ShortlinkResult;
+    shortlinkError?: string;
+    size: number;
+    url: string;
+  } = {
+    etag: object.httpEtag,
+    expiresAt: expiration.expiresAt?.toISOString() ?? null,
+    path: key,
+    size: object.size,
+    url: url.toString(),
+  };
+
+  if (shortlinkRequested) {
+    if (!shortlinkStorage) {
+      responseBody.shortlinkError = "SHORTLINKS_NOT_CONFIGURED";
+    } else {
+      const options: CreateShortlinkOptions = {};
+      if (expiration.expiresAt) options.expiresAt = expiration.expiresAt;
+      if (campaign.campaign) options.campaign = campaign.campaign;
+      try {
+        responseBody.shortlink = await createShortlink(
+          key,
+          shortlinkStorage,
+          url,
+          randomBytes,
+          options,
+        );
+      } catch (error) {
+        console.error(
+          JSON.stringify({
+            error: error instanceof Error ? error.message : "Unknown error",
+            event: "static_upload_shortlink_failed",
+            message: "static upload succeeded but shortlink generation failed",
+            path: key,
+          }),
+        );
+        responseBody.shortlinkError = "SHORTLINKS_UNAVAILABLE";
+      }
+    }
+  }
+
+  return Response.json(responseBody, {
+    status: 201,
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
 async function deleteObject(
@@ -173,29 +241,6 @@ async function deleteObject(
     status: 204,
     headers: { "Cache-Control": "no-store" },
   });
-}
-
-async function authorizeMutation(
-  request: Request,
-  uploadToken: string | undefined,
-  unavailableCode: string,
-  unavailableMessage: string,
-): Promise<Response | null> {
-  if (!uploadToken) {
-    return apiError(503, unavailableCode, unavailableMessage);
-  }
-
-  const authorization = request.headers.get("authorization");
-  const providedToken = authorization?.startsWith("Bearer ")
-    ? authorization.slice("Bearer ".length)
-    : "";
-  if (!providedToken || !(await tokensMatch(providedToken, uploadToken))) {
-    return apiError(401, "UNAUTHORIZED", "A valid upload token is required", {
-      "WWW-Authenticate": "Bearer",
-    });
-  }
-
-  return null;
 }
 
 function serveObject(
@@ -303,21 +348,6 @@ function requestMetadata(headers: Headers): StaticFileMetadata {
   return metadata;
 }
 
-function validateObjectKey(key: string): string | null {
-  if (key.length > MAX_OBJECT_KEY_LENGTH) return "The file path is too long";
-  if (key.includes("\\") || key.includes("\0"))
-    return "The file path is invalid";
-
-  const segments = key.split("/");
-  if (
-    segments.some((segment) => !segment || segment === "." || segment === "..")
-  ) {
-    return "The file path is invalid";
-  }
-
-  return null;
-}
-
 function parseContentLength(value: string | null): number | null {
   if (value === null) return null;
   if (!/^\d+$/.test(value)) throw new UploadTooLargeError();
@@ -325,29 +355,6 @@ function parseContentLength(value: string | null): number | null {
   const parsed = Number(value);
   if (!Number.isSafeInteger(parsed)) throw new UploadTooLargeError();
   return parsed;
-}
-
-async function tokensMatch(
-  provided: string,
-  expected: string,
-): Promise<boolean> {
-  const encoder = new TextEncoder();
-  const [providedHash, expectedHash] = await Promise.all([
-    crypto.subtle.digest("SHA-256", encoder.encode(provided)),
-    crypto.subtle.digest("SHA-256", encoder.encode(expected)),
-  ]);
-  const subtle = crypto.subtle as SubtleCrypto & {
-    timingSafeEqual?: (a: ArrayBuffer, b: ArrayBuffer) => boolean;
-  };
-  if (subtle.timingSafeEqual)
-    return subtle.timingSafeEqual(providedHash, expectedHash);
-
-  const a = new Uint8Array(providedHash);
-  const b = new Uint8Array(expectedHash);
-  let mismatch = 0;
-  for (let index = 0; index < a.length; index += 1)
-    mismatch |= a[index]! ^ b[index]!;
-  return mismatch === 0;
 }
 
 function copyHeader(
@@ -366,21 +373,4 @@ function setOptionalHeader(
   value: string | undefined,
 ): void {
   if (value) headers.set(name, value);
-}
-
-function apiError(
-  status: number,
-  code: string,
-  message: string,
-  headers?: HeadersInit,
-): Response {
-  const responseHeaders = new Headers(headers);
-  responseHeaders.set("Cache-Control", "no-store");
-  return Response.json(
-    { error: { code, message } },
-    {
-      status,
-      headers: responseHeaders,
-    },
-  );
 }

@@ -7,6 +7,9 @@
   "placement": { "mode": "smart" },
   "preview_urls": true,
   "r2_buckets": [{ "binding": "STATIC_FILES", "bucket_name": "leenk-static" }],
+  "analytics_engine_datasets": [
+    { "binding": "SHORTLINK_ANALYTICS", "dataset": "leenk_shortlinks" },
+  ],
   "observability": {
     "logs": {
       "enabled": true,
