@@ -1,5 +1,6 @@
 import { apiError, authorizeMutation } from "./http";
 import { validateObjectKey } from "./object-keys";
+import { recordSiteAnalyticsEvent, type SiteAnalytics } from "./site-analytics";
 
 export const SHORTLINK_ALPHABET =
   "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -127,6 +128,7 @@ export async function handleShortlinkRequest(
   targetStorage?: ShortlinkTargetStorage,
   randomBytes: RandomBytes = defaultRandomBytes,
   analytics?: ShortlinkAnalytics,
+  siteAnalytics?: SiteAnalytics,
 ): Promise<Response> {
   try {
     if (request.method === "GET" || request.method === "HEAD") {
@@ -142,12 +144,19 @@ export async function handleShortlinkRequest(
         uploadToken,
         targetStorage,
         randomBytes,
+        siteAnalytics,
       );
     }
 
     if (request.method === "DELETE") {
       if (!code) return methodNotAllowed();
-      return deleteShortlink(request, code, storage, uploadToken);
+      return deleteShortlink(
+        request,
+        code,
+        storage,
+        uploadToken,
+        siteAnalytics,
+      );
     }
 
     return methodNotAllowed();
@@ -394,6 +403,7 @@ async function createShortlinkFromRequest(
   uploadToken: string | undefined,
   targetStorage: ShortlinkTargetStorage | undefined,
   randomBytes: RandomBytes,
+  siteAnalytics: SiteAnalytics | undefined,
 ): Promise<Response> {
   const authError = await authorizeMutation(
     request,
@@ -463,6 +473,16 @@ async function createShortlinkFromRequest(
             randomBytes,
             createOptions(expiresAt, input.campaign),
           );
+    if (siteAnalytics) {
+      recordSiteAnalyticsEvent(
+        request,
+        {
+          dimension: input.path !== undefined ? "static" : "internal",
+          event: "shortlink_created",
+        },
+        siteAnalytics,
+      );
+    }
     return Response.json(result, {
       status: 201,
       headers: { "Cache-Control": "no-store" },
@@ -662,6 +682,7 @@ async function deleteShortlink(
   code: string,
   storage: ShortlinkStorage,
   uploadToken: string | undefined,
+  siteAnalytics: SiteAnalytics | undefined,
 ): Promise<Response> {
   const authError = await authorizeMutation(
     request,
@@ -673,6 +694,13 @@ async function deleteShortlink(
   if (!isValidShortlinkCode(code)) return shortlinkNotFound();
 
   await storage.delete(code);
+  if (siteAnalytics) {
+    recordSiteAnalyticsEvent(
+      request,
+      { event: "shortlink_deleted" },
+      siteAnalytics,
+    );
+  }
   return new Response(null, {
     status: 204,
     headers: { "Cache-Control": "no-store" },

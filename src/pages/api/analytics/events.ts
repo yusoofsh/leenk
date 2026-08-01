@@ -5,7 +5,7 @@ import { apiError } from "~/lib/http";
 import {
   getSiteAnalytics,
   MAX_SITE_ANALYTICS_REQUEST_BYTES,
-  parseSiteAnalyticsEvent,
+  parseSiteAnalyticsPayload,
   recordSiteAnalyticsEvent,
 } from "~/lib/site-analytics";
 
@@ -63,11 +63,7 @@ const route: APIRoute = async ({ request }) => {
     return apiError(400, "INVALID_EVENT", "Site analytics event is invalid");
   }
 
-  const eventValue =
-    typeof input === "object" && input !== null && "event" in input
-      ? input.event
-      : undefined;
-  const event = parseSiteAnalyticsEvent(eventValue);
+  const event = parseSiteAnalyticsPayload(input);
   if (!event) {
     return apiError(
       400,

@@ -8,6 +8,7 @@ import {
   type StaticFileStorage,
 } from "~/lib/static";
 import { createR2ShortlinkStorage } from "~/lib/shortlink-storage";
+import { getSiteAnalytics } from "~/lib/site-analytics";
 
 function toStaticFileObject(object: R2Object | R2ObjectBody): StaticFileObject {
   const metadata = object.httpMetadata;
@@ -74,6 +75,8 @@ const route: APIRoute = ({ params, request }) => {
     createStorage(env.STATIC_FILES),
     uploadToken(),
     createR2ShortlinkStorage(env.STATIC_FILES),
+    undefined,
+    getSiteAnalytics(Reflect.get(env, "SITE_ANALYTICS")),
   );
 };
 

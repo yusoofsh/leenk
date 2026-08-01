@@ -3,6 +3,7 @@ import Layout from "../layouts/index.astro";
 ---
 
 <Layout
+  analyticsPage="not_found"
   canonical={false}
   description="The requested page could not be found."
   robots="noindex,follow"
@@ -19,7 +20,11 @@ import Layout from "../layouts/index.astro";
     </h1>
     <p>
       Resource not found. Click
-      <a class="not-prose cursor-pointer font-semibold hover:underline" href="/"
+      <a
+        class="not-prose cursor-pointer font-semibold hover:underline"
+        data-analytics-dimension="home"
+        data-analytics-event="internal_link_clicked"
+        href="/"
         >here</a
       >
       to go home.

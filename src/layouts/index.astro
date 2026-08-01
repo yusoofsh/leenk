@@ -4,6 +4,7 @@ import Background from "../components/background.astro";
 import "../styles/global.css";
 
 interface Props {
+  analyticsPage?: "not_found";
   canonical?: false | string;
   description?: string;
   robots?: string;
@@ -14,6 +15,7 @@ const defaultDescription =
   "Malang-based full-stack/DevOps engineer. Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TypeScript/React, Hono/Bun, Docker/Traefik/Tailscale, OpenTelemetry/Sentry, UU PDP-aware.";
 const defaultTitle = "Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia";
 const {
+  analyticsPage,
   canonical = "https://www.yusoofsh.id/",
   description = defaultDescription,
   robots = "index,follow",
@@ -139,7 +141,7 @@ const {
       }
     </script>
   </head>
-  <body>
+  <body data-analytics-page={analyticsPage}>
     <a
       class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-slate-950 focus:shadow-lg"
       href="#main-content">Skip to content</a
@@ -152,7 +154,23 @@ const {
     <script is:inline>
       (() => {
         const EVENT_ATTRIBUTE = "data-analytics-event";
+        const DIMENSION_ATTRIBUTE = "data-analytics-dimension";
         const EVENT_ENDPOINT = "/api/analytics/events";
+
+        const sendEvent = (eventName, dimension) => {
+          const body = JSON.stringify(
+            dimension ? { dimension, event: eventName } : { event: eventName },
+          );
+          const payload = new Blob([body], { type: "application/json" });
+          if (navigator.sendBeacon(EVENT_ENDPOINT, payload)) return;
+
+          void fetch(EVENT_ENDPOINT, {
+            body,
+            headers: { "content-type": "application/json" },
+            keepalive: true,
+            method: "POST",
+          }).catch(() => {});
+        };
 
         document.addEventListener(
           "click",
@@ -162,18 +180,112 @@ const {
             const eventName = link?.getAttribute(EVENT_ATTRIBUTE);
             if (!eventName) return;
 
-            const body = JSON.stringify({ event: eventName });
-            const payload = new Blob([body], { type: "application/json" });
-            if (navigator.sendBeacon(EVENT_ENDPOINT, payload)) return;
-
-            void fetch(EVENT_ENDPOINT, {
-              body,
-              headers: { "content-type": "application/json" },
-              keepalive: true,
-              method: "POST",
-            }).catch(() => {});
+            sendEvent(
+              eventName,
+              link.getAttribute(DIMENSION_ATTRIBUTE) ?? undefined,
+            );
           },
-          true,
+        );
+
+        const hasBioModes = document.querySelector(
+          '[data-slot="bio-mode-toggle"]',
+        );
+        if (hasBioModes) {
+          sendEvent(
+            "bio_mode_viewed",
+            document.documentElement.dataset.bioMode ?? "tldr",
+          );
+        }
+
+        if (document.body.dataset.analyticsPage) {
+          sendEvent("error_page_viewed", document.body.dataset.analyticsPage);
+        }
+
+        const observedSections = new Set();
+        const sectionObserver =
+          typeof IntersectionObserver === "function"
+            ? new IntersectionObserver(
+                (entries) => {
+                  for (const entry of entries) {
+                    if (!entry.isIntersecting) continue;
+                    const section = entry.target.getAttribute(
+                      "data-analytics-section",
+                    );
+                    if (!section || observedSections.has(section)) continue;
+                    observedSections.add(section);
+                    sendEvent("content_section_viewed", section);
+                  }
+                },
+                { threshold: 0.5 },
+              )
+            : null;
+        if (sectionObserver) {
+          document
+            .querySelectorAll("[data-analytics-section]")
+            .forEach((section) => sectionObserver.observe(section));
+        }
+
+        const scrollMilestones = new Set();
+        const reportScrollDepth = () => {
+          const documentHeight = Math.max(
+            document.documentElement.scrollHeight,
+            document.body?.scrollHeight ?? 0,
+          );
+          const viewportBottom = window.scrollY + window.innerHeight;
+          const scrollPercent = Math.floor(
+            (viewportBottom / Math.max(documentHeight, 1)) * 100,
+          );
+          for (const milestone of [25, 50, 75, 90]) {
+            if (scrollPercent < milestone || scrollMilestones.has(milestone)) {
+              continue;
+            }
+            scrollMilestones.add(milestone);
+            sendEvent("scroll_depth_reached", String(milestone));
+          }
+        };
+        window.addEventListener("scroll", reportScrollDepth, { passive: true });
+        reportScrollDepth();
+
+        const engagementMilestones = new Set();
+        let activeSeconds = 0;
+        const engagementTimer = window.setInterval(() => {
+          if (document.visibilityState !== "visible") return;
+          activeSeconds += 1;
+          for (const milestone of [10, 30, 60]) {
+            if (activeSeconds < milestone || engagementMilestones.has(milestone)) {
+              continue;
+            }
+            engagementMilestones.add(milestone);
+            sendEvent("time_on_page_reached", String(milestone));
+          }
+        }, 1000);
+
+        const clientErrorKinds = new Set();
+        const reportClientError = (kind) => {
+          if (clientErrorKinds.has(kind)) return;
+          clientErrorKinds.add(kind);
+          sendEvent("client_error", kind);
+        };
+        const handleError = (event) => {
+          reportClientError(event instanceof ErrorEvent && event.error ? "runtime" : "resource");
+        };
+        const handleUnhandledRejection = () => reportClientError("promise");
+        window.addEventListener("error", handleError);
+        window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+        window.addEventListener(
+          "pagehide",
+          () => {
+            window.removeEventListener("scroll", reportScrollDepth);
+            window.clearInterval(engagementTimer);
+            window.removeEventListener("error", handleError);
+            window.removeEventListener(
+              "unhandledrejection",
+              handleUnhandledRejection,
+            );
+            sectionObserver?.disconnect();
+          },
+          { once: true },
         );
       })();
     </script>

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   parseSiteAnalyticsEvent,
+  parseSiteAnalyticsPayload,
   recordSiteAnalyticsEvent,
   type SiteAnalytics,
 } from "./site-analytics";
@@ -23,19 +24,63 @@ class MemorySiteAnalytics implements SiteAnalytics {
 }
 
 describe("site analytics", () => {
-  it("accepts only the fixed contact-link event names", () => {
-    expect(parseSiteAnalyticsEvent("email_clicked")).toBe("email_clicked");
-    expect(parseSiteAnalyticsEvent("github_clicked")).toBe("github_clicked");
-    expect(parseSiteAnalyticsEvent("twitter_clicked")).toBe("twitter_clicked");
-    expect(parseSiteAnalyticsEvent("linkedin_clicked")).toBe(
-      "linkedin_clicked",
+  it("accepts only the fixed event names", () => {
+    expect(parseSiteAnalyticsEvent("social_link_clicked")).toBe(
+      "social_link_clicked",
     );
-    expect(parseSiteAnalyticsEvent("account@example.com")).toBeUndefined();
+    expect(parseSiteAnalyticsEvent("bio_mode_viewed")).toBe("bio_mode_viewed");
+    expect(parseSiteAnalyticsEvent("github_clicked")).toBeUndefined();
     expect(parseSiteAnalyticsEvent("custom_event")).toBeUndefined();
+    expect(parseSiteAnalyticsEvent("account@example.com")).toBeUndefined();
     expect(parseSiteAnalyticsEvent(null)).toBeUndefined();
   });
 
-  it("records the event and only the referrer origin", () => {
+  it("accepts only bounded event dimensions", () => {
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "full",
+        event: "bio_mode_changed",
+      }),
+    ).toEqual({ dimension: "full", event: "bio_mode_changed" });
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "github",
+        event: "social_link_clicked",
+      }),
+    ).toEqual({ dimension: "github", event: "social_link_clicked" });
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "what_i_do",
+        event: "content_section_viewed",
+      }),
+    ).toEqual({ dimension: "what_i_do", event: "content_section_viewed" });
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "75",
+        event: "scroll_depth_reached",
+      }),
+    ).toEqual({ dimension: "75", event: "scroll_depth_reached" });
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "https://private.example/path",
+        event: "social_link_clicked",
+      }),
+    ).toBeUndefined();
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "unknown",
+        event: "bio_mode_viewed",
+      }),
+    ).toBeUndefined();
+    expect(
+      parseSiteAnalyticsPayload({
+        dimension: "full",
+        event: "contact_link_clicked",
+      }),
+    ).toBeUndefined();
+  });
+
+  it("records the event, dimension, and only the referrer origin", () => {
     const analytics = new MemorySiteAnalytics();
 
     recordSiteAnalyticsEvent(
@@ -44,20 +89,20 @@ describe("site analytics", () => {
           referer: "https://www.yusoofsh.id/?private=path",
         },
       }),
-      "github_clicked",
+      { dimension: "github", event: "social_link_clicked" },
       analytics,
     );
 
     expect(analytics.events).toEqual([
       {
-        blobs: ["github_clicked", "https://www.yusoofsh.id"],
+        blobs: ["social_link_clicked", "github", "https://www.yusoofsh.id"],
         doubles: [1],
-        indexes: ["github_clicked"],
+        indexes: ["social_link_clicked"],
       },
     ]);
   });
 
-  it("does not make analytics failures break the click path", () => {
+  it("does not make analytics failures break the event path", () => {
     const analytics: SiteAnalytics = {
       writeDataPoint: () => {
         throw new Error("analytics unavailable");
@@ -70,7 +115,7 @@ describe("site analytics", () => {
     expect(() =>
       recordSiteAnalyticsEvent(
         new Request("https://www.yusoofsh.id/api/analytics/events"),
-        "email_clicked",
+        { event: "contact_link_clicked", dimension: "email" },
         analytics,
       ),
     ).not.toThrow();
