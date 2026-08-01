@@ -1,5 +1,4 @@
 ---
-import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
 import Background from "../components/background.astro";
 
 import "../styles/global.css";
@@ -94,23 +93,6 @@ const {
       })();
     </script>
     <title>{title}</title>
-    <script>
-      type AnalyticsEvent = ((...args: unknown[]) => void) & {
-        q?: unknown[][];
-      };
-
-      declare global {
-        interface Window {
-          sa_event?: AnalyticsEvent;
-        }
-      }
-
-      const saEvent: AnalyticsEvent = (...args) => {
-        saEvent.q ? saEvent.q.push(args) : (saEvent.q = [args]);
-      };
-
-      window.sa_event ??= saEvent;
-    </script>
     <script is:inline type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -167,6 +149,5 @@ const {
         <slot />
       </Background>
     </main>
-    <SimpleAnalytics allEnvironments={true} collectDNT={true} />
   </body>
 </html>

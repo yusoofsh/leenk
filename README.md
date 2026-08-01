@@ -10,7 +10,7 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 - Cloudflare Workers through `@astrojs/cloudflare` and Wrangler
 - TypeScript 7, Oxlint, Oxfmt, Husky, and lint-staged
 - Vite 8 with Rolldown and Vitest 4
-- Simple Analytics and a self-hosted Plus Jakarta Sans font
+- Cloudflare Web Analytics, Workers Analytics Engine, and a self-hosted Plus Jakarta Sans font
 
 ## Requirements
 
