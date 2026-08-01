@@ -97,9 +97,9 @@ describe("home page switch section", () => {
     expect(source).toContain('href="https://nadi.co.id/"');
     expect(source).toContain('href="https://ydsf.org/"');
     expect(source).toContain('href="https://electgo.com/"');
-    expect(source).toContain('href="https://ydsf.org/">YDSF</a>');
+    expect(source).toMatch(/href="https:\/\/ydsf\.org\/"[^>]*>YDSF<\/a>/);
     expect(source).not.toContain(">YDSF.org</a>");
-    expect(source).toContain('href="https://electgo.com/">ElectGo</a>');
+    expect(source).toMatch(/href="https:\/\/electgo\.com\/"[^>]*>ElectGo<\/a>/);
     expect(source).not.toContain("Tai Sin Group");
   });
 
@@ -120,7 +120,7 @@ describe("home page switch section", () => {
       /<div\s+data-mode="tldr"[\s\S]*?<\/Layout>/,
     )?.[0];
 
-    expect(fullBiography?.match(/<h2>/g)).toHaveLength(3);
+    expect(fullBiography?.match(/<h2(?:\s[^>]*)?>/g)).toHaveLength(3);
     expect(fullBiography?.match(/<li>/g)).toHaveLength(6);
     expect(tldrBiography?.match(/<h2>/g)).toBeNull();
     expect(tldrBiography?.match(/<li>/g)).toBeNull();

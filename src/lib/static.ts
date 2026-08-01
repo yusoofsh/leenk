@@ -8,6 +8,7 @@ import {
   type ShortlinkResult,
   type ShortlinkStorage,
 } from "./shortlinks";
+import { recordSiteAnalyticsEvent, type SiteAnalytics } from "./site-analytics";
 
 export { apiError, authorizeMutation } from "./http";
 export { validateObjectKey } from "./object-keys";
@@ -58,6 +59,7 @@ export async function handleStaticFileRequest(
   uploadToken: string | undefined,
   shortlinkStorage?: ShortlinkStorage,
   randomBytes?: RandomBytes,
+  siteAnalytics?: SiteAnalytics,
 ): Promise<Response> {
   if (!key) return apiError(400, "INVALID_PATH", "A file path is required");
   const pathError = validateObjectKey(key);
@@ -77,9 +79,10 @@ export async function handleStaticFileRequest(
           uploadToken,
           shortlinkStorage,
           randomBytes,
+          siteAnalytics,
         );
       case "DELETE":
-        return deleteObject(request, key, storage, uploadToken);
+        return deleteObject(request, key, storage, uploadToken, siteAnalytics);
       default:
         return apiError(405, "METHOD_NOT_ALLOWED", "Method not allowed", {
           Allow: ALLOWED_METHODS,
@@ -113,6 +116,7 @@ async function uploadObject(
   uploadToken: string | undefined,
   shortlinkStorage: ShortlinkStorage | undefined,
   randomBytes: RandomBytes | undefined,
+  siteAnalytics: SiteAnalytics | undefined,
 ): Promise<Response> {
   const authError = await authorizeMutation(
     request,
@@ -216,6 +220,17 @@ async function uploadObject(
     }
   }
 
+  if (siteAnalytics) {
+    recordSiteAnalyticsEvent(
+      request,
+      {
+        dimension: shortlinkRequested ? "with_shortlink" : "without_shortlink",
+        event: "static_file_uploaded",
+      },
+      siteAnalytics,
+    );
+  }
+
   return Response.json(responseBody, {
     status: 201,
     headers: { "Cache-Control": "no-store" },
@@ -227,6 +242,7 @@ async function deleteObject(
   key: string,
   storage: StaticFileStorage,
   uploadToken: string | undefined,
+  siteAnalytics: SiteAnalytics | undefined,
 ): Promise<Response> {
   const authError = await authorizeMutation(
     request,
@@ -237,6 +253,13 @@ async function deleteObject(
   if (authError) return authError;
 
   await storage.delete(key);
+  if (siteAnalytics) {
+    recordSiteAnalyticsEvent(
+      request,
+      { event: "static_file_deleted" },
+      siteAnalytics,
+    );
+  }
   return new Response(null, {
     status: 204,
     headers: { "Cache-Control": "no-store" },

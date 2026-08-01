@@ -10,7 +10,7 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 - Cloudflare Workers through `@astrojs/cloudflare` and Wrangler
 - TypeScript 7, Oxlint, Oxfmt, Husky, and lint-staged
 - Vite 8 with Rolldown and Vitest 4
-- Cloudflare Web Analytics page telemetry, Workers Analytics Engine for shortlink and contact-link events, and a self-hosted Plus Jakarta Sans font
+- Cloudflare Web Analytics page/performance telemetry, Workers Analytics Engine for privacy-preserving engagement and lifecycle events, and a self-hosted Plus Jakarta Sans font
 
 ## Requirements
 
@@ -166,6 +166,46 @@ headers (`X-Shortlink-Campaign`, `X-Shortlink-Source`,
 `X-Shortlink-Medium`, and `X-Shortlink-Content`). Campaign clicks are recorded
 by the configured `SHORTLINK_ANALYTICS` Analytics Engine binding without
 blocking redirects; only the referrer origin is retained.
+
+## Analytics
+
+Cloudflare Web Analytics remains responsible for ordinary page views, referrer,
+device/browser dimensions, and Web Vitals. The separate `SITE_ANALYTICS`
+Analytics Engine binding (`leenk_site_events`) records only allowlisted custom
+events. Each data point uses this shape:
+
+```text
+blob1: event name
+blob2: bounded dimension, when applicable
+blob3: referrer origin only
+double1: 1
+index1: event name
+```
+
+The current custom event taxonomy is:
+
+- `bio_mode_viewed` / `bio_mode_changed`: `full` or `tldr`.
+- `content_section_viewed`: `what_i_do`, `selected_work`, or `beyond_work`.
+- `scroll_depth_reached`: `25`, `50`, `75`, or `90` percent.
+- `time_on_page_reached`: `10`, `30`, or `60` active seconds.
+- `outbound_link_clicked`: `nadi`, `ydsf`, or `electgo`.
+- `social_link_clicked`: `github`, `linkedin`, or `twitter`.
+- `contact_link_clicked`: `email`.
+- `internal_link_clicked`: `home` (404 recovery).
+- `error_page_viewed`: `not_found`.
+- `client_error`: `runtime`, `resource`, or `promise`, without messages or
+  stack traces.
+- `shortlink_created`: `internal` or `static`.
+- `shortlink_deleted`: no path or code recorded in the site-events dataset.
+- `static_file_uploaded`: `with_shortlink` or `without_shortlink`.
+- `static_file_deleted`.
+
+Social networks intentionally use the single `social_link_clicked` event with
+a bounded dimension instead of separate `github_clicked`,
+`linkedin_clicked`, or `twitter_clicked` event names. Analytics never records
+email addresses, account names, IP addresses, request bodies, complete URLs,
+messages, stack traces, or other user identity. Writes are best-effort and
+never block navigation, redirects, uploads, or deletes.
 
 ## Deployment
 

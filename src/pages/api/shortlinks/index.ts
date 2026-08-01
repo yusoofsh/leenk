@@ -3,6 +3,7 @@ import type { APIRoute } from "astro";
 
 import { createR2ShortlinkStorage } from "~/lib/shortlink-storage";
 import { handleShortlinkRequest } from "~/lib/shortlinks";
+import { getSiteAnalytics } from "~/lib/site-analytics";
 
 function uploadToken(): string | undefined {
   const value: unknown = Reflect.get(env, "STATIC_UPLOAD_TOKEN");
@@ -31,6 +32,8 @@ const route: APIRoute = ({ request }) => {
         return { expiresAt };
       },
     },
+    undefined,
+    getSiteAnalytics(Reflect.get(env, "SITE_ANALYTICS")),
   );
 };
 

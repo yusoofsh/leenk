@@ -11,6 +11,8 @@
     aria-pressed="true"
     class="relative grid min-h-6 min-w-6 items-center justify-center rounded-full bg-white px-2.5 py-1 text-[0.5rem] font-semibold tracking-[0.25em] text-slate-800 uppercase shadow transition-[color,background-color,box-shadow,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 active:scale-[0.97] motion-reduce:transition-colors motion-reduce:active:scale-100 sm:px-3 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
     data-slot="bio-mode-toggle"
+    data-analytics-event="bio_mode_changed"
+    data-analytics-dimension="tldr"
     type="button"
   >
     <span aria-hidden="true" data-bio-label="tldr">Switch to full bio</span>
@@ -35,6 +37,10 @@
       button.setAttribute(
         "aria-label",
         isTldrMode ? "Switch to full bio" : "Switch to TL;DR",
+      );
+      button.setAttribute(
+        "data-analytics-dimension",
+        isTldrMode ? "tldr" : "full",
       );
     };
 
