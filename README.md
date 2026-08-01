@@ -102,6 +102,71 @@ printf 'header = "Authorization: Bearer %s"\n' "$STATIC_UPLOAD_TOKEN" | \
     -H "Content-Type: application/octet-stream"
 ```
 
+## Short links
+
+Short links use the same R2 bucket as static files. Create one for an existing
+static object with the authenticated API:
+
+```bash
+printf 'header = "Authorization: Bearer %s"\n' "$STATIC_UPLOAD_TOKEN" | \
+  curl --config - https://www.yusoofsh.id/api/shortlinks \
+    -X POST \
+    -H "Content-Type: application/json" \
+    --data '{"path":"docs/guide.pdf"}'
+```
+
+The response contains a random base62 code. Allocation starts at four
+characters and grows only when the shorter namespace cannot find a free code:
+
+```json
+{
+  "code": "aB3x",
+  "path": "docs/guide.pdf",
+  "shortUrl": "https://www.yusoofsh.id/aB3x",
+  "targetUrl": "https://www.yusoofsh.id/static/docs/guide.pdf"
+}
+```
+
+`GET` and `HEAD` requests to `/{code}` redirect publicly to the static object.
+The generator verifies that the target already exists, so it cannot create a
+link to a missing file. Revoke a link with the same upload token:
+
+```bash
+printf 'header = "Authorization: Bearer %s"\n' "$STATIC_UPLOAD_TOKEN" | \
+  curl --config - https://www.yusoofsh.id/api/shortlinks/aB3x \
+    -X DELETE
+```
+
+Shortlink records can include a future UTC expiration and campaign metadata:
+
+```json
+{
+  "path": "docs/guide.pdf",
+  "expiresAt": "2099-01-01T00:00:00.000Z",
+  "campaign": {
+    "name": "spring",
+    "source": "newsletter",
+    "medium": "email"
+  }
+}
+```
+
+The target file's own expiration is authoritative: a shortlink cannot live
+longer than its static object. Same-origin application aliases can use a
+validated `target` path instead of `path`; external URLs and management API
+paths are rejected:
+
+```json
+{ "target": "/github?source=profile" }
+```
+
+Uploads can optionally allocate a shortlink in the same response by sending
+`X-Static-Shortlink: true`. The upload endpoint accepts the same campaign
+headers (`X-Shortlink-Campaign`, `X-Shortlink-Source`,
+`X-Shortlink-Medium`, and `X-Shortlink-Content`). Campaign clicks are recorded
+by the configured `SHORTLINK_ANALYTICS` Analytics Engine binding without
+blocking redirects; only the referrer origin is retained.
+
 ## Deployment
 
 The build produces an Astro server entry point and static assets in `dist/`. Preview the exact Worker configuration locally before deploying:

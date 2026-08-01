@@ -7,6 +7,11 @@ import {
   type StaticFileObject,
   type StaticFileStorage,
 } from "./static";
+import type {
+  RandomBytes,
+  ShortlinkRecord,
+  ShortlinkStorage,
+} from "./shortlinks";
 
 class MemoryStaticFileStorage implements StaticFileStorage {
   readonly objects = new Map<
@@ -82,6 +87,26 @@ class MemoryStaticFileStorage implements StaticFileStorage {
   }
 }
 
+class MemoryShortlinkStorage implements ShortlinkStorage {
+  readonly records = new Map<string, ShortlinkRecord>();
+
+  async delete(code: string): Promise<void> {
+    this.records.delete(code);
+  }
+
+  async get(code: string): Promise<ShortlinkRecord | null> {
+    return this.records.get(code) ?? null;
+  }
+
+  async putIfAbsent(code: string, record: ShortlinkRecord): Promise<boolean> {
+    if (this.records.has(code)) return false;
+    this.records.set(code, record);
+    return true;
+  }
+}
+
+const zeroRandomBytes: RandomBytes = (length) => new Uint8Array(length);
+
 const token = "correct-horse-battery-staple";
 
 afterEach(() => {
@@ -154,6 +179,61 @@ describe("handleStaticFileRequest", () => {
         cacheControl: "public, max-age=3600",
         contentType: "image/png",
       },
+    });
+  });
+
+  it("generates an expiring campaign shortlink during upload when requested", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2026-07-13T00:00:00Z"));
+    const storage = new MemoryStaticFileStorage();
+    const shortlinks = new MemoryShortlinkStorage();
+    const bytes = new Uint8Array([1, 2, 3, 4]);
+    const request = new Request(
+      "https://www.yusoofsh.id/static/images/logo.png",
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-length": String(bytes.byteLength),
+          "content-type": "image/png",
+          "x-shortlink-campaign": "spring",
+          "x-shortlink-medium": "email",
+          "x-shortlink-source": "newsletter",
+          "x-static-shortlink": "true",
+        },
+        body: bytes,
+      },
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "images/logo.png",
+      storage,
+      token,
+      shortlinks,
+      zeroRandomBytes,
+    );
+
+    expect(response.status).toBe(201);
+    expect(await response.json()).toMatchObject({
+      expiresAt: "2026-07-27T00:00:00.000Z",
+      shortlink: {
+        campaign: {
+          medium: "email",
+          name: "spring",
+          source: "newsletter",
+        },
+        code: "0000",
+        expiresAt: "2026-07-27T00:00:00.000Z",
+        path: "images/logo.png",
+        shortUrl: "https://www.yusoofsh.id/0000",
+        targetUrl: "https://www.yusoofsh.id/static/images/logo.png",
+      },
+    });
+    expect(shortlinks.records.get("0000")).toMatchObject({
+      campaign: { name: "spring" },
+      expiresAt: "2026-07-27T00:00:00.000Z",
+      path: "images/logo.png",
     });
   });
 
@@ -426,6 +506,29 @@ describe("handleStaticFileRequest", () => {
     );
 
     expect(response.status).toBe(400);
+    expect(storage.objects.size).toBe(0);
+  });
+
+  it("keeps shortlink records private from static file reads", async () => {
+    const storage = new MemoryStaticFileStorage();
+    const request = new Request(
+      "https://www.yusoofsh.id/static/__shortlinks/0000",
+    );
+
+    const response = await handleStaticFileRequest(
+      request,
+      "__shortlinks/0000",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: {
+        code: "INVALID_PATH",
+        message: "The file path is reserved",
+      },
+    });
     expect(storage.objects.size).toBe(0);
   });
 
