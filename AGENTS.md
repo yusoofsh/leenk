@@ -29,7 +29,7 @@
 - Cloudflare Workers deployment via `@astrojs/cloudflare` and `wrangler.jsonc`.
 - Tailwind CSS 4 with the typography plugin.
 - TypeScript 7, Oxlint, Oxfmt, Vitest, and Husky/lint-staged.
-- Cloudflare Web Analytics is injected at the edge; shortlink clicks use Workers Analytics Engine.
+- Cloudflare Web Analytics is injected at the edge; shortlink and contact-link clicks use Workers Analytics Engine.
 - Plus Jakarta Sans is self-hosted locally.
 
 ## Repository Layout

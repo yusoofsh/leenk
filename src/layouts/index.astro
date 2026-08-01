@@ -149,5 +149,33 @@ const {
         <slot />
       </Background>
     </main>
+    <script is:inline>
+      (() => {
+        const EVENT_ATTRIBUTE = "data-analytics-event";
+        const EVENT_ENDPOINT = "/api/analytics/events";
+
+        document.addEventListener(
+          "click",
+          (event) => {
+            if (!(event.target instanceof Element)) return;
+            const link = event.target.closest(`[${EVENT_ATTRIBUTE}]`);
+            const eventName = link?.getAttribute(EVENT_ATTRIBUTE);
+            if (!eventName) return;
+
+            const body = JSON.stringify({ event: eventName });
+            const payload = new Blob([body], { type: "application/json" });
+            if (navigator.sendBeacon(EVENT_ENDPOINT, payload)) return;
+
+            void fetch(EVENT_ENDPOINT, {
+              body,
+              headers: { "content-type": "application/json" },
+              keepalive: true,
+              method: "POST",
+            }).catch(() => {});
+          },
+          true,
+        );
+      })();
+    </script>
   </body>
 </html>
