@@ -1,5 +1,4 @@
 ---
-import { SimpleAnalytics } from "astro-simpleanalytics-plugin";
 import Background from "../components/background.astro";
 
 import "../styles/global.css";
@@ -94,23 +93,6 @@ const {
       })();
     </script>
     <title>{title}</title>
-    <script>
-      type AnalyticsEvent = ((...args: unknown[]) => void) & {
-        q?: unknown[][];
-      };
-
-      declare global {
-        interface Window {
-          sa_event?: AnalyticsEvent;
-        }
-      }
-
-      const saEvent: AnalyticsEvent = (...args) => {
-        saEvent.q ? saEvent.q.push(args) : (saEvent.q = [args]);
-      };
-
-      window.sa_event ??= saEvent;
-    </script>
     <script is:inline type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -167,6 +149,33 @@ const {
         <slot />
       </Background>
     </main>
-    <SimpleAnalytics allEnvironments={true} collectDNT={true} />
+    <script is:inline>
+      (() => {
+        const EVENT_ATTRIBUTE = "data-analytics-event";
+        const EVENT_ENDPOINT = "/api/analytics/events";
+
+        document.addEventListener(
+          "click",
+          (event) => {
+            if (!(event.target instanceof Element)) return;
+            const link = event.target.closest(`[${EVENT_ATTRIBUTE}]`);
+            const eventName = link?.getAttribute(EVENT_ATTRIBUTE);
+            if (!eventName) return;
+
+            const body = JSON.stringify({ event: eventName });
+            const payload = new Blob([body], { type: "application/json" });
+            if (navigator.sendBeacon(EVENT_ENDPOINT, payload)) return;
+
+            void fetch(EVENT_ENDPOINT, {
+              body,
+              headers: { "content-type": "application/json" },
+              keepalive: true,
+              method: "POST",
+            }).catch(() => {});
+          },
+          true,
+        );
+      })();
+    </script>
   </body>
 </html>

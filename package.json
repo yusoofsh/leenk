@@ -25,7 +25,6 @@
     "@tailwindcss/vite": "^4.3.3",
     "astro": "7.1.6",
     "astro-font": "^1.1.0",
-    "astro-simpleanalytics-plugin": "^0.4.0",
     "clsx": "^2.1.1",
     "motion": "^12.43.0",
     "nanostores": "^1.4.2",
@@ -56,9 +55,6 @@
     "vite": "8.2.0",
     "vitest": "4.1.10",
     "wrangler": "^4.118.0"
-  },
-  "overrides": {
-    "sharp": "0.35.3"
   },
   "engines": {
     "node": ">=26.5.0"
