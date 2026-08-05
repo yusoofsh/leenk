@@ -5,6 +5,11 @@
   "scripts": {
     "build": "astro build",
     "check": "tsc --noEmit",
+    "cli:build": "scriptc build cli/leenk.ts -o .scriptc/leenk --no-keep-c",
+    "cli:build:linux-arm64": "SCRIPTC_CC=zigcc SCRIPTC_TARGET=aarch64-linux-gnu.2.36 scriptc build cli/leenk.ts -o .scriptc/leenk-linux-arm64 --no-keep-c",
+    "cli:build:linux-x64": "SCRIPTC_CC=zigcc SCRIPTC_TARGET=x86_64-linux-gnu.2.36 scriptc build cli/leenk.ts -o .scriptc/leenk-linux-x64 --no-keep-c",
+    "cli:coverage": "scriptc coverage cli/leenk.ts",
+    "cli:install": "install -m 755 .scriptc/leenk ~/.local/bin/leenk",
     "deploy": "wrangler deploy",
     "dev": "astro dev",
     "format": "oxfmt --write .",
@@ -17,7 +22,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "types:check": "wrangler types worker-configuration.d.ts --include-runtime false --check",
-    "verify": "nub run lint && nub run format:check && nub run check && nub run test && nub run types:check && nub run build"
+    "verify": "nub run lint && nub run format:check && nub run check && nub run test && nub run types:check && nub run cli:coverage && nub run cli:build && nub run build"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",
@@ -49,6 +54,7 @@
     "oxfmt": "0.61.0",
     "oxlint": "1.76.0",
     "oxlint-tsgolint": "7.0.2001",
+    "scriptc": "^0.0.22",
     "tailwindcss": "^4.3.3",
     "tw-animate-css": "^1.4.0",
     "typescript": "7.0.2",

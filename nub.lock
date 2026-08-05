@@ -21,7 +21,7 @@ importers:
         version: 4.3.3(vite@8.2.0(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))
       astro:
         specifier: 7.1.6
-        version: 7.1.6(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(yaml@2.9.0)
+        version: 7.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@26.1.2)(jiti@2.7.0)(yaml@2.9.0)
       astro-font:
         specifier: ^1.1.0
         version: 1.1.0
@@ -46,7 +46,7 @@ importers:
     devDependencies:
       '@astrojs/cloudflare':
         specifier: 14.1.7
-        version: 14.1.7(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(astro@7.1.6)(esbuild@0.28.1)(jiti@2.7.0)(wrangler@4.118.0(@cloudflare/workers-types@5.20260801.1))(yaml@2.9.0)
+        version: 14.1.7(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@26.1.2)(astro@7.1.6)(esbuild@0.28.1)(jiti@2.7.0)(wrangler@4.118.0(@cloudflare/workers-types@5.20260801.1))(yaml@2.9.0)
       '@cloudflare/workers-types':
         specifier: 5.20260801.1
         version: 5.20260801.1
@@ -92,6 +92,9 @@ importers:
       oxlint-tsgolint:
         specifier: 7.0.2001
         version: 7.0.2001
+      scriptc:
+        specifier: ^0.0.22
+        version: 0.0.22
       tailwindcss:
         specifier: ^4.3.3
         version: 4.3.3
@@ -1399,6 +1402,12 @@ packages:
       rollup:
         optional: true
 
+  '@scriptc/compiler@0.0.22':
+    resolution: {integrity: sha512-cZil7ZgK64yRpSk1X3BSq1Q2DBru53KfC4X0i/qa0vHNk/rvk3teDzykSP5l3nb5wY2ckh0Es3fojfD0kUp/gA==}
+
+  '@scriptc/runtime@0.0.22':
+    resolution: {integrity: sha512-UytlS/6vxWXYIpIO2lQYVh4xTzMoybX0Uz1wKA41ezq62sMeuhHT6JVappUG55DgVNAWGgMI/WAHun2TeRutNg==}
+
   '@shikijs/core@4.4.1':
     resolution: {integrity: sha512-VeR2CY6Nn9/WbisoYLOQZ7HZOnwTrpBuOw4wExjqLnBCi62BNWynBUO6K2uPIASPFJwAv7cX1fUu+LrPlSstcw==}
     engines: {node: '>=20'}
@@ -2647,6 +2656,11 @@ packages:
   scheduler@0.27.0:
     resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
+  scriptc@0.0.22:
+    resolution: {integrity: sha512-gJQ5Johx477Al1EqZOTeXOPsPgwzSOvVljIc9l1S0BqhaffyZtxXa1Mm3YFKZaCV3u4YNAEMsbO9EBgvW1awDg==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
     hasBin: true
@@ -2781,6 +2795,12 @@ packages:
 
   tw-animate-css@1.4.0:
     resolution: {integrity: sha512-7bziOlRqH0hJx80h/3mbicLW7o8qLsH5+RaLR2t+OHM3D0JlWGODQKQ4cxbK7WlvmUxpcj6Kgu6EKqjrGFe3QQ==}
+
+  typescript5@5.9.3:
+    resolution: {integrity: sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+    aliasOf: typescript
 
   typescript@7.0.2:
     resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
@@ -3116,12 +3136,12 @@ snapshots:
       is-potential-custom-element-name: 1.0.1
       lru-cache: 11.5.2
 
-  '@astrojs/cloudflare@14.1.7(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(astro@7.1.6)(esbuild@0.28.1)(jiti@2.7.0)(wrangler@4.118.0(@cloudflare/workers-types@5.20260801.1))(yaml@2.9.0)':
+  '@astrojs/cloudflare@14.1.7(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@26.1.2)(astro@7.1.6)(esbuild@0.28.1)(jiti@2.7.0)(wrangler@4.118.0(@cloudflare/workers-types@5.20260801.1))(yaml@2.9.0)':
     dependencies:
       '@astrojs/internal-helpers': 0.10.2
       '@astrojs/underscore-redirects': 1.0.3
       '@cloudflare/vite-plugin': 1.50.0(vite@8.2.0(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0))(wrangler@4.118.0(@cloudflare/workers-types@5.20260801.1))
-      astro: 7.1.6(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(yaml@2.9.0)
+      astro: 7.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@26.1.2)(jiti@2.7.0)(yaml@2.9.0)
       piccolore: 0.1.3
       prismjs: 1.30.0
       vite: 8.2.0(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.7.0)(yaml@2.9.0)
@@ -3156,9 +3176,9 @@ snapshots:
   '@astrojs/compiler-binding-linux-x64-musl@0.3.2':
     optional: true
 
-  '@astrojs/compiler-binding-wasm32-wasi@0.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)':
+  '@astrojs/compiler-binding-wasm32-wasi@0.3.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
-      '@napi-rs/wasm-runtime': 1.2.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)
+      '@napi-rs/wasm-runtime': 1.2.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
     optional: true
 
   '@astrojs/compiler-binding-win32-arm64-msvc@0.3.2':
@@ -3167,7 +3187,7 @@ snapshots:
   '@astrojs/compiler-binding-win32-x64-msvc@0.3.2':
     optional: true
 
-  '@astrojs/compiler-binding@0.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)':
+  '@astrojs/compiler-binding@0.3.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     optionalDependencies:
       '@astrojs/compiler-binding-darwin-arm64': 0.3.2
       '@astrojs/compiler-binding-darwin-x64': 0.3.2
@@ -3175,13 +3195,13 @@ snapshots:
       '@astrojs/compiler-binding-linux-arm64-musl': 0.3.2
       '@astrojs/compiler-binding-linux-x64-gnu': 0.3.2
       '@astrojs/compiler-binding-linux-x64-musl': 0.3.2
-      '@astrojs/compiler-binding-wasm32-wasi': 0.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)
+      '@astrojs/compiler-binding-wasm32-wasi': 0.3.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@astrojs/compiler-binding-win32-arm64-msvc': 0.3.2
       '@astrojs/compiler-binding-win32-x64-msvc': 0.3.2
 
-  '@astrojs/compiler-rs@0.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)':
+  '@astrojs/compiler-rs@0.3.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
-      '@astrojs/compiler-binding': 0.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)
+      '@astrojs/compiler-binding': 0.3.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
 
   '@astrojs/internal-helpers@0.10.2':
     dependencies:
@@ -4038,6 +4058,14 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 4.0.5
 
+  '@scriptc/compiler@0.0.22':
+    dependencies:
+      '@scriptc/runtime': 0.0.22
+      typescript: 7.0.2
+      typescript5: 5.9.3
+
+  '@scriptc/runtime@0.0.22': {}
+
   '@shikijs/core@4.4.1':
     dependencies:
       '@shikijs/primitive': 4.4.1
@@ -4404,9 +4432,9 @@ snapshots:
 
   astro-font@1.1.0: {}
 
-  astro@7.1.6(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)(@types/node@26.1.2)(jiti@2.7.0)(yaml@2.9.0):
+  astro@7.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)(@types/node@26.1.2)(jiti@2.7.0)(yaml@2.9.0):
     dependencies:
-      '@astrojs/compiler-rs': 0.3.2(@emnapi/core@2.0.0-alpha.3)(@emnapi/runtime@2.0.0-alpha.3)
+      '@astrojs/compiler-rs': 0.3.2(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)
       '@astrojs/internal-helpers': 0.10.2
       '@astrojs/markdown-satteri': 0.3.5
       '@astrojs/telemetry': 3.3.3
@@ -5302,6 +5330,10 @@ snapshots:
 
   scheduler@0.27.0: {}
 
+  scriptc@0.0.22:
+    dependencies:
+      '@scriptc/compiler': 0.0.22
+
   semver@6.3.1: {}
 
   semver@7.8.5: {}
@@ -5466,6 +5498,8 @@ snapshots:
   tslib@2.8.1: {}
 
   tw-animate-css@1.4.0: {}
+
+  typescript5@5.9.3: {}
 
   typescript@7.0.2:
     optionalDependencies:

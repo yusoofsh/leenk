@@ -66,6 +66,61 @@ Files uploaded to `/static/<path>` are stored in the `leenk-static` R2 bucket an
 from the same URL. Reads are public; uploads and deletes require the `STATIC_UPLOAD_TOKEN` Worker
 secret. Uploads accept a raw request body up to 100 MiB.
 
+### Leenk CLI
+
+The repository includes a dependency-free TypeScript CLI compiled by
+[ScriptC](https://scriptc.dev/quickstart) into a self-contained native binary:
+
+```bash
+nub install --frozen-lockfile
+nub run cli:build
+nub run cli:install
+```
+
+Authenticate without placing the upload token in shell history:
+
+```bash
+printf '%s' "$LEENK_STATIC_TOKEN" | leenk login
+leenk status
+```
+
+The private config is stored under `$XDG_CONFIG_HOME/leenk/config.json` or
+`~/.config/leenk/config.json`. In CI, set `LEENK_STATIC_TOKEN` instead of using
+`login`; the environment variable takes precedence and is never written to disk.
+
+Upload a filesystem path or local `file://` URI. Uploads create a shortlink and
+use the Worker's 14-day expiration by default:
+
+```bash
+leenk upload ./document.pdf
+leenk upload file:///Users/me/Documents/report.pdf reports/report.pdf
+leenk upload --expires never --no-shortlink ./logo.png assets/logo.png
+```
+
+The command prints the confirmed path, size, ETag, expiration, public URL, and
+short URL. Inspect public metadata or permanently delete an exact path:
+
+```bash
+leenk inspect reports/report.pdf
+leenk delete --force reports/report.pdf
+```
+
+Deletion is intentionally non-interactive and requires `--force`; callers must
+confirm the exact production path before invoking it. Credential rotation remains
+an administrative Wrangler operation and is not part of the portable client.
+
+ScriptC 0.0.22 supports this HTTPS CLI on macOS arm64 and cross-compiled Linux
+arm64/x86_64. Its Windows target does not yet implement `http`, `https`, or `tls`,
+so ScriptC cannot currently produce a functional Windows build of this client.
+See [ScriptC platform support](https://scriptc.dev/platforms).
+
+With Zig installed, produce Linux artifacts from macOS:
+
+```bash
+nub run cli:build:linux-arm64
+nub run cli:build:linux-x64
+```
+
 New uploads expire from public access after 14 days by default. The Worker stores the expiry in R2
 custom metadata and returns `410 Gone` after that time without deleting the R2 object. Set
 `X-Static-Expires-In` to a duration such as `30m`, `12h`, or `30d` to override the default, or to
