@@ -1,0 +1,5 @@
+update @~/.scripts/leenk-static.sh and my leenk-static skill.md file with the newest update on this project
+
+---
+
+sample input and output?
