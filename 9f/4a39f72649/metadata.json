@@ -1,0 +1,26 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "9f4a39f72649",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 12,
+  "files_touched": [
+    "src/middleware.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/9f/4a39f72649/0/metadata.json",
+      "transcript": "/9f/4a39f72649/0/full.jsonl",
+      "compact_transcript": "/9f/4a39f72649/0/transcript.jsonl",
+      "content_hash": "/9f/4a39f72649/0/content_hash.txt",
+      "prompt": "/9f/4a39f72649/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2157986,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 205201280,
+    "output_tokens": 316883,
+    "api_call_count": 944
+  }
+}
