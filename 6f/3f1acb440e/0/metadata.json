@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "6f3f1acb440e",
+  "session_id": "019fe5f3-52eb-7d62-86cc-823937b97288",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-10T05:10:57.388881Z",
+  "branch": "main",
+  "checkpoints_count": 12,
+  "save_step_count": 1,
+  "files_touched": [
+    "README.md",
+    "docs/decisions/0003-alchemy-cloudflare-migration.md"
+  ],
+  "agent": "Codex",
+  "model": "opencode-go/deepseek-v4-flash",
+  "turn_id": "3d55dd343431",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 2159049,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 210463616,
+    "output_tokens": 320239,
+    "api_call_count": 953
+  },
+  "session_metrics": {
+    "turn_count": 58
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-10T05:10:56.090206Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 20,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 20,
+    "total_lines_changed": 20,
+    "agent_percentage": 0,
+    "metric_version": 2
+  }
+}

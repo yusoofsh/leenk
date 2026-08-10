@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "6f3f1acb440e",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 12,
+  "files_touched": [
+    "README.md",
+    "docs/decisions/0003-alchemy-cloudflare-migration.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/6f/3f1acb440e/0/metadata.json",
+      "transcript": "/6f/3f1acb440e/0/full.jsonl",
+      "compact_transcript": "/6f/3f1acb440e/0/transcript.jsonl",
+      "content_hash": "/6f/3f1acb440e/0/content_hash.txt",
+      "prompt": "/6f/3f1acb440e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2159049,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 210463616,
+    "output_tokens": 320239,
+    "api_call_count": 953
+  }
+}
