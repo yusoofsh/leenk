@@ -1,5 +1,8 @@
 import { SHORTLINK_STORAGE_PREFIX } from "~/lib/shortlink-constants";
-import { parseShortlinkRecord, type ShortlinkRecord } from "~/lib/shortlinks";
+import {
+  parseShortlinkRecord,
+  type ShortlinkRecord,
+} from "~/lib/shortlink-model";
 
 export const MAX_DASHBOARD_RECORDS = 500;
 

@@ -1,9 +1,6 @@
 import { SHORTLINK_STORAGE_PREFIX } from "./shortlink-constants";
-import {
-  parseShortlinkRecord,
-  type ShortlinkRecord,
-  type ShortlinkStorage,
-} from "./shortlinks";
+import { parseShortlinkRecord, type ShortlinkRecord } from "./shortlink-model";
+import type { ShortlinkStorage } from "./shortlinks";
 
 export interface ShortlinkR2Bucket {
   delete(key: string): Promise<void>;

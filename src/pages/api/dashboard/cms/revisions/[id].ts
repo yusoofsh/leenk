@@ -9,6 +9,7 @@ import {
 } from "~/lib/dashboard/cms-db";
 import { readDashboardBindings } from "~/lib/dashboard/env";
 import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
+import { requireOperator } from "~/lib/require-operator";
 
 const route: APIRoute = async ({ params, request }) => {
   if (request.method !== "GET") {
@@ -18,6 +19,9 @@ const route: APIRoute = async ({ params, request }) => {
       "Revision lookup uses GET",
     );
   }
+  const operator = await requireOperator(request, "content:read");
+  if (operator instanceof Response) return operator;
+
   const id = params.id;
   if (!id || id.length === 0 || id.length > 128) {
     return dashboardError(

@@ -1,7 +1,7 @@
 import { ROLE_CAPABILITIES } from "./auth-roles";
 
 export const DASHBOARD_PAGE_PATH = "/dashboard";
-export const PROTECTED_PREFIXES = ["/api/dashboard", DASHBOARD_PAGE_PATH];
+export const PROTECTED_PREFIXES = ["/api/dashboard"];
 
 export const LOGIN_PATH = "/login";
 

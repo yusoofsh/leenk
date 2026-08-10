@@ -48,7 +48,7 @@ export function Operations() {
     let cancelled = false;
     void Promise.all([
       dashboardFetch<FileListEntry[]>("/api/dashboard/files"),
-      dashboardFetch<ShortlinkListEntry[]>("/api/dashboard/shortlinks"),
+      dashboardFetch<ShortlinkListEntry[]>("/api/dashboard/links"),
       dashboardFetch<unknown>("/api/dashboard/activity?limit=1"),
       dashboardFetch<unknown[]>(
         "/api/dashboard/analytics/shortlinks?start=2026-08-01&end=2026-08-02",

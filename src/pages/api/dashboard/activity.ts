@@ -9,11 +9,15 @@ import {
 } from "~/lib/dashboard/cms-db";
 import { readDashboardBindings } from "~/lib/dashboard/env";
 import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
+import { requireOperator } from "~/lib/require-operator";
 
 const route: APIRoute = async ({ request }) => {
   if (request.method !== "GET") {
     return dashboardError(405, "METHOD_NOT_ALLOWED", "Activity uses GET");
   }
+  const operator = await requireOperator(request, "operations:read");
+  if (operator instanceof Response) return operator;
+
   const bindings = readDashboardBindings(env);
   const db = toD1Like(bindings.cms);
   if (!db) return cmsUnavailable();

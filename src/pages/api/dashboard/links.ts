@@ -9,6 +9,7 @@ import {
 } from "~/lib/dashboard/analytics-engine";
 import { readDashboardBindings } from "~/lib/dashboard/env";
 import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
+import { requireOperator } from "~/lib/require-operator";
 import {
   attachRecentClicks,
   listShortlinkRecords,
@@ -18,6 +19,9 @@ const route: APIRoute = async ({ request }) => {
   if (request.method !== "GET") {
     return dashboardError(405, "METHOD_NOT_ALLOWED", "Shortlinks use GET");
   }
+  const operator = await requireOperator(request, "shortlinks:read");
+  if (operator instanceof Response) return operator;
+
   const bindings = readDashboardBindings(env);
   if (!bindings.staticFiles) {
     return dashboardError(

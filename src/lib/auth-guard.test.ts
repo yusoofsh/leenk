@@ -8,15 +8,17 @@ import {
 } from "./auth-guard";
 
 describe("isProtectedPath", () => {
-  it("protects the dashboard page and API prefixes", () => {
-    expect(isProtectedPath("/dashboard")).toBe(true);
-    expect(isProtectedPath("/dashboard/analytics")).toBe(true);
+  it("protects the dashboard API prefixes", () => {
     expect(isProtectedPath("/api/dashboard/activity")).toBe(true);
+    expect(isProtectedPath("/api/dashboard/analytics/shortlinks")).toBe(true);
   });
 
   it("leaves public paths open", () => {
     expect(isProtectedPath("/")).toBe(false);
     expect(isProtectedPath("/login")).toBe(false);
+    // The dashboard page checks its own session; the middleware only guards
+    // the API so single-segment pages route correctly in production.
+    expect(isProtectedPath("/dashboard")).toBe(false);
     expect(isProtectedPath("/static/report.pdf")).toBe(false);
     expect(isProtectedPath("/api/auth/sign-in")).toBe(false);
     expect(isProtectedPath("/xucU")).toBe(false);

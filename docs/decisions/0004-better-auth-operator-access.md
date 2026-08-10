@@ -70,3 +70,26 @@ mutations remain browser-hostile.
   it no longer affects dashboard access.
 - The version is a release candidate; upgrade notes live in the research
   docs when a stable release ships.
+
+## Incident and hardening notes (2026-08-10)
+
+The rollout hit three production issues, all now recorded:
+
+1. **Relative redirect in the middleware.** `Response.redirect("/login")`
+   throws in the Workers runtime, which made protected pages fall through to
+   the shortlink catch-all. The redirect now builds an absolute URL.
+2. **Protected pages misroute in production.** When the middleware guarded
+   page routes, the production matcher resolved them to `[code].ts` once a
+   session was present. The middleware now guards only `/api/dashboard`;
+   pages check their own session in the frontmatter.
+3. **`alchemy deploy --force` destroyed adopted resources.** A forced deploy
+   recreated the D1 CMS database and the R2 bucket, losing the auth store,
+   CMS revisions, static files, and shortlink records. State clears are
+   safe; `--force` is not. Files and shortlinks were re-uploaded, the owner
+   was re-bootstrapped, and the CMS re-imported itself.
+
+Known residual issue: the dashboard shortlink listing route returns a bare
+405 in production while all other dashboard API routes work. The deployed
+manifest and chunk are correct, so the failure is an adapter-level routing
+artifact; the Shortlinks module shows its error state until the adapter or
+Astro version moves past it.

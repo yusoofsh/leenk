@@ -3,12 +3,16 @@ import type { APIRoute } from "astro";
 
 import { readDashboardBindings } from "~/lib/dashboard/env";
 import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
+import { requireOperator } from "~/lib/require-operator";
 import { listStaticFiles } from "~/lib/dashboard/records";
 
 const route: APIRoute = async ({ request }) => {
   if (request.method !== "GET") {
     return dashboardError(405, "METHOD_NOT_ALLOWED", "Files use GET");
   }
+  const operator = await requireOperator(request, "files:read");
+  if (operator instanceof Response) return operator;
+
   const bindings = readDashboardBindings(env);
   if (!bindings.staticFiles) {
     return dashboardError(

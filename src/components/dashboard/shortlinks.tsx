@@ -67,7 +67,7 @@ export function Shortlinks() {
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    void dashboardFetch<ShortlinkListEntry[]>("/api/dashboard/shortlinks").then(
+    void dashboardFetch<ShortlinkListEntry[]>("/api/dashboard/links").then(
       setRecords,
     );
   }, [attempt]);

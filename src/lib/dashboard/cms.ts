@@ -1,4 +1,4 @@
-import { isValidShortlinkCode } from "~/lib/shortlinks";
+import { isValidShortlinkCode } from "~/lib/shortlink-model";
 
 export const CMS_DOCUMENT_KEY = "homepage";
 export const CMS_BLOCK_TYPES = [

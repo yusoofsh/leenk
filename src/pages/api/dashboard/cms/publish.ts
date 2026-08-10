@@ -13,11 +13,15 @@ import {
 } from "~/lib/dashboard/cms-db";
 import { readDashboardBindings } from "~/lib/dashboard/env";
 import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
+import { requireOperator } from "~/lib/require-operator";
 
 const route: APIRoute = async ({ request }) => {
   if (request.method !== "POST") {
     return dashboardError(405, "METHOD_NOT_ALLOWED", "Publish uses POST");
   }
+  const operator = await requireOperator(request, "content:manage");
+  if (operator instanceof Response) return operator;
+
   const bindings = readDashboardBindings(env);
 
   const db = toD1Like(bindings.cms);

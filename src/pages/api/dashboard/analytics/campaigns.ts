@@ -7,6 +7,7 @@ import {
 } from "~/lib/dashboard/analytics-engine";
 import { readDashboardBindings } from "~/lib/dashboard/env";
 import { dashboardError } from "~/lib/dashboard/http";
+import { requireOperator } from "~/lib/require-operator";
 
 const route: APIRoute = async ({ request }) => {
   if (request.method !== "GET") {
@@ -16,6 +17,9 @@ const route: APIRoute = async ({ request }) => {
       "Analytics reports use GET",
     );
   }
+  const operator = await requireOperator(request, "analytics:read");
+  if (operator instanceof Response) return operator;
+
   const url = new URL(request.url);
   const bindings = readDashboardBindings(env);
   return runAnalyticsReport({

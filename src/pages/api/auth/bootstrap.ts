@@ -1,9 +1,13 @@
 import { env } from "cloudflare:workers";
 import type { APIRoute } from "astro";
+import { hashPassword } from "better-auth/crypto";
 
 import { OWNER_EMAIL } from "~/lib/auth-roles";
-import { auth } from "~/lib/auth";
 import { tokensMatch } from "~/lib/http";
+
+function generateId(): string {
+  return globalThis.crypto.randomUUID();
+}
 
 const route: APIRoute = async ({ request }) => {
   if (request.method !== "POST") {
@@ -45,24 +49,43 @@ const route: APIRoute = async ({ request }) => {
         { status: 400 },
       );
     }
-    const signedUp = await auth.api.signUpEmail({
-      body: {
-        email: OWNER_EMAIL,
-        name: "Yusoof Moh",
-        password: body.password,
-      },
-    });
-    const organization = await auth.api.createOrganization({
-      body: {
-        name: "Leenk",
-        slug: "leenk",
-        userId: signedUp.user.id,
-      },
-    });
-    return Response.json(
-      { ok: true, organizationId: organization.id },
-      { status: 201 },
-    );
+    const cms = env.CMS;
+    if (!cms) {
+      return Response.json({ error: "cms_unavailable" }, { status: 503 });
+    }
+    const now = new Date().toISOString();
+    const userId = generateId();
+    const organizationId = generateId();
+    const memberId = generateId();
+    const passwordHash = await hashPassword(body.password);
+    await cms.batch([
+      cms
+        .prepare(
+          `INSERT INTO "user" (id, name, email, emailVerified, createdAt, updatedAt)
+VALUES (?, ?, ?, 0, ?, ?)`,
+        )
+        .bind(userId, "Yusoof Moh", OWNER_EMAIL, now, now),
+      cms
+        .prepare(
+          `INSERT INTO "account" (
+  id, accountId, providerId, issuer, userId, password, createdAt, updatedAt
+) VALUES (?, ?, 'credential', 'local:credential', ?, ?, ?, ?)`,
+        )
+        .bind(generateId(), userId, userId, passwordHash, now, now),
+      cms
+        .prepare(
+          `INSERT INTO "organization" (id, name, slug, createdAt, updatedAt)
+VALUES (?, 'Leenk', 'leenk', ?, ?)`,
+        )
+        .bind(organizationId, now, now),
+      cms
+        .prepare(
+          `INSERT INTO "member" (id, organizationId, userId, role, createdAt, updatedAt)
+VALUES (?, ?, ?, 'owner', ?, ?)`,
+        )
+        .bind(memberId, organizationId, userId, now, now),
+    ]);
+    return Response.json({ ok: true, organizationId }, { status: 201 });
   } catch {
     return Response.json(
       { error: "bootstrap_failed", message: "Bootstrap failed" },

@@ -53,7 +53,7 @@ export function Overview() {
     void Promise.all([
       dashboardFetch<ActivityPage>("/api/dashboard/activity?limit=8"),
       dashboardFetch<unknown[]>("/api/dashboard/files"),
-      dashboardFetch<Array<{ code: string }>>("/api/dashboard/shortlinks"),
+      dashboardFetch<Array<{ code: string }>>("/api/dashboard/links"),
       dashboardFetch<AnalyticsRow[]>(path),
       dashboardFetch<AnalyticsRow[]>(
         `/api/dashboard/analytics/shortlinks?${query}`,

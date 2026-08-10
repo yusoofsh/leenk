@@ -54,6 +54,9 @@ export const Website = Cloudflare.Website.Astro(
         site: "https://www.yusoofsh.id/",
         output: "server" as const,
       },
+      // Let the Worker handle every request first so the asset layer never
+      // intercepts dashboard routes ahead of the Astro router.
+      assets: { runWorkerFirst: true },
       env: {
         STATIC_FILES: StaticFiles,
         SHORTLINK_ANALYTICS: ShortlinkAnalytics,
@@ -64,8 +67,8 @@ export const Website = Cloudflare.Website.Astro(
         CLOUDFLARE_ACCOUNT_ID: Config.string("CLOUDFLARE_ACCOUNT_ID").pipe(
           Config.withDefault(""),
         ),
-        CLOUDFLARE_ANALYTICS_TOKEN: Config.option(
-          Config.redacted("CLOUDFLARE_ANALYTICS_TOKEN"),
+        CLOUDFLARE_ANALYTICS_TOKEN: Config.redacted(
+          "CLOUDFLARE_ANALYTICS_TOKEN",
         ),
       },
     };

@@ -195,11 +195,11 @@ async function signOut() {
 }
 
 export function DashboardShell() {
-  const session = authClient.useSession();
+  const session = useClientSession();
   const operatorEmail = session.data?.user?.email ?? "Operator";
   const operatorInitials = (session.data?.user?.name ?? "OP")
     .split(/\s+/)
-    .map((part) => part[0])
+    .map((part: string) => part[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
@@ -478,6 +478,27 @@ export function DashboardShell() {
       <Toaster />
     </SidebarProvider>
   );
+}
+
+function useClientSession() {
+  const [session, setSession] = useState<{
+    data?: { user?: { email?: string; name?: string } } | null;
+  }>({});
+  useEffect(() => {
+    let active = true;
+    void authClient
+      .getSession()
+      .then((result) => {
+        if (active) setSession({ data: result.data });
+      })
+      .catch(() => {
+        if (active) setSession({});
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+  return session;
 }
 
 function ThemeIcon({ theme }: { theme: string }) {
