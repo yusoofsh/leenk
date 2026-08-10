@@ -326,10 +326,12 @@ additionally requires the GitHub `production` environment approval gate.
 ## Dashboard login
 
 The owner dashboard at `/dashboard` and its API at `/api/dashboard` are
-protected by HTTP Basic authentication enforced in the Worker. The username
-is ignored; the password is the `STATIC_UPLOAD_TOKEN` Worker secret. The
-browser shows the native login prompt and remembers the credentials for the
-session.
+protected by Better Auth sessions. Sign in at `/login` with the operator
+email and password; the first operator is provisioned once through
+`POST /api/auth/bootstrap` (owner email, 12+ character password, guarded by
+the upload token). Roles (`owner`, `admin`, `member`) and the `Leenk`
+organization are defined in `src/lib/auth-roles.ts`. The upload token keeps
+guarding the CLI and machine upload paths.
 
 ## Contributing
 

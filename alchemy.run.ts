@@ -59,6 +59,7 @@ export const Website = Cloudflare.Website.Astro(
         SHORTLINK_ANALYTICS: ShortlinkAnalytics,
         SITE_ANALYTICS: SiteAnalytics,
         CMS: Cms,
+        BETTER_AUTH_SECRET: Config.redacted("BETTER_AUTH_SECRET"),
         STATIC_UPLOAD_TOKEN: Config.redacted("STATIC_UPLOAD_TOKEN"),
         CLOUDFLARE_ACCOUNT_ID: Config.string("CLOUDFLARE_ACCOUNT_ID").pipe(
           Config.withDefault(""),

@@ -124,6 +124,7 @@ async function uploadObject(
     uploadToken,
     "UPLOAD_NOT_CONFIGURED",
     "Static file uploads are not configured",
+    "files:manage",
   );
   if (authError) return authError;
 
@@ -267,6 +268,7 @@ async function deleteObject(
     uploadToken,
     "DELETE_NOT_CONFIGURED",
     "Static file deletion is not configured",
+    "files:manage",
   );
   if (authError) return authError;
 

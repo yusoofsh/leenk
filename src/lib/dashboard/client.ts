@@ -61,30 +61,6 @@ export interface ActivityPage {
   nextCursor: string | null;
 }
 
-export interface UploadTokenState {
-  setToken: (token: string | null) => void;
-  token: string | null;
-}
-
-let uploadToken: string | null = null;
-const tokenListeners = new Set<(token: string | null) => void>();
-
-export function setDashboardUploadToken(token: string | null): void {
-  uploadToken = token;
-  for (const listener of tokenListeners) listener(token);
-}
-
-export function subscribeToUploadToken(
-  listener: (token: string | null) => void,
-): () => void {
-  tokenListeners.add(listener);
-  return () => tokenListeners.delete(listener);
-}
-
-export function getDashboardUploadToken(): string | null {
-  return uploadToken;
-}
-
 export async function dashboardFetch<T>(
   path: string,
   init: RequestInit = {},
@@ -94,8 +70,6 @@ export async function dashboardFetch<T>(
   if (init.body !== undefined && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
-  const token = getDashboardUploadToken();
-  if (token) headers.set("X-Upload-Token", token);
 
   let response: Response;
   try {
@@ -107,6 +81,11 @@ export async function dashboardFetch<T>(
       ok: false,
       status: 0,
     };
+  }
+  if (response.status === 401) {
+    window.location.assign(
+      `/login?next=${encodeURIComponent(path.split("?")[0] ?? "/dashboard")}`,
+    );
   }
 
   let body: unknown;
@@ -193,8 +172,6 @@ export async function dashboardDelete(
 ): Promise<DashboardResult<null>> {
   const headers = new Headers();
   headers.set("Accept", "application/json");
-  const token = getDashboardUploadToken();
-  if (token) headers.set("X-Upload-Token", token);
   let response: Response;
   try {
     response = await fetch(path, { headers, method: "DELETE" });

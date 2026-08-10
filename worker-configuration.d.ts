@@ -6,6 +6,7 @@ interface __BaseEnv_Env {
 	SHORTLINK_ANALYTICS: AnalyticsEngineDataset;
 	SITE_ANALYTICS: AnalyticsEngineDataset;
 	CMS?: D1Database;
+	BETTER_AUTH_SECRET?: string;
 	CLOUDFLARE_ACCOUNT_ID?: string;
 	CLOUDFLARE_ANALYTICS_TOKEN?: string;
 	STATIC_UPLOAD_TOKEN?: string;

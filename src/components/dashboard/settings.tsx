@@ -1,8 +1,6 @@
-import { KeyRoundIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -10,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import {
   Select,
@@ -20,11 +17,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import {
-  getDashboardUploadToken,
-  setDashboardUploadToken,
-  subscribeToUploadToken,
-} from "~/lib/dashboard/client";
 
 const ENVIRONMENT_KEY = "leenk-dashboard-environment";
 const DEFAULT_RANGE_KEY = "leenk-dashboard-default-range";
@@ -41,13 +33,9 @@ export function Settings() {
       <Tabs defaultValue="preferences">
         <TabsList>
           <TabsTrigger value="preferences">Preferences</TabsTrigger>
-          <TabsTrigger value="writes">Write token</TabsTrigger>
         </TabsList>
         <TabsContent value="preferences">
           <PreferencesCard />
-        </TabsContent>
-        <TabsContent value="writes">
-          <WriteTokenCard />
         </TabsContent>
       </Tabs>
     </div>
@@ -135,72 +123,6 @@ function PreferencesCard() {
             </SelectContent>
           </Select>
         </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function WriteTokenCard() {
-  const [token, setToken] = useState<string | null>(null);
-  const [draft, setDraft] = useState("");
-
-  useEffect(() => {
-    setToken(getDashboardUploadToken());
-    return subscribeToUploadToken((next) => setToken(next));
-  }, []);
-
-  const save = () => {
-    const trimmed = draft.trim();
-    setDashboardUploadToken(trimmed.length > 0 ? trimmed : null);
-    setDraft("");
-    toast.success(
-      trimmed ? "Write token set for this session" : "Write token cleared",
-    );
-  };
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Write token</CardTitle>
-        <CardDescription>
-          The upload token required for draft saves, publishing, uploads, and
-          deletes. Held in memory for this session only and never stored on
-          disk.
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="grid gap-4 sm:max-w-md">
-        <div className="space-y-2">
-          <Label htmlFor="write-token">Upload token</Label>
-          <Input
-            id="write-token"
-            type="password"
-            autoComplete="off"
-            placeholder={
-              token
-                ? "A token is set for this session"
-                : "Paste the upload token"
-            }
-            value={draft}
-            onChange={(event) => setDraft(event.target.value)}
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={save}
-            disabled={draft.trim().length === 0 && token === null}
-          >
-            <KeyRoundIcon className="size-4" aria-hidden="true" />
-            {token ? "Replace token" : "Set token"}
-          </Button>
-          {token ? (
-            <Button variant="outline" onClick={save}>
-              Clear token
-            </Button>
-          ) : null}
-        </div>
-        <p className="text-muted-foreground text-xs">
-          Status: {token ? "Write token set" : "No write token"}
-        </p>
       </CardContent>
     </Card>
   );

@@ -37,7 +37,6 @@ import {
   dashboardDelete,
   dashboardFetch,
   formatDate,
-  getDashboardUploadToken,
   type FileListEntry,
   type DashboardResult,
 } from "~/lib/dashboard/client";
@@ -74,14 +73,10 @@ export function Files() {
 
   const upload = async (file: File) => {
     setUploading(true);
-    const token = getDashboardUploadToken() ?? undefined;
-    const headers: Record<string, string> = {};
-    if (token) headers["X-Upload-Token"] = token;
     let response: Response;
     try {
-      response = await fetch(`/api/static/${encodeURIComponent(file.name)}`, {
+      response = await fetch(`/static/${encodeURIComponent(file.name)}`, {
         body: file,
-        headers,
         method: "POST",
       });
     } catch {

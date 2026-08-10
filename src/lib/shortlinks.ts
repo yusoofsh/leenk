@@ -437,6 +437,7 @@ async function createShortlinkFromRequest(
     uploadToken,
     "SHORTLINKS_NOT_CONFIGURED",
     "Shortlink writes are not configured",
+    "shortlinks:manage",
   );
   if (authError) return authError;
 
@@ -722,6 +723,7 @@ async function deleteShortlink(
     uploadToken,
     "SHORTLINKS_NOT_CONFIGURED",
     "Shortlink writes are not configured",
+    "shortlinks:manage",
   );
   if (authError) return authError;
   if (!isValidShortlinkCode(code)) return shortlinkNotFound();

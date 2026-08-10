@@ -1,24 +1,47 @@
+import type { DashboardCapability } from "./auth-guard";
+
+async function sessionAllows(
+  request: Request,
+  capability: DashboardCapability,
+): Promise<boolean> {
+  try {
+    const { sessionAllows: check } = await import("./session-auth");
+    return await check(request, capability);
+  } catch {
+    // Outside the Worker runtime (tests, local tooling) the auth module is
+    // not available; the token path remains the fallback.
+    return false;
+  }
+}
+
 export async function authorizeMutation(
   request: Request,
   uploadToken: string | undefined,
   unavailableCode: string,
   unavailableMessage: string,
+  capability?: DashboardCapability,
 ): Promise<Response | null> {
-  if (!uploadToken) {
-    return apiError(503, unavailableCode, unavailableMessage);
-  }
-
   const authorization = request.headers.get("authorization");
   const providedToken = authorization?.startsWith("Bearer ")
     ? authorization.slice("Bearer ".length)
     : "";
-  if (!providedToken || !(await tokensMatch(providedToken, uploadToken))) {
-    return apiError(401, "UNAUTHORIZED", "A valid upload token is required", {
-      "WWW-Authenticate": "Bearer",
-    });
+  if (
+    uploadToken &&
+    providedToken &&
+    (await tokensMatch(providedToken, uploadToken))
+  ) {
+    return null;
+  }
+  if (capability && (await sessionAllows(request, capability))) {
+    return null;
   }
 
-  return null;
+  if (!uploadToken) {
+    return apiError(503, unavailableCode, unavailableMessage);
+  }
+  return apiError(401, "UNAUTHORIZED", "A valid upload token is required", {
+    "WWW-Authenticate": "Bearer",
+  });
 }
 
 export function apiError(
@@ -38,7 +61,7 @@ export function apiError(
   );
 }
 
-async function tokensMatch(
+export async function tokensMatch(
   provided: string,
   expected: string,
 ): Promise<boolean> {

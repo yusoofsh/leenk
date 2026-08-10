@@ -6,6 +6,7 @@ import {
   GaugeIcon,
   HomeIcon,
   Link2Icon,
+  LogOutIcon,
   MegaphoneIcon,
   MonitorIcon,
   MoonIcon,
@@ -68,6 +69,7 @@ import {
   SidebarTrigger,
 } from "~/components/ui/sidebar";
 import { Toaster } from "~/components/ui/sonner";
+import { authClient } from "~/lib/auth-client";
 import { setThemeMode, themeMode, themePreference } from "~/lib/stores/theme";
 
 export type DashboardModuleId =
@@ -187,7 +189,21 @@ function isModuleId(value: string): value is DashboardModuleId {
   return MODULES.some((module) => module.id === value);
 }
 
+async function signOut() {
+  await authClient.signOut();
+  window.location.assign("/login");
+}
+
 export function DashboardShell() {
+  const session = authClient.useSession();
+  const operatorEmail = session.data?.user?.email ?? "Operator";
+  const operatorInitials = (session.data?.user?.name ?? "OP")
+    .split(/\s+/)
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+
   const [activeModule, setActiveModule] =
     useState<DashboardModuleId>(readActiveModule);
   const [environment, setEnvironment] =
@@ -416,19 +432,21 @@ export function DashboardShell() {
                 >
                   <Avatar className="size-7">
                     <AvatarFallback className="bg-accent text-accent-foreground">
-                      YM
+                      {operatorInitials}
                     </AvatarFallback>
                   </Avatar>
                   <span className="hidden text-sm font-medium sm:inline">
-                    Yusoof Moh
+                    {operatorEmail}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">Yusoof Moh</p>
-                    <p className="text-muted-foreground text-xs">Owner</p>
+                    <p className="text-sm font-medium">{operatorEmail}</p>
+                    <p className="text-muted-foreground text-xs">
+                      {session.data?.user?.name ?? "Operator"}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -439,6 +457,11 @@ export function DashboardShell() {
                 <DropdownMenuItem onSelect={() => navigate("operations")}>
                   <WrenchIcon className="size-4" aria-hidden="true" />
                   Operations
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onSelect={() => void signOut()}>
+                  <LogOutIcon className="size-4" aria-hidden="true" />
+                  Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
