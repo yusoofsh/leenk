@@ -120,3 +120,23 @@ continue
 ---
 
 can leenk_shortlinks_v2 become leenk_shortlinks so no separate v2
+
+---
+
+cleanup now its ok
+
+---
+
+what CLOUDFLARE_API_TOKEN permssion, CLOUDFLARE_ACCOUNT_ID, STATIC_UPLOAD_TOKEN, CLOUDFLARE_ANALYTICS_TOKEN you can use previous value is used its ok ill handle the rotation later
+
+---
+
+REDACTED
+
+---
+
+what else
+
+---
+
+proceed
