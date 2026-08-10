@@ -1,0 +1,54 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "bf2e9d8e47aa",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "alchemy.run.ts",
+    "d1/migrations/0003_auth_account_issuer.sql",
+    "docs/decisions/0004-better-auth-operator-access.md",
+    "src/components/dashboard/dashboard-shell.tsx",
+    "src/components/dashboard/operations.tsx",
+    "src/components/dashboard/overview.tsx",
+    "src/components/dashboard/shortlinks.tsx",
+    "src/lib/auth-guard.test.ts",
+    "src/lib/auth-guard.ts",
+    "src/lib/dashboard/cms.ts",
+    "src/lib/dashboard/records.ts",
+    "src/lib/require-operator.ts",
+    "src/lib/shortlink-constants.ts",
+    "src/lib/shortlink-model.ts",
+    "src/lib/shortlink-storage.ts",
+    "src/lib/shortlinks.ts",
+    "src/middleware.ts",
+    "src/pages/api/auth/bootstrap.ts",
+    "src/pages/api/dashboard/activity.ts",
+    "src/pages/api/dashboard/analytics/campaigns.ts",
+    "src/pages/api/dashboard/analytics/shortlinks.ts",
+    "src/pages/api/dashboard/analytics/site-events.ts",
+    "src/pages/api/dashboard/cms.ts",
+    "src/pages/api/dashboard/cms/revisions/[id].ts",
+    "src/pages/api/dashboard/files.ts",
+    "src/pages/api/dashboard/links.ts",
+    "src/pages/api/dashboard/shortlinks.ts",
+    "src/pages/dashboard.astro",
+    "src/pages/dashboard/index.astro"
+  ],
+  "sessions": [
+    {
+      "metadata": "/bf/2e9d8e47aa/0/metadata.json",
+      "transcript": "/bf/2e9d8e47aa/0/full.jsonl",
+      "compact_transcript": "/bf/2e9d8e47aa/0/transcript.jsonl",
+      "content_hash": "/bf/2e9d8e47aa/0/content_hash.txt",
+      "prompt": "/bf/2e9d8e47aa/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2401368,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 539084288,
+    "output_tokens": 526825,
+    "api_call_count": 1398
+  }
+}
