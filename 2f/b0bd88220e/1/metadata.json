@@ -1,0 +1,140 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "2fb0bd88220e",
+  "session_id": "019fea37-678c-7021-b3ee-21d9fd224225",
+  "strategy": "manual-commit",
+  "created_at": "2026-08-10T05:57:13.381782Z",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "save_step_count": 3,
+  "files_touched": [
+    ".github/workflows/deploy.yml",
+    "alchemy.run.ts",
+    "d1/migrations/0002_better_auth.sql",
+    "nub.lock",
+    "package.json",
+    "src/components/dashboard/dashboard-shell.tsx",
+    "src/components/dashboard/files.tsx",
+    "src/components/dashboard/settings.tsx",
+    "src/components/login-form.tsx",
+    "src/env.d.ts",
+    "src/lib/auth-client.ts",
+    "src/lib/auth-guard.test.ts",
+    "src/lib/auth-guard.ts",
+    "src/lib/auth-roles.ts",
+    "src/lib/auth.ts",
+    "src/lib/dashboard/client.ts",
+    "src/lib/http.ts",
+    "src/lib/session-auth.ts",
+    "src/lib/shortlinks.ts",
+    "src/lib/static.ts",
+    "src/middleware.ts",
+    "src/pages/api/auth/[...all].ts",
+    "src/pages/api/auth/bootstrap.ts",
+    "src/pages/api/dashboard/cms/drafts.ts",
+    "src/pages/api/dashboard/cms/publish.ts",
+    "src/pages/api/dashboard/cms/rollback.ts",
+    "src/pages/login.astro",
+    "worker-configuration.d.ts"
+  ],
+  "agent": "Codex",
+  "model": "opencode-go/deepseek-v4-flash",
+  "turn_id": "8847522327b2",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 148357,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 1707776,
+    "output_tokens": 32313,
+    "api_call_count": 28
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-08-10T05:57:13.110583Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 83,
+    "human_removed": 135,
+    "total_committed": 24,
+    "total_lines_changed": 222,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 877,
+      "user_lines_removed": 208,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".github/workflows/deploy.yml": 1,
+        "alchemy.run.ts": 1,
+        "d1/migrations/0002_better_auth.sql": 94,
+        "nub.lock": 279,
+        "package.json": 1,
+        "src/components/dashboard/dashboard-shell.tsx": 27,
+        "src/components/dashboard/files.tsx": 1,
+        "src/components/login-form.tsx": 78,
+        "src/env.d.ts": 8,
+        "src/lib/auth-client.ts": 6,
+        "src/lib/auth-guard.test.ts": 52,
+        "src/lib/auth-guard.ts": 62,
+        "src/lib/auth.ts": 83,
+        "src/lib/dashboard/client.ts": 5,
+        "src/lib/http.ts": 38,
+        "src/lib/shortlinks.ts": 2,
+        "src/lib/static.ts": 2,
+        "src/middleware.ts": 33,
+        "src/pages/api/auth/[...all].ts": 7,
+        "src/pages/api/auth/bootstrap.ts": 74,
+        "src/pages/api/dashboard/cms/drafts.ts": 1,
+        "src/pages/api/dashboard/cms/publish.ts": 1,
+        "src/pages/api/dashboard/cms/rollback.ts": 1,
+        "src/pages/login.astro": 19,
+        "worker-configuration.d.ts": 1
+      },
+      "user_removed_per_file": {
+        "src/components/dashboard/dashboard-shell.tsx": 4,
+        "src/components/dashboard/files.tsx": 6,
+        "src/components/dashboard/settings.tsx": 78,
+        "src/lib/dashboard/client.ts": 28,
+        "src/lib/http.ts": 10,
+        "src/middleware.ts": 52,
+        "src/pages/api/dashboard/cms/drafts.ts": 10,
+        "src/pages/api/dashboard/cms/publish.ts": 10,
+        "src/pages/api/dashboard/cms/rollback.ts": 10
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 2,
+      "user_lines_removed": 2,
+      "agent_lines_added": 903,
+      "agent_lines_removed": 208,
+      "user_added_per_file": {
+        "src/lib/http.ts": 2
+      },
+      "user_removed_per_file": {
+        "src/lib/http.ts": 2
+      }
+    }
+  ]
+}
