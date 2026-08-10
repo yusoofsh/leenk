@@ -123,6 +123,18 @@ green. Access is managed through the Cloudflare CLI until the Alchemy
 profile is re-authenticated with Access permissions; if that happens, the
 resources can move back into the stack with adoption.
 
+## Dashboard authentication moved to worker Basic auth (2026-08-10)
+
+The Access email one-time PIN flow could not deliver codes to the operator's
+iCloud-hosted mailbox, and the account had no other identity provider. The
+dashboard boundary was replaced with HTTP Basic authentication enforced in
+`src/middleware.ts` against the already-bound `STATIC_UPLOAD_TOKEN` Worker
+secret: no email delivery, no identity provider, constant-time comparison,
+`Cache-Control: no-store`, and a `401` challenge for `/dashboard` and
+`/api/dashboard`. The two dashboard Access applications and the `Allow
+Owner` policy were deleted through the Cloudflare CLI. The `leenk - preview`
+application on workers.dev remains untouched.
+
 ## Incident note (2026-08-10)
 
 `alchemy destroy --stage dev` deleted the adopted `leenk-static` R2 bucket

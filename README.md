@@ -323,6 +323,14 @@ Deploy only after local and CI verification pass. Both commands change live
 state and require approval when run by an agent; the Production deploy
 additionally requires the GitHub `production` environment approval gate.
 
+## Dashboard login
+
+The owner dashboard at `/dashboard` and its API at `/api/dashboard` are
+protected by HTTP Basic authentication enforced in the Worker. The username
+is ignored; the password is the `STATIC_UPLOAD_TOKEN` Worker secret. The
+browser shows the native login prompt and remembers the credentials for the
+session.
+
 ## Contributing
 
 1. Create a short-lived branch.
