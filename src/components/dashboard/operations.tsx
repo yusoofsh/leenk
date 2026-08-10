@@ -1,0 +1,242 @@
+import { CircleCheckIcon, CircleXIcon } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { ModuleError } from "~/components/dashboard/module-primitives";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
+import {
+  dashboardFetch,
+  type DashboardResult,
+  type FileListEntry,
+  type ShortlinkListEntry,
+} from "~/lib/dashboard/client";
+
+interface HealthState {
+  analytics: "error" | "ok" | "unknown";
+  cms: "error" | "ok" | "unknown";
+  r2: "error" | "ok" | "unknown";
+  renderer: "error" | "ok" | "unknown";
+}
+
+export function Operations() {
+  const [health, setHealth] = useState<HealthState>({
+    analytics: "unknown",
+    cms: "unknown",
+    r2: "unknown",
+    renderer: "unknown",
+  });
+  const [files, setFiles] = useState<DashboardResult<FileListEntry[]> | null>(
+    null,
+  );
+  const [shortlinks, setShortlinks] = useState<DashboardResult<
+    ShortlinkListEntry[]
+  > | null>(null);
+  const [activity, setActivity] = useState<DashboardResult<unknown> | null>(
+    null,
+  );
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    void Promise.all([
+      dashboardFetch<FileListEntry[]>("/api/dashboard/files"),
+      dashboardFetch<ShortlinkListEntry[]>("/api/dashboard/shortlinks"),
+      dashboardFetch<unknown>("/api/dashboard/activity?limit=1"),
+      dashboardFetch<unknown[]>(
+        "/api/dashboard/analytics/shortlinks?start=2026-08-01&end=2026-08-02",
+      ),
+    ]).then(
+      ([filesResult, shortlinksResult, activityResult, analyticsResult]) => {
+        if (cancelled) return;
+        setFiles(filesResult);
+        setShortlinks(shortlinksResult);
+        setActivity(activityResult);
+        setHealth({
+          analytics: analyticsResult.ok ? "ok" : ("error" as const),
+          cms: activityResult.ok ? "ok" : "error",
+          r2: filesResult.ok ? "ok" : "error",
+          renderer: "ok",
+        });
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [attempt]);
+
+  const retry = () => setAttempt((value) => value + 1);
+  const allChecked = files !== null && shortlinks !== null && activity !== null;
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-semibold">Operations</h1>
+        <p className="text-muted-foreground text-sm">
+          Binding health and Cloudflare link-outs. Read only.
+        </p>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <HealthCard
+          label="Public renderer"
+          status={health.renderer}
+          detail="Worker responds on the public route"
+        />
+        <HealthCard
+          label="R2 static storage"
+          status={health.r2}
+          detail={r2Detail(files)}
+        />
+        <HealthCard
+          label="D1 CMS"
+          status={health.cms}
+          detail={cmsDetail(activity)}
+        />
+        <HealthCard
+          label="Analytics Engine"
+          status={health.analytics}
+          detail={analyticsDetail(files, health.analytics)}
+        />
+      </div>
+      {!allChecked ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {Array.from({ length: 4 }, (_, index) => (
+            <Skeleton key={index} className="h-28 w-full" />
+          ))}
+        </div>
+      ) : null}
+      {hasError(health) ? (
+        <ModuleError
+          error={{
+            error: "PARTIAL",
+            message: "One or more bindings are unavailable.",
+            ok: false,
+            status: 0,
+          }}
+          onRetry={retry}
+          title="Some bindings are unavailable"
+        />
+      ) : null}
+      <Card>
+        <CardHeader>
+          <CardTitle>Cloudflare surfaces</CardTitle>
+          <CardDescription>
+            Open the relevant Cloudflare dashboard
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href="https://dash.cloudflare.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Workers overview
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href="https://dash.cloudflare.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Web Analytics
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href="https://dash.cloudflare.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Workers Observability
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href="https://dash.cloudflare.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              R2 buckets
+            </a>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
+            <a
+              href="https://dash.cloudflare.com/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              D1 databases
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function HealthCard({
+  detail,
+  label,
+  status,
+}: {
+  detail: string;
+  label: string;
+  status: "error" | "ok" | "unknown";
+}) {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{label}</CardTitle>
+        {status === "ok" ? (
+          <CircleCheckIcon
+            className="size-4 text-emerald-600"
+            aria-hidden="true"
+          />
+        ) : (
+          <CircleXIcon className="text-destructive size-4" aria-hidden="true" />
+        )}
+      </CardHeader>
+      <CardContent>
+        <Badge variant={status === "ok" ? "default" : "destructive"}>
+          {status}
+        </Badge>
+        <p className="text-muted-foreground mt-2 text-xs">{detail}</p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function r2Detail(files: DashboardResult<FileListEntry[]> | null): string {
+  if (files === null) return "Checking the bucket";
+  return files.ok
+    ? `${files.data.length} objects listed`
+    : "Bucket list failed";
+}
+
+function cmsDetail(activity: DashboardResult<unknown> | null): string {
+  if (activity === null) return "Checking the D1 store";
+  return activity.ok ? "D1 responds" : "D1 binding unavailable";
+}
+
+function analyticsDetail(
+  files: DashboardResult<FileListEntry[]> | null,
+  status: "error" | "ok" | "unknown",
+): string {
+  if (files === null) return "Checking the Analytics Engine binding";
+  return status === "ok"
+    ? "Reports respond"
+    : "Add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ANALYTICS_TOKEN";
+}
+
+function hasError(health: HealthState) {
+  return Object.values(health).some((status) => status === "error");
+}

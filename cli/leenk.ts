@@ -50,6 +50,7 @@ Upload options:
   --expires DURATION   Expire after positive minutes (m), hours (h), or days (d)
   --expires never      Keep the object publicly available
   --no-shortlink       Do not create a shortlink
+  --label VALUE        Human-readable shortlink analytics label
   --campaign VALUE     Shortlink campaign name
   --source VALUE       Shortlink campaign source
   --medium VALUE       Shortlink campaign medium
@@ -143,7 +144,12 @@ function parseUploadResult(text: string): UploadResult {
     ) {
       throw new Error("server returned an invalid shortlink confirmation");
     }
-    result.shortlink = { shortUrl: value.shortlink.shortUrl };
+    result.shortlink = {
+      shortUrl: value.shortlink.shortUrl,
+      ...(typeof value.shortlink.label === "string"
+        ? { label: value.shortlink.label }
+        : {}),
+    };
   }
   if (typeof value.shortlinkError === "string") {
     result.shortlinkError = value.shortlinkError;
@@ -220,6 +226,7 @@ async function upload(args: string[]): Promise<void> {
     "X-Static-Shortlink": String(options.shortlink),
   };
   if (options.expiration) headers["X-Static-Expires-In"] = options.expiration;
+  if (options.label) headers["X-Shortlink-Label"] = options.label;
   if (options.campaign) headers["X-Shortlink-Campaign"] = options.campaign;
   if (options.source) headers["X-Shortlink-Source"] = options.source;
   if (options.medium) headers["X-Shortlink-Medium"] = options.medium;

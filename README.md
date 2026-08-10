@@ -35,14 +35,15 @@ The development server is available at <http://localhost:4321> by default.
 | ---------------------------------- | ---------------------- |
 | Start the Astro development server | `nub run dev`          |
 | Build the production Worker        | `nub run build`        |
-| Preview through Wrangler           | `nub run preview`      |
 | Run the TypeScript check           | `nub run check`        |
 | Run unit tests                     | `nub run test`         |
 | Run Oxlint                         | `nub run lint`         |
 | Check Oxfmt formatting             | `nub run format:check` |
-| Check generated Wrangler types     | `nub run types:check`  |
 | Run all local verification gates   | `nub run verify`       |
 | Apply lint and formatting fixes    | `nub run quality`      |
+| Show the Alchemy deployment plan   | `nub run plan`         |
+| Deploy the Development Environment | `nub run deploy`       |
+| Deploy the Production Environment  | `nub run deploy:prod`  |
 
 Oxfmt formats supported JavaScript, TypeScript, CSS, Markdown, and configuration files. It currently skips `.astro` files, which remain validated by Astro's compiler and production build. CI runs linting, formatting, TypeScript checks, unit tests, the production build, and a high-severity dependency audit.
 
@@ -57,7 +58,8 @@ src/
 └── styles/            Global Tailwind styles
 
 public/                Static assets copied into the Worker bundle
-wrangler.jsonc         Cloudflare Worker and static-assets configuration
+alchemy.run.ts         Alchemy stack: Worker, R2, datasets, D1, Access
+d1/migrations/         D1 SQL migrations for the dashboard CMS
 ```
 
 ## Static file hosting
@@ -93,6 +95,7 @@ use the Worker's 14-day expiration by default:
 
 ```bash
 leenk upload ./document.pdf
+leenk upload --label electgo_runner_options ./runner-options.html
 leenk upload file:///Users/me/Documents/report.pdf reports/report.pdf
 leenk upload --expires never --no-shortlink ./logo.png assets/logo.png
 ```
@@ -127,11 +130,16 @@ custom metadata and returns `410 Gone` after that time without deleting the R2 o
 `never` for a permanent public object. Legacy objects uploaded before expiration support remain
 readable.
 
-Create the R2 bucket and upload secret once before the first deployment:
+The `leenk-static` R2 bucket already exists in the Yusoof Moh account. The
+bucket, the Analytics Engine datasets, and the live Worker are adopted by the
+Alchemy stack (`alchemy.run.ts`) with their exact physical names. Deployment
+reads `STATIC_UPLOAD_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from the environment
+(CI secrets or `.env`); `CLOUDFLARE_ANALYTICS_TOKEN` is optional until the
+dashboard analytics reports are enabled:
 
 ```bash
-nub exec wrangler r2 bucket create leenk-static
-nub exec wrangler secret put STATIC_UPLOAD_TOKEN
+export STATIC_UPLOAD_TOKEN=<the existing Worker secret value>
+export CLOUDFLARE_ACCOUNT_ID=<account id>
 ```
 
 Upload any binary file while preserving its media type:
@@ -196,6 +204,7 @@ Shortlink records can include a future UTC expiration and campaign metadata:
 
 ```json
 {
+  "label": "electgo_runner_options",
   "path": "docs/guide.pdf",
   "expiresAt": "2099-01-01T00:00:00.000Z",
   "campaign": {
@@ -217,22 +226,41 @@ paths are rejected:
 
 Uploads can optionally allocate a shortlink in the same response by sending
 `X-Static-Shortlink: true`. The upload endpoint accepts the same campaign
-headers (`X-Shortlink-Campaign`, `X-Shortlink-Source`,
-`X-Shortlink-Medium`, and `X-Shortlink-Content`). Campaign clicks are recorded
-by the configured `SHORTLINK_ANALYTICS` Analytics Engine binding without
-blocking redirects; only the referrer origin is retained.
+headers (`X-Shortlink-Label`, `X-Shortlink-Campaign`, `X-Shortlink-Source`, and
+`X-Shortlink-Medium`). If no label is supplied, the Worker derives one from the
+target path. Labels use at most 64 letters, numbers, dots, underscores, or
+hyphens. Campaign clicks are recorded by the configured `SHORTLINK_ANALYTICS`
+Analytics Engine binding without blocking redirects; only the referrer origin
+is retained.
 
 ## Analytics
 
 Cloudflare Web Analytics remains responsible for ordinary page views, referrer,
-device/browser dimensions, and Web Vitals. The separate `SITE_ANALYTICS`
-Analytics Engine binding (`leenk_site_events`) records only allowlisted custom
-events. Each data point uses this shape:
+device/browser dimensions, and Web Vitals. The `SHORTLINK_ANALYTICS` binding
+writes to the `leenk_shortlinks` dataset. Its data points use this shape:
+
+```text
+blob1: shortlink code
+blob2: human-readable link label
+blob3: target kind (`static` or `internal`)
+blob4: campaign name
+blob5: campaign source
+blob6: campaign medium
+blob7: referrer origin only
+double1: 1
+index1: human-readable link label
+```
+
+Rows recorded before the label migration still carry the short code as
+`index1` and age out with Analytics Engine's three-month retention. The
+separate `SITE_ANALYTICS` Analytics Engine binding (`leenk_site_events`)
+records only allowlisted custom events. Its data points use this shape:
 
 ```text
 blob1: event name
 blob2: bounded dimension, when applicable
 blob3: referrer origin only
+blob4: human-readable shortlink label, for lifecycle events
 double1: 1
 index1: event name
 ```
@@ -251,7 +279,8 @@ The current custom event taxonomy is:
 - `client_error`: `runtime`, `resource`, or `promise`, without messages or
   stack traces.
 - `shortlink_created`: `internal` or `static`.
-- `shortlink_deleted`: no path or code recorded in the site-events dataset.
+- `shortlink_deleted`: no path or code recorded in the site-events dataset;
+  the bounded label is recorded when available.
 - `static_file_uploaded`: `with_shortlink` or `without_shortlink`.
 - `static_file_deleted`.
 
@@ -264,20 +293,35 @@ never block navigation, redirects, uploads, or deletes.
 
 ## Deployment
 
-The build produces an Astro server entry point and static assets in `dist/`. Preview the exact Worker configuration locally before deploying:
+The build produces an Astro server entry point and static assets in `dist/`.
+`nub run build` uses `astro.config.local.ts`, which adds the same
+`@distilled.cloud/astro` Cloudflare adapter the Alchemy stack injects at
+deploy time, so the repository never needs Wrangler.
+
+Show the plan for a stage before deploying:
 
 ```bash
 nub run build
-nub run preview
+nub run plan -- --stage dev
 ```
 
-Production deployment is intentionally explicit:
+The Development Environment deploys to an isolated `dev-leenk` Worker on
+workers.dev:
 
 ```bash
 nub run deploy
 ```
 
-Deploy only after local and CI verification pass. The deploy command changes production state and requires separate approval when run by an agent.
+Production deployment is intentionally explicit and adopts the live `leenk`
+Worker and its custom domain:
+
+```bash
+nub run deploy:prod
+```
+
+Deploy only after local and CI verification pass. Both commands change live
+state and require approval when run by an agent; the Production deploy
+additionally requires the GitHub `production` environment approval gate.
 
 ## Contributing
 

@@ -95,7 +95,7 @@ describe("site analytics", () => {
 
     expect(analytics.events).toEqual([
       {
-        blobs: ["social_link_clicked", "github", "https://www.yusoofsh.id"],
+        blobs: ["social_link_clicked", "github", "https://www.yusoofsh.id", ""],
         doubles: [1],
         indexes: ["social_link_clicked"],
       },

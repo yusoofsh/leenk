@@ -1,14 +1,14 @@
-import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import path from "path";
 
-// https://astro.build/config
+// Canonical Astro configuration. The Alchemy `Cloudflare.Website.Astro`
+// stack loads this file natively and injects the Cloudflare adapter itself;
+// a user-declared adapter is rejected. Local builds and CI use
+// `astro.config.local.ts`, which adds the same adapter integration from
+// `@distilled.cloud/astro`, so the repository never needs Wrangler.
 export default defineConfig({
-  adapter: cloudflare({
-    imageService: "cloudflare",
-  }),
   integrations: [react()],
   output: "server",
   site: "https://www.yusoofsh.id/",

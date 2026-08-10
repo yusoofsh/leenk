@@ -5,6 +5,7 @@ export interface UploadArguments {
   campaign: string | undefined;
   expiration: string | undefined;
   filePath: string;
+  label: string | undefined;
   medium: string | undefined;
   remotePath: string | undefined;
   shortlink: boolean;
@@ -15,7 +16,7 @@ export interface UploadResult {
   etag: string;
   expiresAt: string | null;
   path: string;
-  shortlink?: { shortUrl: string };
+  shortlink?: { label?: string; shortUrl: string };
   shortlinkError?: string;
   size: number;
   url: string;
@@ -84,6 +85,7 @@ export function parseUploadArguments(args: string[]): UploadArguments {
   let expiration: string | undefined;
   let shortlink = true;
   let campaign: string | undefined;
+  let label: string | undefined;
   let source: string | undefined;
   let medium: string | undefined;
   const positional: string[] = [];
@@ -106,6 +108,12 @@ export function parseUploadArguments(args: string[]): UploadArguments {
       campaign = args[index]!;
     } else if (argument.startsWith("--campaign=")) {
       campaign = argument.slice("--campaign=".length);
+    } else if (argument === "--label") {
+      index += 1;
+      if (index >= args.length) throw new Error("--label requires a value");
+      label = args[index]!;
+    } else if (argument.startsWith("--label=")) {
+      label = argument.slice("--label=".length);
     } else if (argument === "--source") {
       index += 1;
       if (index >= args.length) throw new Error("--source requires a value");
@@ -138,16 +146,18 @@ export function parseUploadArguments(args: string[]): UploadArguments {
     );
   }
   validateCampaignValue("campaign", campaign);
+  validateCampaignValue("label", label);
   validateCampaignValue("source", source);
   validateCampaignValue("medium", medium);
-  if (!shortlink && (campaign || source || medium)) {
-    throw new Error("campaign options require shortlink creation");
+  if (!shortlink && (campaign || label || source || medium)) {
+    throw new Error("shortlink metadata options require shortlink creation");
   }
 
   return {
     campaign,
     expiration,
     filePath: positional[0]!,
+    label,
     medium,
     remotePath: positional.length === 2 ? positional[1] : undefined,
     shortlink,
@@ -169,7 +179,11 @@ export function formatUploadResult(result: UploadResult): string {
     `Expires: ${result.expiresAt ?? "never"}`,
     `Public URL: ${result.url}`,
   ];
-  if (result.shortlink) lines.push(`Short URL: ${result.shortlink.shortUrl}`);
+  if (result.shortlink) {
+    lines.push(`Short URL: ${result.shortlink.shortUrl}`);
+    if (result.shortlink.label)
+      lines.push(`Shortlink label: ${result.shortlink.label}`);
+  }
   if (result.shortlinkError)
     lines.push(`Shortlink warning: ${result.shortlinkError}`);
   return lines.join("\n");

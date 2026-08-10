@@ -10,10 +10,13 @@ export const SHORTLINK_ATTEMPTS_PER_LENGTH = 32;
 export const MAX_SHORTLINK_REQUEST_BYTES = 8 * 1_024;
 export const MAX_INTERNAL_TARGET_LENGTH = 2_048;
 export const MAX_CAMPAIGN_VALUE_LENGTH = 64;
+export const MAX_SHORTLINK_LABEL_LENGTH = 64;
 
 const ALLOWED_METHODS = "GET, HEAD, POST, DELETE";
 const INTERNAL_TARGET_BASE_URL = "https://shortlink.invalid";
 const CAMPAIGN_VALUE_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+const SHORTLINK_LABEL_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+const DEFAULT_SHORTLINK_LABEL = "unlabeled";
 const EXPLICIT_ROOT_PATHS = new Set(["github", "linkedin", "twitter"]);
 const SHORTLINK_CODE_PATTERN = new RegExp(
   `^[${SHORTLINK_ALPHABET}]{${SHORTLINK_MIN_LENGTH},${SHORTLINK_MAX_LENGTH}}$`,
@@ -30,6 +33,7 @@ export interface ShortlinkCampaign {
 export interface ShortlinkRecord {
   campaign?: ShortlinkCampaign;
   expiresAt?: string;
+  label?: string;
   path?: string;
   target?: string;
 }
@@ -64,19 +68,21 @@ export type RandomBytes = (length: number) => Uint8Array;
 export interface CreateShortlinkOptions {
   campaign?: ShortlinkCampaign;
   expiresAt?: Date;
+  label?: string;
 }
 
 export interface ShortlinkResult {
   campaign?: ShortlinkCampaign;
   code: string;
   expiresAt?: string;
+  label: string;
   path?: string;
   shortUrl: string;
   target?: string;
   targetUrl: string;
 }
 
-interface ShortlinkTargetInput {
+export interface ShortlinkTargetInput {
   path?: string;
   target?: string;
 }
@@ -88,6 +94,7 @@ interface ParsedShortlinkInput extends CreateShortlinkOptions {
 
 export class InvalidShortlinkCampaignError extends Error {}
 export class InvalidShortlinkExpirationError extends Error {}
+export class InvalidShortlinkLabelError extends Error {}
 export class InvalidShortlinkTargetError extends Error {}
 export class ShortlinkCapacityError extends Error {}
 
@@ -215,6 +222,24 @@ export function parseCampaignHeaders(headers: Headers): {
   return parseCampaign(values);
 }
 
+export function parseShortlinkLabel(value: unknown): {
+  error?: string;
+  label?: string;
+} {
+  if (value === undefined) return {};
+  if (typeof value !== "string" || !SHORTLINK_LABEL_PATTERN.test(value)) {
+    return { error: invalidLabelMessage() };
+  }
+  return { label: value };
+}
+
+export function parseShortlinkLabelHeader(headers: Headers): {
+  error?: string;
+  label?: string;
+} {
+  return parseShortlinkLabel(headers.get("x-shortlink-label") ?? undefined);
+}
+
 export function validateInternalTarget(target: string): string | null {
   if (!target || target.length > MAX_INTERNAL_TARGET_LENGTH) {
     return "The internal target is empty or too long";
@@ -281,7 +306,7 @@ async function allocateShortlink(
   randomBytes: RandomBytes,
   options: CreateShortlinkOptions,
 ): Promise<ShortlinkResult> {
-  const normalizedOptions = normalizeCreateOptions(options);
+  const normalizedOptions = normalizeCreateOptions(target, options);
   const record = buildRecord(target, normalizedOptions);
   const code = await findAvailableCode(record, storage, randomBytes);
   if (!code) {
@@ -313,6 +338,7 @@ function buildRecord(
   } else {
     throw new InvalidShortlinkTargetError("A shortlink target is required");
   }
+  record.label = options.label ?? deriveShortlinkLabel(target);
   if (options.expiresAt) record.expiresAt = options.expiresAt.toISOString();
   if (options.campaign) record.campaign = options.campaign;
   return record;
@@ -339,6 +365,7 @@ function buildShortlinkResult(
 
   const result: ShortlinkResult = {
     code,
+    label: options.label ?? deriveShortlinkLabel(target),
     shortUrl: shortUrl.toString(),
     targetUrl: targetUrl.toString(),
   };
@@ -464,14 +491,14 @@ async function createShortlinkFromRequest(
             storage,
             new URL(request.url),
             randomBytes,
-            createOptions(expiresAt, input.campaign),
+            createOptions(expiresAt, input.campaign, input.label),
           )
         : await createInternalShortlink(
             input.target!,
             storage,
             new URL(request.url),
             randomBytes,
-            createOptions(expiresAt, input.campaign),
+            createOptions(expiresAt, input.campaign, input.label),
           );
     if (siteAnalytics) {
       recordSiteAnalyticsEvent(
@@ -479,6 +506,7 @@ async function createShortlinkFromRequest(
         {
           dimension: input.path !== undefined ? "static" : "internal",
           event: "shortlink_created",
+          label: result.label,
         },
         siteAnalytics,
       );
@@ -490,7 +518,8 @@ async function createShortlinkFromRequest(
   } catch (error) {
     if (
       error instanceof InvalidShortlinkTargetError ||
-      error instanceof InvalidShortlinkExpirationError
+      error instanceof InvalidShortlinkExpirationError ||
+      error instanceof InvalidShortlinkLabelError
     ) {
       return apiError(400, "INVALID_SHORTLINK", error.message);
     }
@@ -600,6 +629,10 @@ async function parseShortlinkInput(
   const campaign = parseCampaign(body.campaign);
   if (campaign.error) return apiError(400, "INVALID_CAMPAIGN", campaign.error);
   if (campaign.campaign) result.campaign = campaign.campaign;
+
+  const label = parseShortlinkLabel(body.label);
+  if (label.error) return apiError(400, "INVALID_LABEL", label.error);
+  if (label.label) result.label = label.label;
   return result;
 }
 
@@ -664,7 +697,7 @@ async function resolveShortlink(
   }
 
   if (request.method === "GET" && analytics) {
-    trackShortlinkClick(request, code, record.campaign, analytics);
+    trackShortlinkClick(request, code, record, analytics);
   }
 
   return new Response(null, {
@@ -693,11 +726,26 @@ async function deleteShortlink(
   if (authError) return authError;
   if (!isValidShortlinkCode(code)) return shortlinkNotFound();
 
+  let record: ShortlinkRecord | null = null;
+  try {
+    record = await storage.get(code);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Unknown error",
+        event: "shortlink_label_lookup_failed",
+        message: "shortlink label lookup failed before delete",
+      }),
+    );
+  }
   await storage.delete(code);
   if (siteAnalytics) {
     recordSiteAnalyticsEvent(
       request,
-      { event: "shortlink_deleted" },
+      {
+        event: "shortlink_deleted",
+        ...(record ? { label: shortlinkLabel(record) } : {}),
+      },
       siteAnalytics,
     );
   }
@@ -708,6 +756,7 @@ async function deleteShortlink(
 }
 
 function normalizeCreateOptions(
+  target: ShortlinkTargetInput,
   options: CreateShortlinkOptions,
 ): CreateShortlinkOptions {
   let expiresAt: Date | undefined;
@@ -734,7 +783,20 @@ function normalizeCreateOptions(
     campaign = parsed.campaign;
   }
 
-  const normalized: CreateShortlinkOptions = {};
+  let label: string;
+  if (options.label === undefined) {
+    label = deriveShortlinkLabel(target);
+  } else {
+    const parsed = parseShortlinkLabel(options.label);
+    if (parsed.error || !parsed.label) {
+      throw new InvalidShortlinkLabelError(
+        parsed.error ?? invalidLabelMessage(),
+      );
+    }
+    label = parsed.label;
+  }
+
+  const normalized: CreateShortlinkOptions = { label };
   if (campaign) normalized.campaign = campaign;
   if (expiresAt) normalized.expiresAt = expiresAt;
   return normalized;
@@ -743,10 +805,12 @@ function normalizeCreateOptions(
 function createOptions(
   expiresAt?: Date,
   campaign?: ShortlinkCampaign,
+  label?: string,
 ): CreateShortlinkOptions {
   const options: CreateShortlinkOptions = {};
   if (expiresAt) options.expiresAt = expiresAt;
   if (campaign) options.campaign = campaign;
+  if (label) options.label = label;
   return options;
 }
 
@@ -794,21 +858,25 @@ function expiredShortlinkResponse(request: Request, expiresAt: Date): Response {
 function trackShortlinkClick(
   request: Request,
   code: string,
-  campaign: ShortlinkCampaign | undefined,
+  record: ShortlinkRecord,
   analytics: ShortlinkAnalytics,
 ): void {
   const referrerOrigin = safeReferrerOrigin(request.headers.get("referer"));
+  const label = shortlinkLabel(record);
+  const targetKind = record.path !== undefined ? "static" : "internal";
   try {
     analytics.writeDataPoint({
       blobs: [
         code,
-        campaign?.name ?? "",
-        campaign?.source ?? "",
-        campaign?.medium ?? "",
+        label,
+        targetKind,
+        record.campaign?.name ?? "",
+        record.campaign?.source ?? "",
+        record.campaign?.medium ?? "",
         referrerOrigin,
       ],
       doubles: [1],
-      indexes: [code],
+      indexes: [label],
     });
   } catch (error) {
     console.error(
@@ -819,6 +887,24 @@ function trackShortlinkClick(
       }),
     );
   }
+}
+
+function shortlinkLabel(record: ShortlinkRecord): string {
+  return record.label ?? deriveShortlinkLabel(record);
+}
+
+export function deriveShortlinkLabel(target: ShortlinkTargetInput): string {
+  const raw = (target.path ?? target.target ?? DEFAULT_SHORTLINK_LABEL)
+    .replace(/[?#].*$/, "")
+    .replace(/^\/+/, "")
+    .replace(/[^A-Za-z0-9._/-]+/g, "_")
+    .replace(/\/+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^[-._]+|[-._]+$/g, "")
+    .slice(0, MAX_SHORTLINK_LABEL_LENGTH)
+    .replace(/^[-._]+|[-._]+$/g, "");
+
+  return SHORTLINK_LABEL_PATTERN.test(raw) ? raw : DEFAULT_SHORTLINK_LABEL;
 }
 
 function safeReferrerOrigin(value: string | null): string {
@@ -853,6 +939,10 @@ function invalidCampaignMessage(): string {
   return "Campaign values must use letters, numbers, dots, underscores, or hyphens and be at most 64 characters";
 }
 
+function invalidLabelMessage(): string {
+  return "Shortlink labels must use letters, numbers, dots, underscores, or hyphens and be at most 64 characters";
+}
+
 function invalidExpirationMessage(): string {
   return "expiresAt must be a future ISO-8601 UTC timestamp";
 }
@@ -884,11 +974,14 @@ export function parseShortlinkRecord(value: unknown): ShortlinkRecord | null {
 
   const campaign = parseCampaign(input.campaign);
   if (campaign.error) return null;
+  const label = parseShortlinkLabel(input.label);
+  if (label.error) return null;
 
   const record: ShortlinkRecord = {};
   if (typeof path === "string") record.path = path;
   if (typeof target === "string") record.target = target;
   if (typeof input.expiresAt === "string") record.expiresAt = input.expiresAt;
+  if (label.label) record.label = label.label;
   if (campaign.campaign) record.campaign = campaign.campaign;
   return record;
 }

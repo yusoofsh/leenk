@@ -16,6 +16,8 @@ const SITE_ANALYTICS_EVENT_NAMES = [
   "time_on_page_reached",
 ] as const;
 
+const SITE_ANALYTICS_LABEL_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+
 const SITE_ANALYTICS_DIMENSIONS: Partial<
   Record<SiteAnalyticsEvent, readonly string[]>
 > = {
@@ -39,6 +41,7 @@ export type SiteAnalyticsEvent = (typeof SITE_ANALYTICS_EVENT_NAMES)[number];
 export interface SiteAnalyticsEventPayload {
   dimension?: string;
   event: SiteAnalyticsEvent;
+  label?: string;
 }
 
 export const MAX_SITE_ANALYTICS_REQUEST_BYTES = 512;
@@ -97,7 +100,12 @@ export function recordSiteAnalyticsEvent(
   const referrerOrigin = safeReferrerOrigin(request.headers.get("referer"));
   try {
     analytics.writeDataPoint({
-      blobs: [payload.event, payload.dimension ?? "", referrerOrigin],
+      blobs: [
+        payload.event,
+        payload.dimension ?? "",
+        referrerOrigin,
+        safeAnalyticsLabel(payload.label),
+      ],
       doubles: [1],
       indexes: [payload.event],
     });
@@ -140,4 +148,8 @@ function safeReferrerOrigin(value: string | null): string {
   } catch {
     return "";
   }
+}
+
+function safeAnalyticsLabel(value: string | undefined): string {
+  return value && SITE_ANALYTICS_LABEL_PATTERN.test(value) ? value : "";
 }

@@ -12,6 +12,7 @@ import type {
   ShortlinkRecord,
   ShortlinkStorage,
 } from "./shortlinks";
+import type { SiteAnalytics } from "./site-analytics";
 
 class MemoryStaticFileStorage implements StaticFileStorage {
   readonly objects = new Map<
@@ -105,6 +106,22 @@ class MemoryShortlinkStorage implements ShortlinkStorage {
   }
 }
 
+class MemorySiteAnalytics implements SiteAnalytics {
+  readonly events: Array<{
+    blobs?: string[];
+    doubles?: number[];
+    indexes?: string[];
+  }> = [];
+
+  writeDataPoint(event: {
+    blobs?: string[];
+    doubles?: number[];
+    indexes?: string[];
+  }): void {
+    this.events.push(event);
+  }
+}
+
 const zeroRandomBytes: RandomBytes = (length) => new Uint8Array(length);
 
 const token = "correct-horse-battery-staple";
@@ -187,6 +204,7 @@ describe("handleStaticFileRequest", () => {
     vi.setSystemTime(new Date("2026-07-13T00:00:00Z"));
     const storage = new MemoryStaticFileStorage();
     const shortlinks = new MemoryShortlinkStorage();
+    const analytics = new MemorySiteAnalytics();
     const bytes = new Uint8Array([1, 2, 3, 4]);
     const request = new Request(
       "https://www.yusoofsh.id/static/images/logo.png",
@@ -197,6 +215,7 @@ describe("handleStaticFileRequest", () => {
           "content-length": String(bytes.byteLength),
           "content-type": "image/png",
           "x-shortlink-campaign": "spring",
+          "x-shortlink-label": "electgo_runner_options",
           "x-shortlink-medium": "email",
           "x-shortlink-source": "newsletter",
           "x-static-shortlink": "true",
@@ -212,6 +231,7 @@ describe("handleStaticFileRequest", () => {
       token,
       shortlinks,
       zeroRandomBytes,
+      analytics,
     );
 
     expect(response.status).toBe(201);
@@ -225,6 +245,7 @@ describe("handleStaticFileRequest", () => {
         },
         code: "0000",
         expiresAt: "2026-07-27T00:00:00.000Z",
+        label: "electgo_runner_options",
         path: "images/logo.png",
         shortUrl: "https://www.yusoofsh.id/0000",
         targetUrl: "https://www.yusoofsh.id/static/images/logo.png",
@@ -233,8 +254,21 @@ describe("handleStaticFileRequest", () => {
     expect(shortlinks.records.get("0000")).toMatchObject({
       campaign: { name: "spring" },
       expiresAt: "2026-07-27T00:00:00.000Z",
+      label: "electgo_runner_options",
       path: "images/logo.png",
     });
+    expect(analytics.events).toEqual([
+      {
+        blobs: ["shortlink_created", "static", "", "electgo_runner_options"],
+        doubles: [1],
+        indexes: ["shortlink_created"],
+      },
+      {
+        blobs: ["static_file_uploaded", "with_shortlink", "", ""],
+        doubles: [1],
+        indexes: ["static_file_uploaded"],
+      },
+    ]);
   });
 
   it("accepts an explicit upload lifetime", async () => {

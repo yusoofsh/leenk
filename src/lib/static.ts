@@ -3,6 +3,7 @@ import { validateObjectKey } from "./object-keys";
 import {
   createShortlink,
   parseCampaignHeaders,
+  parseShortlinkLabelHeader,
   type CreateShortlinkOptions,
   type RandomBytes,
   type ShortlinkResult,
@@ -162,6 +163,10 @@ async function uploadObject(
     ? parseCampaignHeaders(request.headers)
     : {};
   if (campaign.error) return apiError(400, "INVALID_CAMPAIGN", campaign.error);
+  const label = shortlinkRequested
+    ? parseShortlinkLabelHeader(request.headers)
+    : {};
+  if (label.error) return apiError(400, "INVALID_LABEL", label.error);
 
   const metadata = requestMetadata(request.headers);
   // Keep the original request stream: R2 requires its Workers-specific known-length marker.
@@ -198,6 +203,7 @@ async function uploadObject(
       const options: CreateShortlinkOptions = {};
       if (expiration.expiresAt) options.expiresAt = expiration.expiresAt;
       if (campaign.campaign) options.campaign = campaign.campaign;
+      if (label.label) options.label = label.label;
       try {
         responseBody.shortlink = await createShortlink(
           key,
@@ -218,6 +224,18 @@ async function uploadObject(
         responseBody.shortlinkError = "SHORTLINKS_UNAVAILABLE";
       }
     }
+  }
+
+  if (siteAnalytics && responseBody.shortlink) {
+    recordSiteAnalyticsEvent(
+      request,
+      {
+        dimension: "static",
+        event: "shortlink_created",
+        label: responseBody.shortlink.label,
+      },
+      siteAnalytics,
+    );
   }
 
   if (siteAnalytics) {

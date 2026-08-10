@@ -1,0 +1,26 @@
+---
+import { DashboardShell } from "../../components/dashboard/dashboard-shell";
+import "../../styles/global.css";
+---
+
+<html lang="en" class="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Leenk dashboard</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>L</text></svg>"
+    />
+  </head>
+  <body class="min-h-svh bg-background font-sans text-foreground antialiased">
+    <a
+      href="#dashboard-main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-accent-foreground"
+    >
+      Skip to dashboard
+    </a>
+    <DashboardShell client:load />
+  </body>
+</html>

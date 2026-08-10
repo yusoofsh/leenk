@@ -33,6 +33,16 @@ describe("validateRemotePath", () => {
 });
 
 describe("parseUploadArguments", () => {
+  it("accepts a human-readable shortlink label", () => {
+    expect(
+      parseUploadArguments([
+        "--label",
+        "electgo_runner_options",
+        "./report.pdf",
+      ]),
+    ).toMatchObject({ label: "electgo_runner_options" });
+  });
+
   it("creates a shortlink with a 14-day expiry by default", () => {
     expect(parseUploadArguments(["./report.pdf"])).toEqual({
       campaign: undefined,
@@ -60,6 +70,17 @@ describe("parseUploadArguments", () => {
       shortlink: false,
     });
   });
+
+  it("requires shortlink creation when a label is provided", () => {
+    expect(() =>
+      parseUploadArguments([
+        "--no-shortlink",
+        "--label",
+        "report",
+        "./report.pdf",
+      ]),
+    ).toThrow(/require shortlink creation/i);
+  });
 });
 
 describe("upload output", () => {
@@ -83,6 +104,22 @@ describe("upload output", () => {
         "Short URL: https://www.yusoofsh.id/aB3x",
       ].join("\n"),
     );
+  });
+
+  it("prints the confirmed shortlink label", () => {
+    expect(
+      formatUploadResult({
+        etag: '"abc123"',
+        expiresAt: null,
+        path: "report.pdf",
+        shortlink: {
+          label: "report",
+          shortUrl: "https://www.yusoofsh.id/aB3x",
+        },
+        size: 1,
+        url: "https://www.yusoofsh.id/static/report.pdf",
+      }),
+    ).toContain("Shortlink label: report");
   });
 });
 

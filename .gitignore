@@ -8,6 +8,9 @@ dist/
 # Wrangler
 .wrangler/
 
+# Alchemy local artifacts
+.alchemy/
+
 # dependencies
 node_modules/
 

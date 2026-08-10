@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   SHORTLINK_ATTEMPTS_PER_LENGTH,
@@ -12,6 +12,7 @@ import {
   type ShortlinkTargetStorage,
   validateInternalTarget,
 } from "./shortlinks";
+import type { SiteAnalytics } from "./site-analytics";
 
 class MemoryShortlinkStorage implements ShortlinkStorage {
   readonly records = new Map<string, ShortlinkRecord>();
@@ -62,6 +63,22 @@ class MemoryShortlinkAnalytics implements ShortlinkAnalytics {
   }
 }
 
+class MemorySiteAnalytics implements SiteAnalytics {
+  readonly events: Array<{
+    blobs?: string[];
+    doubles?: number[];
+    indexes?: string[];
+  }> = [];
+
+  writeDataPoint(event: {
+    blobs?: string[];
+    doubles?: number[];
+    indexes?: string[];
+  }): void {
+    this.events.push(event);
+  }
+}
+
 const token = "correct-horse-battery-staple";
 const targetPath = "docs/guide.pdf";
 
@@ -90,6 +107,34 @@ function createRequest(
 }
 
 describe("createShortlink", () => {
+  it("derives a dashboard-friendly label from a static target", async () => {
+    const storage = new MemoryShortlinkStorage();
+
+    const result = await createShortlink(
+      "docs/electgo-runner-options.html",
+      storage,
+      new URL("https://yusoofsh.id/api/shortlinks"),
+      constantRandomBytes(0),
+    );
+
+    expect(result.label).toBe("docs_electgo-runner-options.html");
+    expect(storage.records.get("0000")).toMatchObject({
+      label: "docs_electgo-runner-options.html",
+    });
+  });
+
+  it("rejects labels with spaces or unsupported characters", async () => {
+    await expect(
+      createShortlink(
+        targetPath,
+        new MemoryShortlinkStorage(),
+        new URL("https://yusoofsh.id/api/shortlinks"),
+        constantRandomBytes(0),
+        { label: "campaign spring" },
+      ),
+    ).rejects.toThrow(/label/i);
+  });
+
   it("allocates the shortest four-character base62 code", async () => {
     const storage = new MemoryShortlinkStorage();
 
@@ -102,11 +147,15 @@ describe("createShortlink", () => {
 
     expect(result).toEqual({
       code: "0000",
+      label: "docs_guide.pdf",
       path: targetPath,
       shortUrl: "https://yusoofsh.id/0000",
       targetUrl: "https://yusoofsh.id/static/docs/guide.pdf",
     });
-    expect(storage.records.get("0000")).toEqual({ path: targetPath });
+    expect(storage.records.get("0000")).toEqual({
+      label: "docs_guide.pdf",
+      path: targetPath,
+    });
   });
 
   it("skips an occupied code without overwriting its target", async () => {
@@ -152,8 +201,9 @@ describe("handleShortlinkRequest", () => {
   it("creates a link only for an existing static object", async () => {
     const storage = new MemoryShortlinkStorage();
     const targets = new MemoryShortlinkTargetStorage();
+    const siteAnalytics = new MemorySiteAnalytics();
     targets.paths.add(targetPath);
-    const body = JSON.stringify({ path: targetPath });
+    const body = JSON.stringify({ label: "guide_pdf", path: targetPath });
 
     const response = await handleShortlinkRequest(
       createRequest("https://yusoofsh.id/api/shortlinks", "POST", body, {
@@ -165,15 +215,25 @@ describe("handleShortlinkRequest", () => {
       token,
       targets,
       constantRandomBytes(0),
+      undefined,
+      siteAnalytics,
     );
 
     expect(response.status).toBe(201);
     expect(await response.json()).toEqual({
       code: "0000",
+      label: "guide_pdf",
       path: targetPath,
       shortUrl: "https://yusoofsh.id/0000",
       targetUrl: "https://yusoofsh.id/static/docs/guide.pdf",
     });
+    expect(siteAnalytics.events).toEqual([
+      {
+        blobs: ["shortlink_created", "static", "", "guide_pdf"],
+        doubles: [1],
+        indexes: ["shortlink_created"],
+      },
+    ]);
   });
 
   it("rejects a shortlink request for a missing static object", async () => {
@@ -201,6 +261,37 @@ describe("handleShortlinkRequest", () => {
       },
     });
     expect(storage.records.size).toBe(0);
+  });
+
+  it("rejects an invalid label at the API boundary", async () => {
+    const targets = new MemoryShortlinkTargetStorage();
+    targets.paths.add(targetPath);
+
+    const response = await handleShortlinkRequest(
+      createRequest(
+        "https://yusoofsh.id/api/shortlinks",
+        "POST",
+        JSON.stringify({ label: "guide pdf", path: targetPath }),
+        {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+      ),
+      undefined,
+      new MemoryShortlinkStorage(),
+      token,
+      targets,
+      constantRandomBytes(0),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: {
+        code: "INVALID_LABEL",
+        message:
+          "Shortlink labels must use letters, numbers, dots, underscores, or hyphens and be at most 64 characters",
+      },
+    });
   });
 
   it("requires the upload token to create a link", async () => {
@@ -273,6 +364,75 @@ describe("handleShortlinkRequest", () => {
     expect(storage.records.has("0000")).toBe(false);
   });
 
+  it("records the human-readable label when deleting a link", async () => {
+    const storage = new MemoryShortlinkStorage();
+    const siteAnalytics = new MemorySiteAnalytics();
+    storage.records.set("0000", {
+      label: "guide_pdf",
+      path: targetPath,
+    });
+
+    const response = await handleShortlinkRequest(
+      createRequest(
+        "https://yusoofsh.id/api/shortlinks/0000",
+        "DELETE",
+        undefined,
+        { authorization: `Bearer ${token}` },
+      ),
+      "0000",
+      storage,
+      token,
+      undefined,
+      constantRandomBytes(0),
+      undefined,
+      siteAnalytics,
+    );
+
+    expect(response.status).toBe(204);
+    expect(siteAnalytics.events).toEqual([
+      {
+        blobs: ["shortlink_deleted", "", "", "guide_pdf"],
+        doubles: [1],
+        indexes: ["shortlink_deleted"],
+      },
+    ]);
+  });
+
+  it("keeps deletion working when label lookup fails", async () => {
+    let deleted = false;
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    const storage: ShortlinkStorage = {
+      async delete() {
+        deleted = true;
+      },
+      async get() {
+        throw new Error("storage unavailable");
+      },
+      async putIfAbsent() {
+        return false;
+      },
+    };
+
+    const response = await handleShortlinkRequest(
+      createRequest(
+        "https://yusoofsh.id/api/shortlinks/0000",
+        "DELETE",
+        undefined,
+        { authorization: `Bearer ${token}` },
+      ),
+      "0000",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(204);
+    expect(deleted).toBe(true);
+    expect(consoleError).toHaveBeenCalledOnce();
+    consoleError.mockRestore();
+  });
+
   it("rejects malformed codes before reading storage", async () => {
     const storage = new MemoryShortlinkStorage();
 
@@ -307,6 +467,7 @@ describe("extended shortlink behavior", () => {
 
     expect(result).toEqual({
       code: "0000",
+      label: "github",
       shortUrl: "https://yusoofsh.id/0000",
       target: "/github?source=home",
       targetUrl: "https://yusoofsh.id/github?source=home",
@@ -433,13 +594,15 @@ describe("extended shortlink behavior", () => {
       {
         blobs: [
           "0000",
+          "docs_guide.pdf",
+          "static",
           "spring",
           "newsletter",
           "email",
           "https://campaign.example",
         ],
         doubles: [1],
-        indexes: ["0000"],
+        indexes: ["docs_guide.pdf"],
       },
     ]);
   });
