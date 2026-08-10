@@ -41,21 +41,24 @@ export async function listShortlinkRecords(
     .map((object) => object.key.slice(SHORTLINK_STORAGE_PREFIX.length))
     .filter((code) => code.length > 0)
     .slice(0, limit);
-  const storedObjects = await Promise.all(
-    codes.map(async (code) => {
-      const object = await bucket.get(`${SHORTLINK_STORAGE_PREFIX}${code}`);
-      return object ? { code, object } : null;
-    }),
-  );
+  // The Workers runtime closes R2 subrequests beyond its connection limit, so
+  // fetch the per-code records with a small bounded concurrency instead of
+  // firing them all in parallel.
+  const storedObjects = await mapWithConcurrency(codes, 4, async (code) => {
+    const object = await bucket.get(`${SHORTLINK_STORAGE_PREFIX}${code}`);
+    return object ? { code, object } : null;
+  });
   const entries: ShortlinkListEntry[] = [];
-  const parsedRecords = await Promise.all(
-    storedObjects.map(async (stored) => {
+  const parsedRecords = await mapWithConcurrency(
+    storedObjects,
+    4,
+    async (stored) => {
       if (!stored) return null;
       const record = parseShortlinkRecord(await stored.object.json());
       return record
         ? { code: stored.code, object: stored.object, record }
         : null;
-    }),
+    },
   );
   for (const parsed of parsedRecords) {
     if (!parsed || entries.length >= limit) continue;
@@ -68,6 +71,28 @@ export async function listShortlinkRecords(
   }
   entries.sort((a, b) => b.updated.localeCompare(a.updated));
   return entries;
+}
+
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<Array<R | undefined>> {
+  const results: Array<R | undefined> = Array.from(
+    { length: items.length },
+    () => undefined,
+  );
+  async function pump(from: number): Promise<void> {
+    if (from >= items.length) return;
+    results[from] = await mapper(items[from]!, from);
+    await pump(from + concurrency);
+  }
+  await Promise.all(
+    Array.from({ length: Math.min(concurrency, items.length) }, (_, index) =>
+      pump(index),
+    ),
+  );
+  return results;
 }
 
 export async function listStaticFiles(
