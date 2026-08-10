@@ -1,0 +1,55 @@
+{
+  "cli_version": "0.9.0",
+  "checkpoint_id": "2fb0bd88220e",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    ".github/workflows/deploy.yml",
+    "README.md",
+    "alchemy.run.ts",
+    "d1/migrations/0002_better_auth.sql",
+    "docs/decisions/0004-better-auth-operator-access.md",
+    "nub.lock",
+    "package.json",
+    "src/components/dashboard/dashboard-shell.tsx",
+    "src/components/dashboard/files.tsx",
+    "src/components/dashboard/settings.tsx",
+    "src/components/login-form.tsx",
+    "src/env.d.ts",
+    "src/lib/auth-client.ts",
+    "src/lib/auth-guard.test.ts",
+    "src/lib/auth-guard.ts",
+    "src/lib/auth-roles.ts",
+    "src/lib/auth.ts",
+    "src/lib/dashboard/client.ts",
+    "src/lib/http.ts",
+    "src/lib/session-auth.ts",
+    "src/lib/shortlinks.ts",
+    "src/lib/static.ts",
+    "src/middleware.ts",
+    "src/pages/api/auth/[...all].ts",
+    "src/pages/api/auth/bootstrap.ts",
+    "src/pages/api/dashboard/cms/drafts.ts",
+    "src/pages/api/dashboard/cms/publish.ts",
+    "src/pages/api/dashboard/cms/rollback.ts",
+    "src/pages/login.astro",
+    "worker-configuration.d.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/2f/b0bd88220e/0/metadata.json",
+      "transcript": "/2f/b0bd88220e/0/full.jsonl",
+      "compact_transcript": "/2f/b0bd88220e/0/transcript.jsonl",
+      "content_hash": "/2f/b0bd88220e/0/content_hash.txt",
+      "prompt": "/2f/b0bd88220e/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 2198567,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 287997696,
+    "output_tokens": 375704,
+    "api_call_count": 1075
+  }
+}
