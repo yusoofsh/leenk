@@ -30,6 +30,9 @@ export const MAX_BULLET_ITEMS = 64;
 export const MAX_CMS_LINKS = 16;
 export const MAX_LINK_LABEL_LENGTH = 128;
 export const MAX_SEO_FIELD_LENGTH = 512;
+export const MAX_INLINE_LINKS = 16;
+export const INLINE_LINK_PATTERN =
+  /\[([^[\]]{1,128})\]\((url|email|internal|shortlink):([^()\s]{1,2048})\)/g;
 
 export interface CmsLink {
   kind: CmsLinkKind;
@@ -241,6 +244,8 @@ export function validateCmsBlock(value: unknown): {
       if (value.text.length > MAX_BLOCK_TEXT_LENGTH) {
         return { error: "Section text is too long" };
       }
+      const sectionInlineError = validateCmsText(value.text);
+      if (sectionInlineError) return { error: sectionInlineError };
       return {
         block: { heading: value.heading, text: value.text, type: "section" },
       };
@@ -260,6 +265,8 @@ export function validateCmsBlock(value: unknown): {
         if (item.length > MAX_BLOCK_TEXT_LENGTH) {
           return { error: "Bullet list items are too long" };
         }
+        const itemInlineError = validateCmsText(item);
+        if (itemInlineError) return { error: itemInlineError };
         items.push(item);
       }
       return { block: { items, type: "bullet_list" } };
@@ -668,7 +675,7 @@ export function generateCmsId(): string {
   return globalThis.crypto.randomUUID();
 }
 
-function blockInsertStatements(
+export function blockInsertStatements(
   revisionId: string,
   variant: CmsVariant,
   blocks: CmsBlock[],
@@ -714,12 +721,48 @@ function validateTextBlock(
   if (value.text.length > MAX_BLOCK_TEXT_LENGTH) {
     return { error: `${type} blocks are too long` };
   }
+  const inlineError = validateCmsText(value.text);
+  if (inlineError) return { error: inlineError };
   return type === "intro"
     ? { block: { text: value.text, type: "intro" } }
     : { block: { text: value.text, type: "paragraph" } };
 }
 
-function validateLinkTarget(kind: CmsLinkKind, target: string): string | null {
+/**
+ * Validates bounded inline links of the form `[label](kind:target)` inside
+ * block text. This is the only markup the CMS accepts: no HTML, no nesting,
+ * and every target is validated the same way typed CmsLink values are.
+ */
+export function validateInlineLinks(text: string): string | null {
+  let count = 0;
+  for (const match of text.matchAll(INLINE_LINK_PATTERN)) {
+    count += 1;
+    if (count > MAX_INLINE_LINKS) {
+      return `Text is limited to ${MAX_INLINE_LINKS} inline links`;
+    }
+    const label = match[1] ?? "";
+    const kindValue = match[2];
+    if (!isCmsLinkKind(kindValue)) {
+      return "Inline link kind is not supported";
+    }
+    const target = match[3] ?? "";
+    if (label.includes("[") || label.includes("]")) {
+      return "Inline link labels are invalid";
+    }
+    const targetError = validateLinkTarget(kindValue, target);
+    if (targetError) return targetError;
+  }
+  return null;
+}
+
+export function validateCmsText(text: string): string | null {
+  return validateInlineLinks(text);
+}
+
+export function validateLinkTarget(
+  kind: CmsLinkKind,
+  target: string,
+): string | null {
   if (kind === "url") {
     try {
       const url = new URL(target);
@@ -765,7 +808,7 @@ function isValidEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function isCmsLinkKind(value: unknown): value is CmsLinkKind {
+export function isCmsLinkKind(value: unknown): value is CmsLinkKind {
   return (CMS_LINK_KINDS as readonly string[]).includes(String(value));
 }
 

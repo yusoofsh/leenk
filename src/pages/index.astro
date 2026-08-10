@@ -1,11 +1,40 @@
 ---
+import { env } from "cloudflare:workers";
+
 import Layout from "../layouts/index.astro";
 import ModeToggle from "../components/mode-toggle.astro";
+import {
+  ensureHomepageImported,
+  toD1Like,
+} from "../lib/dashboard/cms-import";
+import { getPublishedHomepageContent } from "../lib/dashboard/cms-public";
+import { renderHomepageBlocks } from "../lib/homepage-render";
 
-export const prerender = true;
+const cms = toD1Like(env.CMS);
+let cmsContent: Awaited<ReturnType<typeof getPublishedHomepageContent>> = null;
+if (cms) {
+  try {
+    await ensureHomepageImported(cms);
+    cmsContent = await getPublishedHomepageContent(cms);
+  } catch {
+    cmsContent = null;
+  }
+}
+
+const seo = cmsContent
+  ? {
+      description: cmsContent.seoDescription,
+      keywords: cmsContent.seoKeywords,
+      title: cmsContent.seoTitle,
+    }
+  : undefined;
 ---
 
-<Layout>
+<Layout
+  description={seo?.description}
+  keywords={seo?.keywords}
+  title={seo?.title}
+>
   <div
     class="text-foreground relative z-10 mx-auto my-6 w-full max-w-prose px-6 text-left font-normal sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-4xl xl:px-4"
     data-reading-surface
@@ -24,7 +53,10 @@ export const prerender = true;
       data-mode="full"
       class="mt-5 text-[0.9375rem] sm:mt-6 sm:text-base md:text-lg lg:text-xl xl:text-lg"
     >
-      <div class="typeset typeset-portfolio">
+      {cmsContent ? (
+        <div class="typeset typeset-portfolio" set:html={renderHomepageBlocks(cmsContent.blocksFull)} />
+      ) : (
+        <div class="typeset typeset-portfolio">
         <p>
           In the name of Allah, and by His grace. My name is pronounced <i
             >yu-soof</i
@@ -110,12 +142,19 @@ export const prerender = true;
           Allah bless our endeavors and lead us to His everlasting mercy.
         </p>
       </div>
+      )}
     </div>
     <div
       data-mode="tldr"
       class="mt-5 text-[0.9375rem] sm:mt-6 sm:text-base md:text-lg lg:text-xl xl:text-lg"
     >
-      <div class="typeset typeset-portfolio typeset-compact">
+      {cmsContent ? (
+        <div
+          class="typeset typeset-portfolio typeset-compact"
+          set:html={renderHomepageBlocks(cmsContent.blocksTldr)}
+        />
+      ) : (
+        <div class="typeset typeset-portfolio typeset-compact">
         <p>
           Bismillah. I&rsquo;m a Malang-based <strong
             >full-stack and platform engineer</strong
@@ -156,6 +195,7 @@ export const prerender = true;
           Baarakallahu fiik.
         </p>
       </div>
+      )}
     </div>
   </div>
 </Layout>

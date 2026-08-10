@@ -42,7 +42,8 @@ describe("home page switch section", () => {
     expect(source).not.toContain(".md");
     expect(existsSync(fileURLToPath(fullBioUrl))).toBe(false);
     expect(existsSync(fileURLToPath(tldrBioUrl))).toBe(false);
-    expect(source.match(/typeset typeset-portfolio/g)).toHaveLength(2);
+    // The CMS branch and the source fallback each carry the typeset classes.
+    expect(source.match(/typeset typeset-portfolio/g)).toHaveLength(4);
     expect(globalStyles).toContain('@import "./typeset.css"');
   });
 
@@ -79,8 +80,13 @@ describe("home page switch section", () => {
     expect(layoutSource).toContain('bioMode === "tldr" ? "dark" : "light"');
   });
 
-  it("prerenders the static homepage", () => {
-    expect(source).toContain("export const prerender = true");
+  it("serves the homepage from the CMS when the binding exists", () => {
+    expect(source).not.toContain("export const prerender = true");
+    expect(source).toContain("ensureHomepageImported");
+    expect(source).toContain("renderHomepageBlocks");
+    expect(source).toContain(
+      "set:html={renderHomepageBlocks(cmsContent.blocksFull)}",
+    );
     expect(layoutSource).toContain(
       'import Background from "../components/background.astro"',
     );

@@ -7,6 +7,7 @@ interface Props {
   analyticsPage?: "not_found";
   canonical?: false | string;
   description?: string;
+  keywords?: string;
   robots?: string;
   title?: string;
 }
@@ -14,10 +15,13 @@ interface Props {
 const defaultDescription =
   "Malang-based full-stack/DevOps engineer. Accelerated time-to-production at Nadi; built YDSF’s Muslim crowdfunding platform end-to-end. TypeScript/React, Hono/Bun, Docker/Traefik/Tailscale, OpenTelemetry/Sentry, UU PDP-aware.";
 const defaultTitle = "Yusoof Moh — Full-Stack/DevOps Engineer in Indonesia";
+const defaultKeywords =
+  "Yusoof Moh, full-stack engineer Indonesia, DevOps Indonesia, TypeScript React, Hono Bun, Docker Traefik Tailscale, OpenTelemetry Sentry, UU PDP compliance, Nadi, YDSF, crowdfunding platform";
 const {
   analyticsPage,
   canonical = "https://www.yusoofsh.id/",
   description = defaultDescription,
+  keywords = defaultKeywords,
   robots = "index,follow",
   title = defaultTitle,
 } = Astro.props;
@@ -52,10 +56,7 @@ const {
     {canonical && <link rel="canonical" href={canonical} />}
     <meta name="author" content="Yusoof Moh" />
     <meta name="robots" content={robots} />
-    <meta
-      name="keywords"
-      content="Yusoof Moh, full-stack engineer Indonesia, DevOps Indonesia, TypeScript React, Hono Bun, Docker Traefik Tailscale, OpenTelemetry Sentry, UU PDP compliance, Nadi, YDSF, crowdfunding platform"
-    />
+    <meta name="keywords" content={keywords} />
     <meta property="og:type" content="profile" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
