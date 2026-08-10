@@ -144,3 +144,43 @@ proceed
 ---
 
 vitest/test full suite?
+
+---
+
+what next
+
+---
+
+ok show me step by step
+
+---
+
+why not use gh cli
+
+---
+
+done
+
+---
+
+who allowed to /dashboard path
+
+---
+
+configure it to me@yusoofsh.id
+
+---
+
+enetered the email but the login code is not being delivered/no email
+
+---
+
+nothing in junk also
+
+---
+
+change the provider
+
+---
+
+is there a password or simpler setup
