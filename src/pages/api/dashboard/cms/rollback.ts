@@ -95,7 +95,7 @@ const route: APIRoute = async ({ request }) => {
       await getLatestRevisionNumber(db, document.id),
     );
     const statements = rollbackStatements({
-      actor: "operator",
+      actor: operator.session.user.email,
       content: sourceContent,
       createdAt: new Date().toISOString(),
       currentDraftId,

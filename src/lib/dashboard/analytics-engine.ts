@@ -124,6 +124,21 @@ LIMIT ${TIME_SERIES_LIMIT}
 FORMAT JSON`;
 }
 
+/** Reports code-indexed rows written before the shortlink label migration. */
+export function shortlinkHistoryQuery(range: DateRange): string {
+  return `SELECT
+  toStartOfInterval(timestamp, INTERVAL '1' DAY) AS day,
+  index1 AS label,
+  SUM(_sample_interval * double1) AS clicks
+FROM leenk_shortlinks
+WHERE timestamp >= ${toDateTimeLiteral(range.start)}
+  AND timestamp < ${toDateTimeLiteral(range.end)}
+GROUP BY day, label
+ORDER BY day ASC, label ASC
+LIMIT ${TIME_SERIES_LIMIT}
+FORMAT JSON`;
+}
+
 // Legacy rows predating the label migration use the short code as `index1`
 // and appear in the label column as codes until retention expires. The
 // schema blobs overlap between row generations, so no query-side marker

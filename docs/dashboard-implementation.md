@@ -9,7 +9,7 @@ model in `docs/decisions/0002-d1-content-revisions-and-publishing.md`.
 
 The dashboard is a server-rendered Astro page at `/dashboard` that mounts a
 React shell and nine module views, all backed by server-only API routes that
-share the same Cloudflare Access boundary.
+share the same Better Auth session and capability boundary.
 
 ### Page shell
 
@@ -57,23 +57,25 @@ inline error with Retry and never tears down the rest of the page.
 ### Server API routes
 
 Read routes return `Cache-Control: private, max-age=60,
-stale-while-revalidate=300`; mutations use `no-store` and require the
-`X-Upload-Token` header matching the `STATIC_UPLOAD_TOKEN` secret.
+stale-while-revalidate=300`; mutations use `no-store`. Browser mutations use
+the Better Auth session and require a same-origin `Origin` or `Referer` signal.
+Machine clients use the `Authorization: Bearer` upload-token path. The token
+is never sent to browser code or stored in local storage.
 
-| Route                                         | Method | Purpose                                          |
-| --------------------------------------------- | ------ | ------------------------------------------------ |
-| `/api/dashboard/analytics/shortlinks`         | GET    | v2 shortlink clicks by day and label             |
-| `/api/dashboard/analytics/site-events`        | GET    | site events by day, event, dimension             |
-| `/api/dashboard/analytics/shortlinks/history` | GET    | legacy `leenk_shortlinks` code-indexed report    |
-| `/api/dashboard/analytics/campaigns`          | GET    | campaign, source, medium breakdown               |
-| `/api/dashboard/shortlinks`                   | GET    | R2 shortlink records with recent clicks          |
-| `/api/dashboard/files`                        | GET    | R2 object listing                                |
-| `/api/dashboard/cms`                          | GET    | document, published revision, revision summaries |
-| `/api/dashboard/cms/revisions/:id`            | GET    | one revision with blocks                         |
-| `/api/dashboard/cms/drafts`                   | POST   | save a draft with optimistic concurrency         |
-| `/api/dashboard/cms/publish`                  | POST   | atomic publish                                   |
-| `/api/dashboard/cms/rollback`                 | POST   | clone an archived revision into a draft          |
-| `/api/dashboard/activity`                     | GET    | paged activity entries                           |
+| Route                                         | Method | Purpose                                                 |
+| --------------------------------------------- | ------ | ------------------------------------------------------- |
+| `/api/dashboard/analytics/shortlinks`         | GET    | shortlink clicks by day and label in `leenk_shortlinks` |
+| `/api/dashboard/analytics/site-events`        | GET    | site events by day, event, dimension                    |
+| `/api/dashboard/analytics/shortlinks/history` | GET    | legacy `leenk_shortlinks` code-indexed report           |
+| `/api/dashboard/analytics/campaigns`          | GET    | campaign, source, medium breakdown                      |
+| `/api/dashboard/shortlinks`                   | GET    | R2 shortlink records with recent clicks                 |
+| `/api/dashboard/files`                        | GET    | R2 object listing                                       |
+| `/api/dashboard/cms`                          | GET    | document, published revision, revision summaries        |
+| `/api/dashboard/cms/revisions/:id`            | GET    | one revision with blocks                                |
+| `/api/dashboard/cms/drafts`                   | POST   | save a draft with optimistic concurrency                |
+| `/api/dashboard/cms/publish`                  | POST   | atomic publish                                          |
+| `/api/dashboard/cms/rollback`                 | POST   | clone an archived revision into a draft                 |
+| `/api/dashboard/activity`                     | GET    | paged activity entries                                  |
 
 All date inputs are validated to `YYYY-MM-DD`, `start < end`, a 30-day
 default, and a 90-day maximum. Analytics queries use the documented UTC
@@ -83,9 +85,8 @@ JSON with a `source`, `range`, and `sampled` marker.
 
 ## Data sources
 
-- Analytics Engine: `leenk_shortlinks` (single dataset, legacy rows included),
-  `leenk_site_events`, and
-  `leenk_shortlinks`, queried through the account-scoped SQL API with the
+- Analytics Engine: `leenk_shortlinks` (single dataset, legacy rows included)
+  and `leenk_site_events`, queried through the account-scoped SQL API with the
   `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ANALYTICS_TOKEN` bindings.
 - R2: the `STATIC_FILES` bucket holds static objects and shortlink records
   under the `__shortlinks/` prefix.

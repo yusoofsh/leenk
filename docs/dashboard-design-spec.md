@@ -91,7 +91,7 @@ Production uses shadcn/ui only. `components.json` already declares `new-york`, `
 
 - Layout: shadcn `sidebar` (SidebarProvider, Sidebar, SidebarInset, SidebarHeader, SidebarContent, SidebarGroupLabel, SidebarMenuButton, SidebarFooter, SidebarTrigger for mobile), with the two groups Workspace (Overview, Content, Files, Shortlinks, Campaigns) and System (Analytics, Activity, Operations, Settings).
 - Header: `breadcrumb` for the current module, environment `select` (Development and Production only), theme `dropdown-menu` (reuse the existing mode toggle), and an operator `dropdown-menu` with an `avatar`.
-- Route: `/dashboard` behind the same owner-only Cloudflare Access boundary as every dashboard API route. No Web Analytics data anywhere on the page.
+- Route: `/dashboard` behind the same owner-only Better Auth session and capability boundary as every dashboard API route. No Web Analytics data anywhere on the page.
 - Accessibility: skip link, focus-visible rings via the ring token, `aria-current` on the active nav item, tabular numerals for all counts.
 
 ### Module list and shadcn mapping

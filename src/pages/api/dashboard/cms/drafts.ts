@@ -92,7 +92,7 @@ const route: APIRoute = async ({ request }) => {
       await getLatestRevisionNumber(db, document.id),
     );
     const statements = saveDraftStatements({
-      actor: "operator",
+      actor: operator.session.user.email,
       content: content.content,
       createdAt: new Date().toISOString(),
       currentDraftId,

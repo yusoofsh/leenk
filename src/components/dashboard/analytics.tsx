@@ -53,10 +53,11 @@ import {
   type DashboardMeta,
 } from "~/lib/dashboard/client";
 
-type ReportKey = "shortlinks" | "site-events";
+type ReportKey = "history" | "shortlinks" | "site-events";
 type RangeDays = 7 | 30 | 90;
 
 const REPORT_PATHS: Record<ReportKey, string> = {
+  history: "/api/dashboard/analytics/shortlinks/history",
   "site-events": "/api/dashboard/analytics/site-events",
   shortlinks: "/api/dashboard/analytics/shortlinks",
 };
@@ -83,6 +84,7 @@ export function Analytics() {
   const [reportKey, setReportKey] = useState<ReportKey>("shortlinks");
   const [days, setDays] = useState<RangeDays>(30);
   const [reports, setReports] = useState<Record<ReportKey, ReportState>>({
+    history: { loading: false, rows: [] },
     "site-events": { loading: false, rows: [] },
     shortlinks: { loading: false, rows: [] },
   });
@@ -123,7 +125,7 @@ export function Analytics() {
     setDays(value);
     setReports((current) => {
       const next: Record<ReportKey, ReportState> = { ...current };
-      for (const key of ["shortlinks", "site-events"] as const) {
+      for (const key of ["history", "shortlinks", "site-events"] as const) {
         next[key] = { loading: false, rows: [] };
       }
       return next;
@@ -169,6 +171,7 @@ export function Analytics() {
         <TabsList>
           <TabsTrigger value="shortlinks">Shortlinks</TabsTrigger>
           <TabsTrigger value="site-events">Site events</TabsTrigger>
+          <TabsTrigger value="history">Legacy history</TabsTrigger>
         </TabsList>
         <TabsContent value={reportKey}>
           <Card>
@@ -177,12 +180,14 @@ export function Analytics() {
                 <CardTitle>
                   {reportKey === "site-events"
                     ? "Site events"
-                    : "Shortlink clicks"}
+                    : reportKey === "history"
+                      ? "Legacy shortlink history"
+                      : "Shortlink clicks"}
                 </CardTitle>
                 <CardDescription>
-                  Weighted Analytics Engine counts by day. Rows recorded before
-                  the label migration appear as short codes until retention
-                  expires.
+                  {reportKey === "history"
+                    ? "Code-indexed rows recorded before the label migration."
+                    : "Weighted Analytics Engine counts by day. Rows recorded before the label migration appear as short codes until retention expires."}
                 </CardDescription>
               </div>
               <ReportActions

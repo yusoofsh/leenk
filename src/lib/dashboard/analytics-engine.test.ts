@@ -8,6 +8,7 @@ import {
   runAnalyticsQuery,
   shortlinkCampaignQuery,
   shortlinkClicksQuery,
+  shortlinkHistoryQuery,
   siteEventsQuery,
   sumWeighted,
   toDateTimeLiteral,
@@ -112,6 +113,14 @@ describe("query templates", () => {
     expect(sql).toContain("SUM(_sample_interval * double1) AS clicks");
     expect(sql).toContain("toDateTime('2026-07-10 00:00:00')");
     expect(sql).toContain("toDateTime('2026-08-09 00:00:00')");
+    expect(sql).toContain("LIMIT 1000");
+  });
+
+  it("builds the legacy code-indexed history report", () => {
+    const sql = shortlinkHistoryQuery(range);
+    expect(sql).toContain("FROM leenk_shortlinks");
+    expect(sql).toContain("index1 AS label");
+    expect(sql).toContain("SUM(_sample_interval * double1) AS clicks");
     expect(sql).toContain("LIMIT 1000");
   });
 

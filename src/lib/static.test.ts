@@ -155,6 +155,35 @@ describe("handleStaticFileRequest", () => {
     expect(storage.objects.size).toBe(0);
   });
 
+  it("rejects cookie-authenticated uploads without a same-origin signal", async () => {
+    const storage = new MemoryStaticFileStorage();
+    const request = new Request("https://www.yusoofsh.id/static/example.html", {
+      headers: {
+        cookie: "better-auth.session_token=redacted",
+        "content-length": "13",
+        "content-type": "text/plain",
+      },
+      method: "POST",
+      body: "<p>hello</p>",
+    });
+
+    const response = await handleStaticFileRequest(
+      request,
+      "example.html",
+      storage,
+      token,
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toEqual({
+      error: {
+        code: "CSRF_FORBIDDEN",
+        message: "Mutation requests must come from the dashboard origin",
+      },
+    });
+    expect(storage.objects.size).toBe(0);
+  });
+
   it("streams a binary upload and preserves its HTTP metadata", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-13T00:00:00Z"));

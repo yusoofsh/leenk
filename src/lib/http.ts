@@ -32,8 +32,16 @@ export async function authorizeMutation(
   ) {
     return null;
   }
-  if (capability && (await sessionAllows(request, capability))) {
-    return null;
+  if (capability) {
+    const sameOrigin = isSameOriginMutationRequest(request);
+    if (!sameOrigin && request.headers.has("cookie")) {
+      return apiError(
+        403,
+        "CSRF_FORBIDDEN",
+        "Mutation requests must come from the dashboard origin",
+      );
+    }
+    if (sameOrigin && (await sessionAllows(request, capability))) return null;
   }
 
   if (!uploadToken) {
@@ -42,6 +50,28 @@ export async function authorizeMutation(
   return apiError(401, "UNAUTHORIZED", "A valid upload token is required", {
     "WWW-Authenticate": "Bearer",
   });
+}
+
+/**
+ * Cookie-authenticated mutations must carry an explicit same-origin signal.
+ * Bearer-token clients are checked before this function, so CLI integrations
+ * remain independent of browser origin headers.
+ */
+export function isSameOriginMutationRequest(request: Request): boolean {
+  const requestOrigin = new URL(request.url).origin;
+  const origin = request.headers.get("origin");
+  if (origin) return originMatches(requestOrigin, origin);
+
+  const referer = request.headers.get("referer");
+  return referer ? originMatches(requestOrigin, referer) : false;
+}
+
+function originMatches(requestOrigin: string, value: string): boolean {
+  try {
+    return new URL(value).origin === requestOrigin;
+  } catch {
+    return false;
+  }
 }
 
 export function apiError(

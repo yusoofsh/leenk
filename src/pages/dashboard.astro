@@ -1,15 +1,13 @@
 ---
-import { env } from "cloudflare:workers";
-import { auth } from "../lib/auth";
 import { DashboardShell } from "../components/dashboard/dashboard-shell";
+import { requireOperator } from "../lib/require-operator";
 import "../styles/global.css";
 
-const session = await auth.api.getSession({
-  headers: Astro.request.headers,
-});
-if (!session) {
+const operator = await requireOperator(Astro.request, "analytics:read");
+if (operator instanceof Response && operator.status === 401) {
   return Astro.redirect("/login?next=%2Fdashboard");
 }
+if (operator instanceof Response) return operator;
 ---
 
 <html lang="en" class="dark">

@@ -77,7 +77,7 @@ const route: APIRoute = async ({ request }) => {
     }
 
     const statements = publishStatements({
-      actor: "operator",
+      actor: operator.session.user.email,
       createdAt: new Date().toISOString(),
       documentId: document.id,
       publishedRevisionId: revisionId,

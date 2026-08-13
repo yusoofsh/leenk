@@ -7,7 +7,7 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 - Astro 7 with server-side rendering
 - React 19 islands
 - Tailwind CSS 4 and typography styles
-- Cloudflare Workers through `@astrojs/cloudflare` and Wrangler
+- Cloudflare Workers through Alchemy and the `@distilled.cloud/astro` adapter
 - TypeScript 7, Oxlint, Oxfmt, Husky, and lint-staged
 - Vite 8 with Rolldown and Vitest 4
 - Cloudflare Web Analytics page/performance telemetry, Workers Analytics Engine for privacy-preserving engagement and lifecycle events, and a self-hosted Plus Jakarta Sans font
@@ -110,7 +110,7 @@ leenk delete --force reports/report.pdf
 
 Deletion is intentionally non-interactive and requires `--force`; callers must
 confirm the exact production path before invoking it. Credential rotation remains
-an administrative Wrangler operation and is not part of the portable client.
+an administrative deployment operation and is not part of the portable client.
 
 ScriptC 0.0.22 supports this HTTPS CLI on macOS arm64 and cross-compiled Linux
 arm64/x86_64. Its Windows target does not yet implement `http`, `https`, or `tls`,
