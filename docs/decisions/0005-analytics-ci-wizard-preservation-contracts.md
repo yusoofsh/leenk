@@ -13,7 +13,7 @@ Accepted
 Issues #32, #33, #34, and #38 asked for the contracts that were still
 implicit across the analytics research, Alchemy stack, GitHub workflows, and
 runtime compatibility notes. The repository already has working local
-reports, a Nub-only verification path, and an Alchemy deployment stack. The
+reports, a Bun-only verification path, and an Alchemy deployment stack. The
 remaining risk was contract drift: a dashboard could promise data that the
 Worker cannot query, CI could own credentials in two places, a setup wizard
 could perform a production action, or an Alchemy adoption could replace an
@@ -49,8 +49,8 @@ cannot prove them.
 
 ### CI deployment and secret ownership (#33)
 
-- Nub and `nub.lock` are the only package-manager path. Pull requests and
-  pushes to `main` run `nub install --frozen-lockfile`, `nub run verify`, and
+- Bun and `bun.lock` are the only package-manager path. Pull requests and
+  pushes to `main` run `bun install --frozen-lockfile`, `bun run verify`, and
   the high-severity dependency audit.
 - Deployment is a separate, manual `workflow_dispatch` action. The selected
   stage is `dev` or `prod`; `prod` uses the protected GitHub `production`
@@ -154,3 +154,11 @@ the same privacy and client-input rules as SQL reports.
 - Web Analytics RUM GraphQL nodes and Workers Logs or traces remain
   link-outs.
 - A missing or disabled node is a documented empty report, not a fake series.
+
+## Addendum (2026-08-25): Bun package manager
+
+CI and local verification use Bun 1.4.0 and `bun.lock`. The previous Nub and
+Node.js toolchain is retired. `bun audit --audit-level=high` remains the
+high-severity audit. CI ignores GHSA-jmr9-qjv8-65gv because `extract-zip`
+has no patched release and arrives only through unused `@puppeteer/browsers`
+inside the Alchemy/distilled runtime.

@@ -14,17 +14,16 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 
 ## Requirements
 
-- Latest stable Nub
-- Node.js 26.5.0 or newer
+- Bun 1.4.0 or newer (current stable is 1.4.0)
 
-The repository uses the latest Nub lockfile format in `nub.lock` as its only
-package-manager lockfile.
+The repository uses `bun.lock` as its only package-manager lockfile. Local
+install, scripts, and CI run on Bun. They do not require Node.js or Nub.
 
 ## Development
 
 ```bash
-nub install --frozen-lockfile
-nub run dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
 The development server is available at <http://localhost:4321> by default.
@@ -33,17 +32,17 @@ The development server is available at <http://localhost:4321> by default.
 
 | Task                               | Command                |
 | ---------------------------------- | ---------------------- |
-| Start the Astro development server | `nub run dev`          |
-| Build the production Worker        | `nub run build`        |
-| Run the TypeScript check           | `nub run check`        |
-| Run unit tests                     | `nub run test`         |
-| Run Oxlint                         | `nub run lint`         |
-| Check Oxfmt formatting             | `nub run format:check` |
-| Run all local verification gates   | `nub run verify`       |
-| Apply lint and formatting fixes    | `nub run quality`      |
-| Show the Alchemy deployment plan   | `nub run plan`         |
-| Deploy the Development Environment | `nub run deploy`       |
-| Deploy the Production Environment  | `nub run deploy:prod`  |
+| Start the Astro development server | `bun run dev`          |
+| Build the production Worker        | `bun run build`        |
+| Run the TypeScript check           | `bun run check`        |
+| Run unit tests                     | `bun run test`         |
+| Run Oxlint                         | `bun run lint`         |
+| Check Oxfmt formatting             | `bun run format:check` |
+| Run all local verification gates   | `bun run verify`       |
+| Apply lint and formatting fixes    | `bun run quality`      |
+| Show the Alchemy deployment plan   | `bun run plan`         |
+| Deploy the Development Environment | `bun run deploy`       |
+| Deploy the Production Environment  | `bun run deploy:prod`  |
 
 Oxfmt formats supported JavaScript, TypeScript, CSS, Markdown, and configuration files. It currently skips `.astro` files, which remain validated by Astro's compiler and production build. CI runs linting, formatting, TypeScript checks, unit tests, the production build, and a high-severity dependency audit.
 
@@ -74,9 +73,9 @@ The repository includes a dependency-free TypeScript CLI compiled by
 [ScriptC](https://scriptc.dev/quickstart) into a self-contained native binary:
 
 ```bash
-nub install --frozen-lockfile
-nub run cli:build
-nub run cli:install
+bun install --frozen-lockfile
+bun run cli:build
+bun run cli:install
 ```
 
 Authenticate without placing the upload token in shell history:
@@ -120,8 +119,8 @@ See [ScriptC platform support](https://scriptc.dev/platforms).
 With Zig installed, produce Linux artifacts from macOS:
 
 ```bash
-nub run cli:build:linux-arm64
-nub run cli:build:linux-x64
+bun run cli:build:linux-arm64
+bun run cli:build:linux-x64
 ```
 
 New uploads expire from public access after 14 days by default. The Worker stores the expiry in R2
@@ -300,29 +299,29 @@ Worker does not query Web Analytics RUM GraphQL nodes or Workers Logs.
 ## Deployment
 
 The build produces an Astro server entry point and static assets in `dist/`.
-`nub run build` uses `astro.config.local.ts`, which adds the same
+`bun run build` uses `astro.config.local.ts`, which adds the same
 `@distilled.cloud/astro` Cloudflare adapter the Alchemy stack injects at
 deploy time, so the repository never needs Wrangler.
 
 Show the plan for a stage before deploying:
 
 ```bash
-nub run build
-nub run plan -- --stage dev
+bun run build
+bun run plan -- --stage dev
 ```
 
 The Development Environment deploys to an isolated `dev-leenk` Worker on
 workers.dev:
 
 ```bash
-nub run deploy
+bun run deploy
 ```
 
 Production deployment is intentionally explicit and adopts the live `leenk`
 Worker and its custom domain:
 
 ```bash
-nub run deploy:prod
+bun run deploy:prod
 ```
 
 Deploy only after local and CI verification pass. Both commands change live
@@ -343,7 +342,7 @@ guarding the CLI and machine upload paths.
 
 1. Create a short-lived branch.
 2. Make a focused change.
-3. Run `nub run verify`.
+3. Run `bun run verify`.
 4. Commit with a conventional commit message.
 5. Open a pull request and wait for CI.
 

@@ -16,13 +16,13 @@ Cloudflare resource identity, data preservation, or live route behavior.
 
 ## Decision
 
-The Development Environment is the local `nub run dev` environment and the
+The Development Environment is the local `bun run dev` environment and the
 local verification surface. A remote Development deployment is optional and
 is not required for this project. The local Development Environment must pass
 these gates before production approval:
 
-1. `nub run verify` passes from a frozen Nub install.
-2. `nub exec alchemy plan --stage dev` exits successfully and shows no
+1. `bun run verify` passes from a frozen Bun install.
+2. `bunx alchemy plan --stage dev` exits successfully and shows no
    replacement or destructive operation for adopted resources.
 3. The local server routes pass public homepage, social redirect, static
    `GET`/`HEAD`, shortlink redirect, dashboard authentication, and dashboard

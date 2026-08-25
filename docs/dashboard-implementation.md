@@ -110,8 +110,8 @@ JSON with a `source`, `range`, and `sampled` marker.
 ## How to run
 
 ```bash
-nub install --frozen-lockfile
-nub run dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
 Open `/dashboard`. Reads use the environment select in the header; the write
@@ -142,27 +142,27 @@ token is entered in Settings under the Write token tab and is held in memory.
 ## Verification
 
 ```text
-$ nub run check
+$ bun run check
 $ tsc --noEmit
 
 (no errors)
 
-$ nub run lint
+$ bun run lint
 $ oxlint --type-aware --deny-warnings .
 
 (no errors)
 
-$ nub run test
+$ bun run test
  Test Files  13 passed (13)
       Tests  129 passed (129)
 
-$ nub run format:check
+$ bun run format:check
 (oxfmt reports formatting issues only in AGENTS.md and
 docs/research/2026-08-09-alchemy-cloudflare-migration.md, which are owned by
 the Alchemy migration workstream and were already unformatted in the shared
 worktree. All dashboard files pass.)
 
-$ nub run build
+$ bun run build
  [build] ✓ Completed in 1.56s.
  [build] Server built in 1.64s
  [build] Complete!

@@ -10,7 +10,9 @@ Scope: verify the Alchemy model for adopting Leenk's Cloudflare deployment, pres
 
 Alchemy can own the Astro Worker and the Cloudflare resources needed by the requested dashboard. The safe path is to declare stable physical names, use an isolated Alchemy stage first, inspect the plan for replacements, and run data and route smoke tests before production approval.
 
-The final repository should not use Wrangler. Wrangler can be present only as migration evidence while the Alchemy stage is being verified. The final deployment and type-generation path should use Alchemy and Nub.
+The final repository should not use Wrangler. Wrangler can be present only as
+migration evidence while the Alchemy stage is being verified. The final
+deployment and type-generation path should use Alchemy and Bun.
 
 The current package and documentation have a package-name mismatch. The Alchemy `2.0.0-beta.70` published package describes the Astro adapter as `@distilled.cloud/astro` and carries `@distilled.cloud/astro` `0.13.7` in its package metadata. The current Alchemy Astro guide instructs users to install `@alchemy.run/cloudflare-frameworks`; its npm package currently publishes only `0.0.0`. The migration must resolve this mismatch in a non-production stage before the dependency choice is locked.
 
@@ -89,13 +91,16 @@ The state store is separate from the application's D1 database. Its creation, ac
 
 The current repository has a verification-only GitHub workflow. A separate Alchemy deployment workflow is needed for staging and production, with a production environment approval gate. The existing CI checks should remain as pre-deploy checks.
 
-### Nub invocation
+### Bun invocation
 
-- The repository's package manager is Nub and its lockfile is `nub.lock`. The local Nub CLI reports version `0.7.2` in this checkout.
-- The local `nub exec --help` contract runs a binary from `node_modules/.bin` and forwards arguments. Therefore, once `alchemy` is installed as a project dependency, the repository-native invocation is `nub exec alchemy deploy --stage <stage>`.
-- Alchemy's official guides show `bun alchemy`, `npx alchemy`, `pnpm dlx alchemy`, and `yarn dlx alchemy`; they do not document Nub. [Getting started guide](https://alchemy.run/getting-started/), [CI guide](https://alchemy.run/environments/ci/)
-
-`nub exec alchemy` is a repository tooling recommendation based on the local Nub CLI, not an Alchemy-published command. It should be tested after the dependency is added.
+- The repository's package manager is Bun and its lockfile is `bun.lock`.
+  Current stable Bun is 1.4.0.
+- Alchemy is a project dependency. The repository-native invocation is
+  `bunx alchemy deploy --stage <stage>` or `bun run deploy` /
+  `bun run deploy:prod`.
+- Alchemy's official guides document `bun alchemy` among other runners.
+  [Getting started guide](https://alchemy.run/getting-started/),
+  [CI guide](https://alchemy.run/environments/ci/)
 
 ### Docker and Command relevance
 
@@ -113,7 +118,7 @@ Neither provider is required to deploy an Astro Worker or adopt the existing R2 
 5. **Run staging smoke tests.** Prove the public static read path, authenticated upload/delete path, expiry metadata and `410 Gone` behavior, shortlink creation and redirect analytics, site analytics writes, dashboard Access, and the CMS D1 migration in the staging stage. Query the Analytics Engine datasets before and after the test.
 6. **Add the GitHub workflow.** Keep verification in CI. Add stage-aware Alchemy deployment and preview cleanup. Require a protected production environment for the production job. Use GitHub Actions secrets for Cloudflare credentials and never persist token values in the repository.
 7. **Request fresh production approval.** Show the final Alchemy plan, the staging smoke-test results, the dataset comparison, the R2 metadata comparison, and the rollback procedure. Do not deploy production automatically from this research ticket.
-8. **Remove Wrangler after parity.** Remove the Wrangler deployment and type-generation path, `wrangler.jsonc`, and stale Wrangler references only after the Alchemy staging and production gates pass. The final repository uses Alchemy and Nub.
+8. **Remove Wrangler after parity.** Remove the Wrangler deployment and type-generation path, `wrangler.jsonc`, and stale Wrangler references only after the Alchemy staging and production gates pass. The final repository uses Alchemy and Bun.
 
 ## Failure and rollback risks
 
@@ -130,7 +135,7 @@ Neither provider is required to deploy an Astro Worker or adopt the existing R2 
 
 ## Decision
 
-Use Alchemy `2.0.0-beta.70` with an explicit, non-production adoption stage. Preserve the existing R2 bucket name `leenk-static` and the Analytics Engine dataset names `leenk_shortlinks` and `leenk_site_events`. Use `Cloudflare.Website.Astro` for the Worker, `Cloudflare.state()` for Alchemy state, Cloudflare Access for the owner-only dashboard, and D1 for the CMS only after its schema is approved. Use `nub exec alchemy` in the repository. Remove Wrangler from the final repository after parity and production approval.
+Use Alchemy `2.0.0-beta.70` with an explicit, non-production adoption stage. Preserve the existing R2 bucket name `leenk-static` and the Analytics Engine dataset names `leenk_shortlinks` and `leenk_site_events`. Use `Cloudflare.Website.Astro` for the Worker, `Cloudflare.state()` for Alchemy state, Cloudflare Access for the owner-only dashboard, and D1 for the CMS only after its schema is approved. Use `bunx alchemy` in the repository. Remove Wrangler from the final repository after parity and production approval.
 
 The package mismatch is resolved: the repository installs
 `@distilled.cloud/astro@0.17.1` and pins the Effect ecosystem at

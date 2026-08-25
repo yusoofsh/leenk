@@ -2,28 +2,31 @@
 
 ## Package Manager
 
-- Use the latest stable Nub release; do not pin the Nub CLI version.
-- Install with `nub install --frozen-lockfile`; `nub.lock` is the only lockfile.
+- Use the latest stable Bun release. The current stable is 1.4.0.
+- Install with `bun install --frozen-lockfile`; `bun.lock` is the only
+  lockfile.
+- Do not add npm, pnpm, yarn, or Nub lockfiles. Local install and verify
+  must not require Node.js.
 
 ## Commands
 
 | Task                 | Command                |
 | -------------------- | ---------------------- |
-| Development server   | `nub run dev`          |
-| Production build     | `nub run build`        |
-| TypeScript check     | `nub run check`        |
-| Unit tests           | `nub run test`         |
-| Lint                 | `nub run lint`         |
-| Format check         | `nub run format:check` |
-| Full verification    | `nub run verify`       |
-| Alchemy plan         | `nub run plan`         |
-| Deploy (Development) | `nub run deploy`       |
-| Deploy (Production)  | `nub run deploy:prod`  |
+| Development server   | `bun run dev`          |
+| Production build     | `bun run build`        |
+| TypeScript check     | `bun run check`        |
+| Unit tests           | `bun run test`         |
+| Lint                 | `bun run lint`         |
+| Format check         | `bun run format:check` |
+| Full verification    | `bun run verify`       |
+| Alchemy plan         | `bun run plan`         |
+| Deploy (Development) | `bun run deploy`       |
+| Deploy (Production)  | `bun run deploy:prod`  |
 
 - Oxfmt does not format `.astro`; Astro's compiler/build validates those files.
-- `nub run quality` mutates files; use the read-only commands for audits and CI.
-- Never run `nub run deploy:prod` without explicit production-deployment
-  approval. The Development deploy is the default `nub run deploy`.
+- `bun run quality` mutates files; use the read-only commands for audits and CI.
+- Never run `bun run deploy:prod` without explicit production-deployment
+  approval. The Development deploy is the default `bun run deploy`.
 
 ## Architecture
 
@@ -31,6 +34,8 @@
 - Cloudflare Workers deployment via Alchemy (`alchemy.run.ts`) with the
   `@distilled.cloud/astro` adapter. Local builds use `astro.config.local.ts`;
   Wrangler is not used.
+- The Worker still sets `nodejs_compat` for the Cloudflare runtime. That is
+  not a local Node.js toolchain requirement.
 - Tailwind CSS 4 with the typography plugin.
 - TypeScript 7, Oxlint, Oxfmt, Vitest, and Husky/lint-staged.
 - Cloudflare Web Analytics is injected at the edge for page/performance telemetry; the separate `SITE_ANALYTICS` Workers Analytics Engine binding records only bounded, privacy-preserving engagement, error, and authenticated lifecycle events. Social links use `social_link_clicked` with a bounded network dimension.

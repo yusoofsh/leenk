@@ -165,24 +165,24 @@ The commands are `upload`, `inspect` or `head`, `delete`, `login`, `logout`,
 
 ## Verification, CI, and deployment
 
-The repository uses the latest stable Nub and `nub.lock` as its only lockfile;
-Node.js must be `26.5.0` or newer (`README.md:15-21`, `package.json:65-66`).
-The relevant commands are defined in `package.json:5-25`:
+The repository uses Bun 1.4.0 or newer and `bun.lock` as its only lockfile.
+Local install and verify do not require Node.js or Nub. The Worker still
+sets `nodejs_compat` for the Cloudflare runtime.
 
-- Install: `nub install --frozen-lockfile`.
-- Local development: `nub run dev`.
-- Worker build and preview: `nub run build`, then `nub run preview`.
-- Checks: `nub run check`, `nub run test`, `nub run lint`, and
-  `nub run format:check`.
-- Full local gate: `nub run verify`.
-- Production command today: `nub run deploy`, which runs `wrangler deploy`.
+The relevant commands are defined in `package.json`:
 
-CI runs `nub install --frozen-lockfile`, `nub run verify`, and
-`nub audit --audit-level=high` on pull requests and pushes to `main`
-(`.github/workflows/ci.yml:1-32`). On 2026-08-09, the focused local checks
-`nub run check`, `nub run test`, `nub run lint`, and `nub run format:check`
-passed. The test run reported 11 test files and 83 tests passing. No deploy was
-run.
+- Install: `bun install --frozen-lockfile`.
+- Local development: `bun run dev`.
+- Worker build: `bun run build`.
+- Checks: `bun run check`, `bun run test`, `bun run lint`, and
+  `bun run format:check`.
+- Full local gate: `bun run verify`.
+- Development deploy: `bun run deploy`. Production remains
+  `bun run deploy:prod` behind a separate approval.
+
+CI runs `bun install --frozen-lockfile`, `bun run verify`, and
+`bun audit --audit-level=high` on pull requests and pushes to `main`
+(`.github/workflows/ci.yml`).
 
 ## Existing worktree state
 
