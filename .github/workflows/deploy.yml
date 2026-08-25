@@ -25,19 +25,19 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Nub and Node.js
-        uses: nubjs/setup-nub@v0
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 26.5.0
+          bun-version-file: .bun-version
 
       - name: Install dependencies
-        run: nub install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Verify project
-        run: nub run verify
+        run: bun run verify
 
       - name: Audit dependencies
-        run: nub audit --audit-level=high
+        run: bun audit --audit-level=high
 
   deploy:
     needs: verify
@@ -49,16 +49,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v7
 
-      - name: Set up Nub and Node.js
-        uses: nubjs/setup-nub@v0
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 26.5.0
+          bun-version-file: .bun-version
 
       - name: Install dependencies
-        run: nub install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Deploy stack
-        run: nub exec alchemy deploy --stage ${{ github.event_name == 'workflow_dispatch' && inputs.stage || 'dev' }} --yes
+        run: bunx alchemy deploy --stage ${{ github.event_name == 'workflow_dispatch' && inputs.stage || 'dev' }} --yes
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

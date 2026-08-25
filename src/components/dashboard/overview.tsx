@@ -39,6 +39,7 @@ interface OverviewSnapshot {
   shortlinks?: DashboardResult<Array<{ code: string }>>;
   siteEvents?: DashboardResult<AnalyticsRow[]>;
   shortlinksClicks?: DashboardResult<AnalyticsRow[]>;
+  volume?: DashboardResult<AnalyticsRow[]>;
 }
 
 export function Overview() {
@@ -58,16 +59,22 @@ export function Overview() {
       dashboardFetch<AnalyticsRow[]>(
         `/api/dashboard/analytics/shortlinks?${query}`,
       ),
-    ]).then(([activity, files, shortlinks, siteEvents, shortlinksClicks]) => {
-      if (cancelled) return;
-      setSnapshot({
-        activity,
-        files,
-        shortlinks,
-        siteEvents,
-        shortlinksClicks,
-      });
-    });
+      dashboardFetch<AnalyticsRow[]>(
+        `/api/dashboard/analytics/volume?${query}`,
+      ),
+    ]).then(
+      ([activity, files, shortlinks, siteEvents, shortlinksClicks, volume]) => {
+        if (cancelled) return;
+        setSnapshot({
+          activity,
+          files,
+          shortlinks,
+          siteEvents,
+          shortlinksClicks,
+          volume,
+        });
+      },
+    );
     return () => {
       cancelled = true;
     };
@@ -175,8 +182,15 @@ function KpiStrip({
       <KpiCard label="Site events" value={siteTotal} />
       <KpiCard label="Files" value={files.length} />
       <KpiCard label="Shortlinks" value={links.length} />
-      <div className="col-span-full">
+      <div className="col-span-full space-y-1">
         <AnalyticsCaption range={range} />
+        {snapshot.volume && snapshot.volume.ok ? (
+          <AnalyticsCaption
+            entitlement={snapshot.volume.meta?.entitlement}
+            range={snapshot.volume.meta?.range ?? range}
+            source={snapshot.volume.meta?.source}
+          />
+        ) : null}
       </div>
     </div>
   );

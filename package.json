@@ -19,10 +19,10 @@
     "lint:fix": "oxlint --type-aware --fix .",
     "plan": "alchemy plan",
     "prepare": "husky",
-    "quality": "nub run lint:fix && nub run format",
+    "quality": "bun run lint:fix && bun run format",
     "test": "vitest run",
     "test:watch": "vitest",
-    "verify": "nub run lint && nub run format:check && nub run check && nub run test && nub run cli:coverage && nub run cli:build && nub run build"
+    "verify": "bun run lint && bun run format:check && bun run check && bun run test && bun run cli:coverage && bun run cli:build && bun run build"
   },
   "dependencies": {
     "@astrojs/react": "^6.0.2",
@@ -64,6 +64,7 @@
     "axe-core": "^4.13.0",
     "effect": "4.0.0-beta.103",
     "esbuild": "0.28.2",
+    "extract-zip": "file:./vendor/extract-zip",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^17.3.0",
@@ -79,16 +80,21 @@
   },
   "overrides": {
     "@hono/node-server": "1.19.10",
+    "extract-zip": "file:./vendor/extract-zip",
     "hono": "4.13.1",
     "lodash": "4.18.1",
     "sharp": "0.35.3"
   },
   "engines": {
-    "node": ">=26.5.0"
+    "bun": ">=1.4.0"
   },
-  "allowBuilds": {
-    "esbuild": true,
-    "sharp": true,
-    "workerd": true
-  }
+  "packageManager": "bun@1.4.0",
+  "patchedDependencies": {
+    "typescript@7.0.2": "patches/typescript@7.0.2.patch"
+  },
+  "trustedDependencies": [
+    "esbuild",
+    "sharp",
+    "workerd"
+  ]
 }

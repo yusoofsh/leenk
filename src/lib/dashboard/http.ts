@@ -3,7 +3,9 @@ export const DASHBOARD_READ_CACHE =
 export const DASHBOARD_NO_STORE = "no-store";
 
 export interface DashboardMeta {
+  entitlement?: "available" | "disabled" | "missing" | "unknown";
   legacy?: boolean;
+  node?: string;
   range?: {
     end: string;
     start: string;

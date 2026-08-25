@@ -1,4 +1,3 @@
-import { apiError } from "~/lib/http";
 import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
 
 export const ANALYTICS_ENGINE_API_URL = "https://api.cloudflare.com/client/v4";
@@ -241,7 +240,7 @@ export function sumWeighted(
 }
 
 export function analyticsEngineUnavailable(): Response {
-  return apiError(
+  return dashboardError(
     503,
     "ANALYTICS_ENGINE_NOT_CONFIGURED",
     "Analytics Engine is not configured",

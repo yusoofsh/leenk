@@ -41,7 +41,7 @@ resource in `alchemy.run.ts`, and remove Wrangler from the repository.
 - Keep the canonical `astro.config.ts` adapter-free: Alchemy injects the
   adapter programmatically and rejects a user-declared adapter. Add
   `astro.config.local.ts`, which adds `distilledCloudflare()` from
-  `@distilled.cloud/astro/cloudflare` so `nub run build` and CI verify the
+  `@distilled.cloud/astro/cloudflare` so `bun run build` and CI verify the
   real server output without Wrangler. Both files stay in sync manually.
 - The stack declares two stages, mirroring the two named Environments:
   `dev` deploys an isolated `dev-leenk` Worker on workers.dev (covered by the
@@ -59,8 +59,8 @@ resource in `alchemy.run.ts`, and remove Wrangler from the repository.
   (plain value), and `CLOUDFLARE_ANALYTICS_TOKEN` (optional Worker secret for
   the dashboard's Analytics Engine SQL reads). No token values are
   committed.
-- Deployment scripts replace Wrangler: `nub run deploy` targets the
-  Development stage and `nub run deploy:prod` targets Production. The
+- Deployment scripts replace Wrangler: `bun run deploy` targets the
+  Development stage and `bun run deploy:prod` targets Production. The
   `types:check` script is removed; `worker-configuration.d.ts` is
   source-owned and kept in sync with the stack.
 - A GitHub Actions `deploy.yml` runs the verification suite, then deploys
@@ -89,7 +89,7 @@ Rejected. The API appears in more than twenty thousand call sites across the
 
 ## Consequences
 
-- The repository deploys through Alchemy and Nub only; Wrangler is absent
+- The repository deploys through Alchemy and Bun only; Wrangler is absent
   from `package.json`, `wrangler.jsonc` is deleted, and stale Wrangler
   references are removed from scripts and docs.
 - The Effect pins are beta versions and must be revisited when the
@@ -147,3 +147,11 @@ from `~/.agent/diagrams`, with 31 new labeled shortlinks allocated.
 Rule for this repository: never run `alchemy destroy` for a stage that has
 adopted resources, and never use destroy as a rollback. The Production stage
 is permanent and only ever moves forward through `deploy`.
+
+## Addendum (2026-08-25): Bun replaces Nub and Node.js
+
+Local install, scripts, and CI use Bun 1.4.0 (current stable) and `bun.lock`.
+`bun run deploy` and `bun run deploy:prod` still call Alchemy. Wrangler stays
+out. The Worker `nodejs_compat` flag is unchanged and is not a local Node.js
+requirement. ScriptC still needs the `typescript@7.0.2` fifo patch documented
+in ADR-0005 until Bun exposes child-process pipe fds.

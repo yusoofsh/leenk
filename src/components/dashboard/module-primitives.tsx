@@ -111,15 +111,37 @@ function skeletonKey(): string {
 }
 
 export function AnalyticsCaption({
+  entitlement,
   range,
+  source,
 }: {
+  entitlement?: "available" | "disabled" | "missing" | "unknown" | undefined;
   range?: { end: string; start: string } | null;
+  source?: string | undefined;
 }) {
   if (!range) return null;
+  const graphql = source === "GraphQL Analytics";
+  const note = graphql
+    ? graphqlCaption(entitlement)
+    : "Values are sampled and are not exact page views or unique visitors.";
   return (
     <p className="text-muted-foreground text-xs" data-slot="analytics-caption">
-      Weighted Analytics Engine counts, {range.start} to {range.end}. Values are
-      sampled and are not exact page views or unique visitors.
+      {graphql
+        ? "GraphQL Adaptive Groups counts"
+        : "Weighted Analytics Engine counts"}
+      , {range.start} to {range.end}. {note}
     </p>
   );
+}
+
+function graphqlCaption(
+  entitlement: "available" | "disabled" | "missing" | "unknown" | undefined,
+): string {
+  if (entitlement === "missing") {
+    return "The workersAnalyticsEngineAdaptiveGroups node is not on this account schema. Shortlink and site-event reports still use Analytics Engine SQL.";
+  }
+  if (entitlement === "disabled") {
+    return "The GraphQL node is present but disabled for this account. Shortlink and site-event reports still use Analytics Engine SQL.";
+  }
+  return "Dataset totals only. Labels, campaigns, and engagement dimensions stay on the Analytics Engine SQL reports. Not page views or unique visitors.";
 }

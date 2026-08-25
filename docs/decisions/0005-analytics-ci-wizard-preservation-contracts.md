@@ -13,7 +13,7 @@ Accepted
 Issues #32, #33, #34, and #38 asked for the contracts that were still
 implicit across the analytics research, Alchemy stack, GitHub workflows, and
 runtime compatibility notes. The repository already has working local
-reports, a Nub-only verification path, and an Alchemy deployment stack. The
+reports, a Bun-only verification path, and an Alchemy deployment stack. The
 remaining risk was contract drift: a dashboard could promise data that the
 Worker cannot query, CI could own credentials in two places, a setup wizard
 could perform a production action, or an Alchemy adoption could replace an
@@ -27,8 +27,8 @@ cannot prove them.
 
 ### Analytics query and retention contract (#32)
 
-- The dashboard exposes named, server-side Analytics Engine reports only.
-  Clients cannot provide SQL, dataset names, columns, `FORMAT`, or an
+- The dashboard exposes named, server-side analytics reports only. Clients
+  cannot provide SQL, GraphQL, dataset names, columns, `FORMAT`, or an
   arbitrary filter.
 - The supported datasets are `leenk_shortlinks` and `leenk_site_events`.
   Legacy code-indexed shortlink rows remain in `leenk_shortlinks` and are
@@ -49,8 +49,8 @@ cannot prove them.
 
 ### CI deployment and secret ownership (#33)
 
-- Nub and `nub.lock` are the only package-manager path. Pull requests and
-  pushes to `main` run `nub install --frozen-lockfile`, `nub run verify`, and
+- Bun and `bun.lock` are the only package-manager path. Pull requests and
+  pushes to `main` run `bun install --frozen-lockfile`, `bun run verify`, and
   the high-severity dependency audit.
 - Deployment is a separate, manual `workflow_dispatch` action. The selected
   stage is `dev` or `prod`; `prod` uses the protected GitHub `production`
@@ -139,3 +139,36 @@ rollback actions for an adopted resource.
 - `.github/workflows/ci.yml`
 - `.github/workflows/deploy.yml`
 - `alchemy.run.ts`
+
+## Addendum (2026-08-25): GraphQL dataset volume
+
+Named GraphQL Analytics reports are now part of the analytics contract, with
+the same privacy and client-input rules as SQL reports.
+
+- Clients still cannot provide a GraphQL document, dataset name, or filter.
+  The only GraphQL report is `GET /api/dashboard/analytics/volume`.
+- The query is fixed to `workersAnalyticsEngineAdaptiveGroups` for
+  `leenk_shortlinks` and `leenk_site_events`. The node can return Adaptive
+  Groups `count` by dataset and day. It cannot replace SQL for labels,
+  campaigns, or engagement dimensions.
+- Web Analytics RUM GraphQL nodes and Workers Logs or traces remain
+  link-outs.
+- A missing or disabled node is a documented empty report, not a fake series.
+
+## Addendum (2026-08-25): Bun package manager
+
+CI and local verification use Bun 1.4.0 and `bun.lock`. The previous Nub and
+Node.js toolchain is retired. `bun audit --audit-level=high` remains the
+high-severity audit.
+
+`extract-zip` has no upstream patched release for GHSA-jmr9-qjv8-65gv
+(symlink targets were not checked). A local copy at `vendor/extract-zip`
+(version 2.0.2) overrides the 2.0.1 that `@puppeteer/browsers` pulls in.
+The override rejects symlink targets outside the destination and refuses
+to write through an existing symlink leaf. Drop the vendor copy if npm
+ever publishes a fixed `extract-zip`.
+
+ScriptC coverage and native CLI builds spawn TypeScript 7's sync RPC. Bun
+1.4.0 leaves `stdout._handle.fd` unset on child pipes, so `typescript@7.0.2`
+is patched to talk over POSIX fifos instead of Node internals. Drop that
+patch only after Bun ships oven-sh/bun#39760 or equivalent.

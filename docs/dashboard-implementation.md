@@ -41,9 +41,11 @@ share the same Better Auth session and capability boundary.
   shortlink API.
 - Campaigns: ranked campaign/source/medium breakdown with a bar chart and a
   table, sourced from the campaign report.
-- Analytics: tabs for Shortlinks, Site events, and Historical (legacy
-  code-indexed) reports, a 7/30/90-day range selector, charts, ranked tables,
-  and link-outs to Cloudflare Web Analytics and Workers Observability.
+- Analytics: tabs for Shortlinks, Site events, Dataset volume, and
+  Historical (legacy code-indexed) reports, a 7/30/90-day range selector,
+  charts, ranked tables, and link-outs to Cloudflare Web Analytics and
+  Workers Observability. Dataset volume is the GraphQL Adaptive Groups
+  total for `leenk_shortlinks` and `leenk_site_events`.
 - Activity: keyset-paged D1 activity entries with kind badges.
 - Operations: read-only binding health cards for the renderer, R2, D1, and
   Analytics Engine, plus Cloudflare dashboard link-outs.
@@ -68,6 +70,7 @@ is never sent to browser code or stored in local storage.
 | `/api/dashboard/analytics/site-events`        | GET    | site events by day, event, dimension                    |
 | `/api/dashboard/analytics/shortlinks/history` | GET    | legacy `leenk_shortlinks` code-indexed report           |
 | `/api/dashboard/analytics/campaigns`          | GET    | campaign, source, medium breakdown                      |
+| `/api/dashboard/analytics/volume`             | GET    | GraphQL Adaptive Groups totals by dataset and day       |
 | `/api/dashboard/shortlinks`                   | GET    | R2 shortlink records with recent clicks                 |
 | `/api/dashboard/files`                        | GET    | R2 object listing                                       |
 | `/api/dashboard/cms`                          | GET    | document, published revision, revision summaries        |
@@ -88,6 +91,14 @@ JSON with a `source`, `range`, and `sampled` marker.
 - Analytics Engine: `leenk_shortlinks` (single dataset, legacy rows included)
   and `leenk_site_events`, queried through the account-scoped SQL API with the
   `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ANALYTICS_TOKEN` bindings.
+- GraphQL Analytics: the same token calls
+  `https://api.cloudflare.com/client/v4/graphql` for the account node
+  `workersAnalyticsEngineAdaptiveGroups`. That node can group Adaptive Groups
+  `count` by `dataset` and time. It does not expose blob labels, campaign
+  fields, or engagement dimensions. The dashboard keeps those breakdowns on
+  the SQL reports. RUM nodes (`rumPageloadEventsAdaptiveGroups`,
+  `rumPerformanceEventsAdaptiveGroups`, `rumWebVitalsEventsAdaptive*`) and
+  Workers Logs or traces are not queried.
 - R2: the `STATIC_FILES` bucket holds static objects and shortlink records
   under the `__shortlinks/` prefix.
 - D1: the `CMS` binding holds the Content Document, Content Revisions,
@@ -99,8 +110,8 @@ JSON with a `source`, `range`, and `sampled` marker.
 ## How to run
 
 ```bash
-nub install --frozen-lockfile
-nub run dev
+bun install --frozen-lockfile
+bun run dev
 ```
 
 Open `/dashboard`. Reads use the environment select in the header; the write
@@ -111,8 +122,13 @@ token is entered in Settings under the Write token tab and is held in memory.
 - Web Analytics RUM and Workers Logs or Traces are not queried; the dashboard
   links to those products instead, because neither has a supported
   first-release data path from the Worker.
-- GraphQL analytics are not wired in; that is a separate future integration
-  after checking the live schema and account entitlements.
+- GraphQL Analytics is wired for `workersAnalyticsEngineAdaptiveGroups`
+  dataset volume only. The public schema (checked 2026-08-25) lists
+  `count` plus `dataset` and time dimensions. Account entitlement is probed
+  at request time: a missing or disabled node returns an empty report with
+  `meta.entitlement` of `missing` or `disabled` instead of invented counts.
+  This environment had no analytics token, so live account rows were not
+  queried here.
 - There are no user, billing, team, or automation surfaces; the module list
   is fixed at the nine modules in the spec.
 - Autosave for drafts is not implemented per ADR-0002; Save Draft is explicit.
@@ -126,27 +142,27 @@ token is entered in Settings under the Write token tab and is held in memory.
 ## Verification
 
 ```text
-$ nub run check
+$ bun run check
 $ tsc --noEmit
 
 (no errors)
 
-$ nub run lint
+$ bun run lint
 $ oxlint --type-aware --deny-warnings .
 
 (no errors)
 
-$ nub run test
+$ bun run test
  Test Files  13 passed (13)
       Tests  129 passed (129)
 
-$ nub run format:check
+$ bun run format:check
 (oxfmt reports formatting issues only in AGENTS.md and
 docs/research/2026-08-09-alchemy-cloudflare-migration.md, which are owned by
 the Alchemy migration workstream and were already unformatted in the shared
 worktree. All dashboard files pass.)
 
-$ nub run build
+$ bun run build
  [build] ✓ Completed in 1.56s.
  [build] Server built in 1.64s
  [build] Complete!

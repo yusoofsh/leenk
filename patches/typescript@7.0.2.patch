@@ -1,0 +1,69 @@
+diff --git a/dist/api/syncChannel.js b/dist/api/syncChannel.js
+index 7b9cf99d6b052ca506d3b6c11f97911416c7949f..6103f3f04d319f86799c377ace3a16eff37ff8a8 100644
+--- a/dist/api/syncChannel.js
++++ b/dist/api/syncChannel.js
+@@ -9,8 +9,10 @@
+  * directly on the pipe file descriptors obtained from the spawned
+  * ChildProcess.
+  */
+-import { spawn, } from "node:child_process";
+-import { closeSync, openSync, readSync, writeSync, } from "node:fs";
++import { spawn, spawnSync, } from "node:child_process";
++import { closeSync, mkdtempSync, openSync, readSync, rmSync, writeSync, } from "node:fs";
++import { tmpdir } from "node:os";
++import { join } from "node:path";
+ import { binHeaderSize, MSGPACK_BIN16, MSGPACK_BIN32, MSGPACK_BIN8, MSGPACK_FIXARRAY3, MSGPACK_UINT8, writeBinHeader, } from "./node/msgpack.js";
+ // ── MessageType constants ────────────────────────────────────────────
+ // Sent by channel (parent → child)
+@@ -121,6 +123,23 @@ export class SyncRpcChannel {
+             this.writeFd = fd;
+             this.pipeFd = fd;
+         }
++        else if (typeof globalThis.Bun !== "undefined") {
++            // Bun 1.4.0 does not expose Node's stdout._handle.fd on child_process
++            // pipes (oven-sh/bun#39747). POSIX fifos give real fds for readSync.
++            const dir = mkdtempSync(join(tmpdir(), "tsgo-sync-"));
++            const outPath = join(dir, "out");
++            const inPath = join(dir, "in");
++            const mk = spawnSync("mkfifo", [outPath, inPath]);
++            if (mk.status !== 0) {
++                throw new Error(`SyncRpcChannel: mkfifo failed (${mk.status}): ${mk.stderr?.toString() || mk.error?.message || ""}`);
++            }
++            this.fifoDir = dir;
++            this.readFd = openSync(outPath, "r+");
++            this.writeFd = openSync(inPath, "r+");
++            this.child = spawn(exe, args, {
++                stdio: [this.writeFd, this.readFd, "inherit"],
++            });
++        }
+         else {
+             // POSIX: use stdio pipe file descriptors directly.
+             this.child = spawn(exe, args, {
+@@ -184,6 +203,27 @@ export class SyncRpcChannel {
+                 closeSync(this.pipeFd);
+                 this.pipeFd = undefined;
+             }
++            else if (this.fifoDir) {
++                try {
++                    closeSync(this.readFd);
++                }
++                catch {
++                    // already closed
++                }
++                try {
++                    closeSync(this.writeFd);
++                }
++                catch {
++                    // already closed
++                }
++                try {
++                    rmSync(this.fifoDir, { recursive: true, force: true });
++                }
++                catch {
++                    // swallow
++                }
++                this.fifoDir = undefined;
++            }
+             // Destroy the stdio streams so that their pipe handles are closed
+             // and no longer prevent the event loop from draining.
+             this.child.stdout?.destroy();
