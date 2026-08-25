@@ -159,9 +159,14 @@ the same privacy and client-input rules as SQL reports.
 
 CI and local verification use Bun 1.4.0 and `bun.lock`. The previous Nub and
 Node.js toolchain is retired. `bun audit --audit-level=high` remains the
-high-severity audit. CI ignores GHSA-jmr9-qjv8-65gv because `extract-zip`
-has no patched release and arrives only through unused `@puppeteer/browsers`
-inside the Alchemy/distilled runtime.
+high-severity audit.
+
+`extract-zip` has no upstream patched release for GHSA-jmr9-qjv8-65gv
+(symlink targets were not checked). A local copy at `vendor/extract-zip`
+(version 2.0.2) overrides the 2.0.1 that `@puppeteer/browsers` pulls in.
+The override rejects symlink targets outside the destination and refuses
+to write through an existing symlink leaf. Drop the vendor copy if npm
+ever publishes a fixed `extract-zip`.
 
 ScriptC coverage and native CLI builds spawn TypeScript 7's sync RPC. Bun
 1.4.0 leaves `stdout._handle.fd` unset on child pipes, so `typescript@7.0.2`

@@ -64,6 +64,7 @@
     "axe-core": "^4.13.0",
     "effect": "4.0.0-beta.103",
     "esbuild": "0.28.2",
+    "extract-zip": "file:./vendor/extract-zip",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^17.3.0",
@@ -79,6 +80,7 @@
   },
   "overrides": {
     "@hono/node-server": "1.19.10",
+    "extract-zip": "file:./vendor/extract-zip",
     "hono": "4.13.1",
     "lodash": "4.18.1",
     "sharp": "0.35.3"

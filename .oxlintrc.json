@@ -14,7 +14,7 @@
     "perf": "error",
     "suspicious": "error"
   },
-  "ignorePatterns": ["**/*.astro", ".opencode/**"],
+  "ignorePatterns": ["**/*.astro", ".opencode/**", "vendor/**"],
   "rules": {
     "react/react-in-jsx-scope": "off"
   },

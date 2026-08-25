@@ -11,6 +11,9 @@
   expose `child_process` pipe `_handle.fd` (oven-sh/bun#39747), so the
   repo patches `typescript@7.0.2` to use POSIX fifos on Bun. Do not drop
   `patches/typescript@7.0.2.patch` until that Bun gap is gone.
+- `extract-zip` has no upstream fix for GHSA-jmr9-qjv8-65gv. The local
+  copy in `vendor/extract-zip` is the override. Do not re-add
+  `--ignore GHSA-jmr9-qjv8-65gv`.
 
 ## Commands
 

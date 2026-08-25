@@ -37,7 +37,7 @@ jobs:
         run: bun run verify
 
       - name: Audit dependencies
-        run: bun audit --audit-level=high --ignore GHSA-jmr9-qjv8-65gv
+        run: bun audit --audit-level=high
 
   deploy:
     needs: verify
