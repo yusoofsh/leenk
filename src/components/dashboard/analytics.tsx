@@ -53,13 +53,14 @@ import {
   type DashboardMeta,
 } from "~/lib/dashboard/client";
 
-type ReportKey = "history" | "shortlinks" | "site-events";
+type ReportKey = "history" | "shortlinks" | "site-events" | "volume";
 type RangeDays = 7 | 30 | 90;
 
 const REPORT_PATHS: Record<ReportKey, string> = {
   history: "/api/dashboard/analytics/shortlinks/history",
   "site-events": "/api/dashboard/analytics/site-events",
   shortlinks: "/api/dashboard/analytics/shortlinks",
+  volume: "/api/dashboard/analytics/volume",
 };
 
 const CHART_CONFIG = {
@@ -70,6 +71,14 @@ const CHART_CONFIG = {
   events: {
     color: "var(--chart-2)",
     label: "Events",
+  },
+  leenk_shortlinks: {
+    color: "var(--chart-1)",
+    label: "Shortlink clicks",
+  },
+  leenk_site_events: {
+    color: "var(--chart-2)",
+    label: "Site events",
   },
 } satisfies ChartConfig;
 
@@ -87,6 +96,7 @@ export function Analytics() {
     history: { loading: false, rows: [] },
     "site-events": { loading: false, rows: [] },
     shortlinks: { loading: false, rows: [] },
+    volume: { loading: false, rows: [] },
   });
 
   const activeReport = reports[reportKey];
@@ -125,7 +135,12 @@ export function Analytics() {
     setDays(value);
     setReports((current) => {
       const next: Record<ReportKey, ReportState> = { ...current };
-      for (const key of ["history", "shortlinks", "site-events"] as const) {
+      for (const key of [
+        "history",
+        "shortlinks",
+        "site-events",
+        "volume",
+      ] as const) {
         next[key] = { loading: false, rows: [] };
       }
       return next;
@@ -171,6 +186,7 @@ export function Analytics() {
         <TabsList>
           <TabsTrigger value="shortlinks">Shortlinks</TabsTrigger>
           <TabsTrigger value="site-events">Site events</TabsTrigger>
+          <TabsTrigger value="volume">Dataset volume</TabsTrigger>
           <TabsTrigger value="history">Legacy history</TabsTrigger>
         </TabsList>
         <TabsContent value={reportKey}>
@@ -182,12 +198,16 @@ export function Analytics() {
                     ? "Site events"
                     : reportKey === "history"
                       ? "Legacy shortlink history"
-                      : "Shortlink clicks"}
+                      : reportKey === "volume"
+                        ? "Dataset volume"
+                        : "Shortlink clicks"}
                 </CardTitle>
                 <CardDescription>
                   {reportKey === "history"
                     ? "Code-indexed rows recorded before the label migration."
-                    : "Weighted Analytics Engine counts by day. Rows recorded before the label migration appear as short codes until retention expires."}
+                    : reportKey === "volume"
+                      ? "GraphQL Adaptive Groups totals for leenk_shortlinks and leenk_site_events. Blob labels stay on the SQL reports."
+                      : "Weighted Analytics Engine counts by day. Rows recorded before the label migration appear as short codes until retention expires."}
                 </CardDescription>
               </div>
               <ReportActions
@@ -201,6 +221,7 @@ export function Analytics() {
                 meta={activeReport.meta}
                 onRefresh={() => loadReport(reportKey)}
                 report={activeReport}
+                reportKey={reportKey}
                 valueKey={valueKey}
               />
             </CardContent>
@@ -250,11 +271,13 @@ function ReportBody({
   meta,
   onRefresh,
   report,
+  reportKey,
   valueKey,
 }: {
   meta: DashboardMeta | undefined;
   onRefresh: () => void;
   report: ReportState;
+  reportKey: ReportKey;
   valueKey: "clicks" | "events";
 }) {
   if (report.loading && report.rows.length === 0) {
@@ -274,6 +297,44 @@ function ReportBody({
       />
     );
   }
+  if (reportKey === "volume" && meta?.entitlement === "missing") {
+    return (
+      <div className="space-y-4">
+        <Alert>
+          <AlertTitle>GraphQL dataset volume is not available</AlertTitle>
+          <AlertDescription>
+            The live schema does not expose workersAnalyticsEngineAdaptiveGroups
+            for this account. Shortlink and site-event reports still use the
+            Analytics Engine SQL API.
+          </AlertDescription>
+        </Alert>
+        <AnalyticsCaption
+          entitlement={meta.entitlement}
+          range={meta.range ?? null}
+          source={meta.source}
+        />
+      </div>
+    );
+  }
+  if (reportKey === "volume" && meta?.entitlement === "disabled") {
+    return (
+      <div className="space-y-4">
+        <Alert>
+          <AlertTitle>GraphQL dataset volume is disabled</AlertTitle>
+          <AlertDescription>
+            The Adaptive Groups node exists but is disabled for this account.
+            Shortlink and site-event reports still use the Analytics Engine SQL
+            API.
+          </AlertDescription>
+        </Alert>
+        <AnalyticsCaption
+          entitlement={meta.entitlement}
+          range={meta.range ?? null}
+          source={meta.source}
+        />
+      </div>
+    );
+  }
   if (report.rows.length === 0) {
     return (
       <div className="space-y-4">
@@ -284,15 +345,30 @@ function ReportBody({
             dataset is receiving traffic.
           </AlertDescription>
         </Alert>
-        <AnalyticsCaption range={meta?.range ?? null} />
+        <AnalyticsCaption
+          entitlement={meta?.entitlement}
+          range={meta?.range ?? null}
+          source={meta?.source}
+        />
       </div>
     );
   }
   return (
     <div className="space-y-4">
-      <ReportChart rows={report.rows} valueKey={valueKey} />
-      <AnalyticsCaption range={meta?.range ?? null} />
-      <ReportTable rows={report.rows} valueKey={valueKey} />
+      {reportKey === "volume" ? (
+        <VolumeChart rows={report.rows} />
+      ) : (
+        <ReportChart rows={report.rows} valueKey={valueKey} />
+      )}
+      <AnalyticsCaption
+        entitlement={meta?.entitlement}
+        range={meta?.range ?? null}
+        source={meta?.source}
+      />
+      <ReportTable
+        rows={report.rows}
+        valueKey={reportKey === "volume" ? "count" : valueKey}
+      />
     </div>
   );
 }
@@ -345,6 +421,32 @@ function ReportChart({
   );
 }
 
+function VolumeChart({ rows }: { rows: AnalyticsRow[] }) {
+  const series = aggregateVolumeByDay(rows);
+  return (
+    <ChartContainer config={CHART_CONFIG} className="h-[16rem]">
+      <BarChart data={series} accessibilityLayer>
+        <CartesianGrid vertical={false} />
+        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+        <YAxis tickLine={false} axisLine={false} width={44} />
+        <ChartTooltip content={<ChartTooltipContent />} />
+        <Bar
+          dataKey="leenk_shortlinks"
+          fill="var(--color-leenk_shortlinks)"
+          radius={4}
+          stackId="volume"
+        />
+        <Bar
+          dataKey="leenk_site_events"
+          fill="var(--color-leenk_site_events)"
+          radius={4}
+          stackId="volume"
+        />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
 function ReportTable({
   rows,
   valueKey,
@@ -357,6 +459,7 @@ function ReportTable({
     .slice(0, 50);
   const hasLabel = rows.some((row) => row.label !== undefined);
   const hasEvent = rows.some((row) => row.event !== undefined);
+  const hasDataset = rows.some((row) => row.dataset !== undefined);
   return (
     <div className="rounded-md border">
       <Table>
@@ -365,13 +468,14 @@ function ReportTable({
             {hasLabel ? <TableHead>Label</TableHead> : null}
             {hasEvent ? <TableHead>Event</TableHead> : null}
             {hasEvent ? <TableHead>Dimension</TableHead> : null}
+            {hasDataset ? <TableHead>Dataset</TableHead> : null}
             <TableHead className="text-right">Count</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {ranked.map((row) => (
             <TableRow
-              key={`${String(row.label ?? row.event ?? row.day ?? "")}-${String(row[valueKey])}`}
+              key={`${String(row.label ?? row.event ?? row.dataset ?? row.day ?? "")}-${String(row[valueKey])}`}
             >
               {hasLabel ? (
                 <TableCell>{String(row.label ?? "Unknown")}</TableCell>
@@ -383,6 +487,9 @@ function ReportTable({
                 <TableCell className="text-muted-foreground">
                   {String(row.dimension ?? "All")}
                 </TableCell>
+              ) : null}
+              {hasDataset ? (
+                <TableCell>{String(row.dataset ?? "Unknown")}</TableCell>
               ) : null}
               <TableCell className="text-right tabular-nums">
                 {formatCount(row[valueKey])}
@@ -406,8 +513,35 @@ function aggregateByDay(rows: AnalyticsRow[], valueKey: string) {
     .map(([day, value]) => ({ day, [valueKey]: value }));
 }
 
+function aggregateVolumeByDay(rows: AnalyticsRow[]) {
+  const byDay = new Map<
+    string,
+    { day: string; leenk_shortlinks: number; leenk_site_events: number }
+  >();
+  for (const row of rows) {
+    const day = String(row.day ?? "Unknown");
+    const current = byDay.get(day) ?? {
+      day,
+      leenk_shortlinks: 0,
+      leenk_site_events: 0,
+    };
+    if (row.dataset === "leenk_site_events") {
+      current.leenk_site_events += Number(row.count ?? 0);
+    } else if (row.dataset === "leenk_shortlinks") {
+      current.leenk_shortlinks += Number(row.count ?? 0);
+    }
+    byDay.set(day, current);
+  }
+  return Array.from(byDay.values()).toSorted((a, b) =>
+    a.day.localeCompare(b.day),
+  );
+}
+
 function isReportKey(value: string): value is ReportKey {
   return (
-    value === "shortlinks" || value === "site-events" || value === "history"
+    value === "shortlinks" ||
+    value === "site-events" ||
+    value === "history" ||
+    value === "volume"
   );
 }

@@ -18,7 +18,9 @@ export type DashboardResult<T> =
   | DashboardError;
 
 export interface DashboardMeta {
+  entitlement?: "available" | "disabled" | "missing" | "unknown";
   legacy?: boolean;
+  node?: string;
   range?: {
     end: string;
     start: string;

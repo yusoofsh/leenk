@@ -312,11 +312,21 @@ The official Web Analytics FAQ also states:
   subrequests.
 
 The Cloudflare GraphQL Analytics API is a separate account and zone analytics
-API at `https://api.cloudflare.com/client/v4/graphql`. It can provide
-aggregated product datasets when the account plan and dataset support them,
-but the dashboard must not assume that it exposes this site's Web Analytics
-RUM dataset. Treat GraphQL as a separate future integration after checking the
-live schema and account entitlements.
+API at `https://api.cloudflare.com/client/v4/graphql`. A 2026-08-25 check of
+the public schema shows `workersAnalyticsEngineAdaptiveGroups` as a beta
+account node ("Custom Events with adaptive sampling"). Its documented fields
+are `count` and `dimensions` (`dataset`, `date`, and several datetime
+buckets). It does not expose Analytics Engine blobs, doubles, or `index1`.
+
+The dashboard therefore uses GraphQL only for allowlisted dataset volume
+(`leenk_shortlinks` and `leenk_site_events`) on
+`GET /api/dashboard/analytics/volume`. Label, campaign, and engagement
+breakdowns stay on the Analytics Engine SQL reports. The Worker does not
+query RUM nodes (`rumPageloadEventsAdaptiveGroups`,
+`rumPerformanceEventsAdaptiveGroups`, `rumWebVitalsEventsAdaptive*`),
+Workers invocation traces, or Log Explorer. If the node is missing or
+disabled for an account, the volume report returns empty data with
+`meta.entitlement` rather than placeholder counts.
 
 Sources: [Web Analytics overview](https://developers.cloudflare.com/web-analytics/about/),
 [Web Analytics data and metrics](https://developers.cloudflare.com/web-analytics/data-metrics/),
@@ -324,10 +334,10 @@ Sources: [Web Analytics overview](https://developers.cloudflare.com/web-analytic
 [GraphQL Analytics API](https://developers.cloudflare.com/analytics/graphql-api/),
 and [GraphQL API limits](https://developers.cloudflare.com/analytics/graphql-api/limits/).
 
-For the first `/dashboard`, show the Analytics Engine reports and link to the
-Cloudflare Web Analytics dashboard for RUM and Web Vitals. Do not duplicate
-RUM cards until a supported API and the account's actual dataset availability
-are verified.
+For `/dashboard`, show the Analytics Engine SQL reports plus GraphQL dataset
+volume when the Adaptive Groups node is entitled. Keep Cloudflare Web
+Analytics as a product link for RUM and Web Vitals. Do not duplicate RUM
+cards.
 
 ## Workers Logs and Traces
 

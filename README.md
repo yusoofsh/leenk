@@ -291,6 +291,12 @@ email addresses, account names, IP addresses, request bodies, complete URLs,
 messages, stack traces, or other user identity. Writes are best-effort and
 never block navigation, redirects, uploads, or deletes.
 
+The owner dashboard reads those datasets in two ways. Named Analytics Engine
+SQL reports still supply the labeled shortlink, campaign, and site-event
+tables. `GET /api/dashboard/analytics/volume` queries Cloudflare GraphQL
+`workersAnalyticsEngineAdaptiveGroups` for sampled dataset totals only. The
+Worker does not query Web Analytics RUM GraphQL nodes or Workers Logs.
+
 ## Deployment
 
 The build produces an Astro server entry point and static assets in `dist/`.

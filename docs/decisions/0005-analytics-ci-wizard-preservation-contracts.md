@@ -27,8 +27,8 @@ cannot prove them.
 
 ### Analytics query and retention contract (#32)
 
-- The dashboard exposes named, server-side Analytics Engine reports only.
-  Clients cannot provide SQL, dataset names, columns, `FORMAT`, or an
+- The dashboard exposes named, server-side analytics reports only. Clients
+  cannot provide SQL, GraphQL, dataset names, columns, `FORMAT`, or an
   arbitrary filter.
 - The supported datasets are `leenk_shortlinks` and `leenk_site_events`.
   Legacy code-indexed shortlink rows remain in `leenk_shortlinks` and are
@@ -139,3 +139,18 @@ rollback actions for an adopted resource.
 - `.github/workflows/ci.yml`
 - `.github/workflows/deploy.yml`
 - `alchemy.run.ts`
+
+## Addendum (2026-08-25): GraphQL dataset volume
+
+Named GraphQL Analytics reports are now part of the analytics contract, with
+the same privacy and client-input rules as SQL reports.
+
+- Clients still cannot provide a GraphQL document, dataset name, or filter.
+  The only GraphQL report is `GET /api/dashboard/analytics/volume`.
+- The query is fixed to `workersAnalyticsEngineAdaptiveGroups` for
+  `leenk_shortlinks` and `leenk_site_events`. The node can return Adaptive
+  Groups `count` by dataset and day. It cannot replace SQL for labels,
+  campaigns, or engagement dimensions.
+- Web Analytics RUM GraphQL nodes and Workers Logs or traces remain
+  link-outs.
+- A missing or disabled node is a documented empty report, not a fake series.
