@@ -162,3 +162,8 @@ Node.js toolchain is retired. `bun audit --audit-level=high` remains the
 high-severity audit. CI ignores GHSA-jmr9-qjv8-65gv because `extract-zip`
 has no patched release and arrives only through unused `@puppeteer/browsers`
 inside the Alchemy/distilled runtime.
+
+ScriptC coverage and native CLI builds spawn TypeScript 7's sync RPC. Bun
+1.4.0 leaves `stdout._handle.fd` unset on child pipes, so `typescript@7.0.2`
+is patched to talk over POSIX fifos instead of Node internals. Drop that
+patch only after Bun ships oven-sh/bun#39760 or equivalent.

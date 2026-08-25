@@ -7,6 +7,10 @@
   lockfile.
 - Do not add npm, pnpm, yarn, or Nub lockfiles. Local install and verify
   must not require Node.js.
+- ScriptC talks to TypeScript 7's native sync API. Bun 1.4.0 does not
+  expose `child_process` pipe `_handle.fd` (oven-sh/bun#39747), so the
+  repo patches `typescript@7.0.2` to use POSIX fifos on Bun. Do not drop
+  `patches/typescript@7.0.2.patch` until that Bun gap is gone.
 
 ## Commands
 

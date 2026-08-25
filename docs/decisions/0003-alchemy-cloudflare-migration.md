@@ -153,4 +153,5 @@ is permanent and only ever moves forward through `deploy`.
 Local install, scripts, and CI use Bun 1.4.0 (current stable) and `bun.lock`.
 `bun run deploy` and `bun run deploy:prod` still call Alchemy. Wrangler stays
 out. The Worker `nodejs_compat` flag is unchanged and is not a local Node.js
-requirement.
+requirement. ScriptC still needs the `typescript@7.0.2` fifo patch documented
+in ADR-0005 until Bun exposes child-process pipe fds.

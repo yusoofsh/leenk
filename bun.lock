@@ -64,6 +64,9 @@
     "sharp",
     "workerd",
   ],
+  "patchedDependencies": {
+    "typescript@7.0.2": "patches/typescript@7.0.2.patch",
+  },
   "overrides": {
     "@hono/node-server": "1.19.10",
     "hono": "4.13.1",
