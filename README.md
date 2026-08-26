@@ -27,6 +27,11 @@ bun run dev
 ```
 
 The development server is available at <http://localhost:4321> by default.
+`bun run dev` and `bun run build` set `LEENK_LOCAL_ADAPTER=1` so the single
+`astro.config.ts` includes the `@distilled.cloud/astro` Cloudflare adapter,
+which provides the `cloudflare:workers` runtime and bindings the routes
+import. `alchemy deploy` leaves the variable unset and injects its own
+adapter, so the same config stays adapter-free at deploy time.
 
 ## Commands
 
@@ -299,7 +304,7 @@ Worker does not query Web Analytics RUM GraphQL nodes or Workers Logs.
 ## Deployment
 
 The build produces an Astro server entry point and static assets in `dist/`.
-`bun run build` uses `astro.config.local.ts`, which adds the same
+`bun run build` sets `LEENK_LOCAL_ADAPTER=1` so `astro.config.ts` adds the same
 `@distilled.cloud/astro` Cloudflare adapter the Alchemy stack injects at
 deploy time, so the repository never needs Wrangler.
 

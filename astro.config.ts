@@ -1,15 +1,38 @@
 import react from "@astrojs/react";
+import { distilledCloudflare } from "@distilled.cloud/astro/cloudflare";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import path from "path";
+import process from "node:process";
 
-// Canonical Astro configuration. The Alchemy `Cloudflare.Website.Astro`
-// stack loads this file natively and injects the Cloudflare adapter itself;
-// a user-declared adapter is rejected. Local builds and CI use
-// `astro.config.local.ts`, which adds the same adapter integration from
-// `@distilled.cloud/astro`, so the repository never needs Wrangler.
+// Single Astro configuration for local dev, local build/CI, and Alchemy
+// deploy. The Alchemy `Cloudflare.Website.Astro` stack loads this file
+// natively and injects the Cloudflare adapter itself; a user-declared adapter
+// is rejected, so the deploy path must see an adapter-free config. Local
+// `astro dev` and `astro build` get no such injection, yet the routes import
+// `cloudflare:workers` and need the adapter to resolve it and expose bindings.
+// `bun run dev` and `bun run build` therefore set `LEENK_LOCAL_ADAPTER=1` to
+// add `distilledCloudflare()` locally, while `alchemy deploy`/`alchemy plan`
+// leave it unset and keep the same file adapter-free.
+const useLocalCloudflareAdapter = process.env.LEENK_LOCAL_ADAPTER === "1";
+
 export default defineConfig({
-  integrations: [react()],
+  integrations: [
+    react(),
+    ...(useLocalCloudflareAdapter
+      ? [
+          distilledCloudflare({
+            vite: {
+              // Newest date supported by the vendored workerd binary in
+              // @distilled.cloud/cloudflare-runtime 0.17.1. The Alchemy stack
+              // declares the production compatibility date separately.
+              compatibilityDate: "2026-07-11",
+              compatibilityFlags: ["nodejs_compat"],
+            },
+          }),
+        ]
+      : []),
+  ],
   output: "server",
   site: "https://www.yusoofsh.id/",
   vite: {
