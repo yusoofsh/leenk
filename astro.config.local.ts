@@ -4,12 +4,14 @@ import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "astro/config";
 import path from "path";
 
-// Local build and CI configuration. `astro build` cannot produce
-// server-rendered output without an adapter, so this config adds the same
-// `@distilled.cloud/astro` Cloudflare integration the Alchemy stack injects
-// at deploy time. The canonical `astro.config.ts` stays adapter-free so
-// Alchemy can inject its own adapter without a conflict. Keep this file in
-// sync with `astro.config.ts` apart from the adapter integration.
+// Local development, build, and CI configuration. `astro dev` and
+// `astro build` cannot produce server-rendered output (or resolve the
+// `cloudflare:workers` runtime module the routes import) without an adapter,
+// so this config adds the same `@distilled.cloud/astro` Cloudflare
+// integration the Alchemy stack injects at deploy time. The canonical
+// `astro.config.ts` stays adapter-free so Alchemy can inject its own adapter
+// without a conflict. Keep this file in sync with `astro.config.ts` apart
+// from the adapter integration.
 export default defineConfig({
   integrations: [
     react(),

@@ -27,6 +27,10 @@ bun run dev
 ```
 
 The development server is available at <http://localhost:4321> by default.
+Like `bun run build`, `bun run dev` uses `astro.config.local.ts` so the
+`@distilled.cloud/astro` Cloudflare adapter provides the `cloudflare:workers`
+runtime and bindings the routes import; the canonical adapter-free
+`astro.config.ts` is reserved for Alchemy deployment.
 
 ## Commands
 

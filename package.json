@@ -12,7 +12,7 @@
     "cli:install": "install -m 755 .scriptc/leenk ~/.local/bin/leenk",
     "deploy": "alchemy deploy --stage dev",
     "deploy:prod": "alchemy deploy --stage prod",
-    "dev": "astro dev",
+    "dev": "astro dev --config astro.config.local.ts",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint --type-aware --deny-warnings .",
