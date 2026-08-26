@@ -155,3 +155,18 @@ Local install, scripts, and CI use Bun 1.4.0 (current stable) and `bun.lock`.
 out. The Worker `nodejs_compat` flag is unchanged and is not a local Node.js
 requirement. ScriptC still needs the `typescript@7.0.2` fifo patch documented
 in ADR-0005 until Bun exposes child-process pipe fds.
+
+## Update (2026-08-26): one astro.config.ts with a local-adapter flag
+
+The two-config split (`astro.config.ts` adapter-free, `astro.config.local.ts`
+adding `distilledCloudflare()`) was consolidated into a single
+`astro.config.ts`. This removes the manual "keep both files in sync" burden and
+fixes an asymmetry where `bun run dev` used the adapter-free config and returned
+`500 Cannot find module 'cloudflare:workers'` on every route importing it.
+
+The config now adds the Cloudflare adapter only when `LEENK_LOCAL_ADAPTER=1`.
+`bun run dev` and `bun run build` set that variable; `alchemy deploy` and
+`alchemy plan` leave it unset, so the file Alchemy loads stays adapter-free and
+its programmatic adapter injection is never rejected. The original decision to
+keep a user-declared adapter out of the deploy path is unchanged; only the file
+layout that enforces it is simpler.

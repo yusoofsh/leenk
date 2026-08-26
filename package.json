@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "astro build --config astro.config.local.ts",
+    "build": "LEENK_LOCAL_ADAPTER=1 astro build",
     "check": "tsc --noEmit",
     "cli:build": "scriptc build cli/leenk.ts -o .scriptc/leenk --no-keep-c",
     "cli:build:linux-arm64": "SCRIPTC_CC=zigcc SCRIPTC_TARGET=aarch64-linux-gnu.2.36 scriptc build cli/leenk.ts -o .scriptc/leenk-linux-arm64 --no-keep-c",
@@ -12,7 +12,7 @@
     "cli:install": "install -m 755 .scriptc/leenk ~/.local/bin/leenk",
     "deploy": "alchemy deploy --stage dev",
     "deploy:prod": "alchemy deploy --stage prod",
-    "dev": "astro dev --config astro.config.local.ts",
+    "dev": "LEENK_LOCAL_ADAPTER=1 astro dev",
     "format": "oxfmt --write .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint --type-aware --deny-warnings .",

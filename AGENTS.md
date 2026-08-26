@@ -39,8 +39,10 @@
 
 - Astro 7 with server-side rendering and React islands.
 - Cloudflare Workers deployment via Alchemy (`alchemy.run.ts`) with the
-  `@distilled.cloud/astro` adapter. Local builds use `astro.config.local.ts`;
-  Wrangler is not used.
+  `@distilled.cloud/astro` adapter. A single `astro.config.ts` serves dev,
+  build, and deploy: `bun run dev` and `bun run build` set
+  `LEENK_LOCAL_ADAPTER=1` to add the adapter locally, while `alchemy deploy`
+  leaves it unset and injects its own adapter. Wrangler is not used.
 - The Worker still sets `nodejs_compat` for the Cloudflare runtime. That is
   not a local Node.js toolchain requirement.
 - Tailwind CSS 4 with the typography plugin.
