@@ -90,6 +90,7 @@ describe("home page switch section", () => {
     expect(layoutSource).toContain(
       'import Background from "../components/background.astro"',
     );
+    expect(layoutSource).toContain("<StylexAssets />");
     expect(layoutSource).not.toContain("AstroFont");
   });
 

@@ -1,0 +1,4 @@
+/* Anchor stylesheet for @stylexjs/unplugin. Extracted StyleX rules are
+   appended to this file's CSS asset at build time. Keep the import on every
+   HTML shell (public layout, Operator login, Operator dashboard). */
+@layer stylex;

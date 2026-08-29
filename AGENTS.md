@@ -48,7 +48,9 @@
 - StyleX 0.19 via `@stylexjs/unplugin` on Vite. Official StyleX does not
   compile `.astro` templates, so React islands own StyleX styles and a
   small global CSS layer covers tokens, typeset, skip links, and the
-  Operator dashboard sidebar state machine.
+  Operator dashboard sidebar state machine. Extracted StyleX CSS is
+  appended to `src/styles/stylex.css` and loaded on every HTML shell;
+  `bun run dev` also links `/virtual:stylex.css`.
 - TypeScript 7, Oxlint, Oxfmt, Vitest, and Husky/lint-staged.
 - Cloudflare Web Analytics is injected at the edge for page/performance telemetry; the separate `SITE_ANALYTICS` Workers Analytics Engine binding records only bounded, privacy-preserving engagement, error, and authenticated lifecycle events. Social links use `social_link_clicked` with a bounded network dimension.
 - Plus Jakarta Sans is self-hosted locally.
