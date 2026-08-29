@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
@@ -34,6 +35,14 @@ import {
   type AnalyticsRow,
   type DashboardMeta,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+
+const styles = stylex.create({
+  medium: {
+    fontWeight: 500,
+  },
+});
 
 interface CampaignRow extends AnalyticsRow {
   campaign: string;
@@ -114,10 +123,10 @@ export function Campaigns() {
   const breakdown = aggregateCampaigns(report.rows);
 
   return (
-    <div className="space-y-6">
+    <div {...stylex.props(dashboard.page)}>
       <div>
-        <h1 className="text-xl font-semibold">Campaigns</h1>
-        <p className="text-muted-foreground text-sm">
+        <h1 {...stylex.props(dashboard.title)}>Campaigns</h1>
+        <p {...stylex.props(dashboard.subtitle)}>
           Ranked campaign, source, and medium breakdown from shortlink analytics
         </p>
       </div>
@@ -127,7 +136,10 @@ export function Campaigns() {
           <CardDescription>Top campaigns in the selected range</CardDescription>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={CHART_CONFIG} className="h-[16rem]">
+          <ChartContainer
+            config={CHART_CONFIG}
+            className={cls(dashboard.chart)}
+          >
             <BarChart data={breakdown.slice(0, 10)} accessibilityLayer>
               <CartesianGrid vertical={false} />
               <XAxis
@@ -145,27 +157,33 @@ export function Campaigns() {
         </CardContent>
       </Card>
       <Card>
-        <CardContent className="p-0">
+        <CardContent className={cls(dashboard.flush)}>
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Campaign</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Medium</TableHead>
-                <TableHead className="text-right">Clicks</TableHead>
+                <TableHead className={cls(dashboard.cellRight)}>
+                  Clicks
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {breakdown.map((row) => (
                 <TableRow key={`${row.name}-${row.source}-${row.medium}`}>
-                  <TableCell className="font-medium">{row.name}</TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className={cls(styles.medium)}>
+                    {row.name}
+                  </TableCell>
+                  <TableCell className={cls(dashboard.cellMuted)}>
                     {row.source}
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className={cls(dashboard.cellMuted)}>
                     {row.medium}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell
+                    className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                  >
                     {formatCount(row.clicks)}
                   </TableCell>
                 </TableRow>

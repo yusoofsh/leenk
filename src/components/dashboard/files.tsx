@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { Trash2Icon, UploadIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -40,6 +41,24 @@ import {
   type FileListEntry,
   type DashboardResult,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+
+const styles = stylex.create({
+  fileKey: {
+    fontWeight: 500,
+    maxWidth: "16rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  hidden: {
+    display: "none",
+  },
+  medium: {
+    fontWeight: 500,
+  },
+});
 
 export function Files() {
   const [files, setFiles] = useState<DashboardResult<FileListEntry[]> | null>(
@@ -123,19 +142,19 @@ export function Files() {
   const rows = files.data;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div {...stylex.props(dashboard.page)}>
+      <div {...stylex.props(dashboard.headerRow)}>
         <div>
-          <h1 className="text-xl font-semibold">Files</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 {...stylex.props(dashboard.title)}>Files</h1>
+          <p {...stylex.props(dashboard.subtitle)}>
             Static objects served from the R2 bucket
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div {...stylex.props(dashboard.wrap)}>
           <Input
             type="file"
             ref={inputRef}
-            className="hidden"
+            className={cls(styles.hidden)}
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) void upload(file);
@@ -147,7 +166,7 @@ export function Files() {
             onClick={() => inputRef.current?.click()}
             disabled={uploading}
           >
-            <UploadIcon className="size-4" aria-hidden="true" />
+            <UploadIcon size={16} aria-hidden="true" />
             {uploading ? "Uploading" : "Upload"}
           </Button>
         </div>
@@ -162,14 +181,14 @@ export function Files() {
               onClick={() => inputRef.current?.click()}
               disabled={uploading}
             >
-              <UploadIcon className="size-4" aria-hidden="true" />
+              <UploadIcon size={16} aria-hidden="true" />
               Upload a file
             </Button>
           }
         />
       ) : (
         <Card>
-          <CardContent className="p-0">
+          <CardContent className={cls(dashboard.flush)}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -177,16 +196,18 @@ export function Files() {
                   <TableHead>Size</TableHead>
                   <TableHead>Expires</TableHead>
                   <TableHead>Uploaded</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className={cls(dashboard.cellRight)}>
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((file) => (
                   <TableRow key={file.key}>
-                    <TableCell className="max-w-64 truncate font-medium">
+                    <TableCell className={cls(styles.fileKey)}>
                       {file.key}
                     </TableCell>
-                    <TableCell className="tabular-nums">
+                    <TableCell className={cls(dashboard.cellNumeric)}>
                       {formatBytes(file.size)}
                     </TableCell>
                     <TableCell>
@@ -195,20 +216,27 @@ export function Files() {
                           {formatDate(file.expiresAt)}
                         </Badge>
                       ) : (
-                        <span className="text-muted-foreground">Never</span>
+                        <span {...stylex.props(dashboard.cellMuted)}>
+                          Never
+                        </span>
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground tabular-nums">
+                    <TableCell
+                      className={cls(
+                        dashboard.cellMuted,
+                        dashboard.cellNumeric,
+                      )}
+                    >
                       {formatDate(file.updated)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cls(dashboard.cellRight)}>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setDeleting(file)}
                         aria-label={`Delete ${file.key}`}
                       >
-                        <Trash2Icon className="size-3.5" aria-hidden="true" />
+                        <Trash2Icon size={14} aria-hidden="true" />
                         Delete
                       </Button>
                     </TableCell>
@@ -229,8 +257,8 @@ export function Files() {
             <DialogTitle>Delete this file?</DialogTitle>
             <DialogDescription>
               Permanently delete{" "}
-              <span className="font-medium">{deleting?.key}</span> from the
-              static bucket. This cannot be undone.
+              <span {...stylex.props(styles.medium)}>{deleting?.key}</span> from
+              the static bucket. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

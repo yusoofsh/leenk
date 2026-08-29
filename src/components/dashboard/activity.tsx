@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState } from "react";
 
 import {
@@ -28,6 +29,14 @@ import {
   type ActivityPage,
   type DashboardResult,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+
+const styles = stylex.create({
+  medium: {
+    fontWeight: 500,
+  },
+});
 
 export function Activity() {
   const [page, setPage] = useState<DashboardResult<ActivityPage> | null>(null);
@@ -85,10 +94,10 @@ export function Activity() {
   const entries = page.data.entries;
 
   return (
-    <div className="space-y-6">
+    <div {...stylex.props(dashboard.page)}>
       <div>
-        <h1 className="text-xl font-semibold">Activity</h1>
-        <p className="text-muted-foreground text-sm">
+        <h1 {...stylex.props(dashboard.title)}>Activity</h1>
+        <p {...stylex.props(dashboard.subtitle)}>
           Draft, publish, and rollback events from the CMS store
         </p>
       </div>
@@ -99,14 +108,16 @@ export function Activity() {
         />
       ) : (
         <Card>
-          <CardContent className="p-0">
+          <CardContent className={cls(dashboard.flush)}>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Kind</TableHead>
                   <TableHead>Summary</TableHead>
                   <TableHead>Actor</TableHead>
-                  <TableHead className="text-right">When</TableHead>
+                  <TableHead className={cls(dashboard.cellRight)}>
+                    When
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -115,13 +126,19 @@ export function Activity() {
                     <TableCell>
                       <Badge variant="secondary">{entry.kind}</Badge>
                     </TableCell>
-                    <TableCell className="font-medium">
+                    <TableCell className={cls(styles.medium)}>
                       {entry.summary}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className={cls(dashboard.cellMuted)}>
                       {entry.actor}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-right tabular-nums">
+                    <TableCell
+                      className={cls(
+                        dashboard.cellMuted,
+                        dashboard.cellRight,
+                        dashboard.cellNumeric,
+                      )}
+                    >
                       {formatDate(entry.createdAt)}
                     </TableCell>
                   </TableRow>
@@ -131,7 +148,7 @@ export function Activity() {
           </CardContent>
         </Card>
       )}
-      <div className="flex gap-2">
+      <div {...stylex.props(dashboard.actions)}>
         <Button
           variant="outline"
           size="sm"

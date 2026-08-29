@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { CircleCheckIcon, CircleXIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -18,6 +19,39 @@ import {
   type FileListEntry,
   type ShortlinkListEntry,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+import { colors } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  detail: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    margin: 0,
+    marginTop: "0.5rem",
+  },
+  healthHeader: {
+    alignItems: "center",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingBottom: "0.5rem",
+  },
+  healthSkeleton: {
+    height: "7rem",
+    width: "100%",
+  },
+  healthTitle: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+  },
+  okIcon: {
+    color: "#059669",
+  },
+  errorIcon: {
+    color: colors.destructive,
+  },
+});
 
 interface HealthState {
   analytics: "error" | "ok" | "unknown";
@@ -105,14 +139,14 @@ export function Operations() {
   const allChecked = files !== null && shortlinks !== null && activity !== null;
 
   return (
-    <div className="space-y-6">
+    <div {...stylex.props(dashboard.page)}>
       <div>
-        <h1 className="text-xl font-semibold">Operations</h1>
-        <p className="text-muted-foreground text-sm">
+        <h1 {...stylex.props(dashboard.title)}>Operations</h1>
+        <p {...stylex.props(dashboard.subtitle)}>
           Binding health and Cloudflare link-outs. Read only.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div {...stylex.props(dashboard.statGrid)}>
         <HealthCard
           label="Public renderer"
           status={health.renderer}
@@ -141,9 +175,9 @@ export function Operations() {
         />
       </div>
       {!allChecked ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div {...stylex.props(dashboard.statGrid)}>
           {Array.from({ length: 4 }, (_, index) => (
-            <Skeleton key={index} className="h-28 w-full" />
+            <Skeleton key={index} className={cls(styles.healthSkeleton)} />
           ))}
         </div>
       ) : null}
@@ -166,7 +200,7 @@ export function Operations() {
             Open the relevant Cloudflare dashboard
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-2">
+        <CardContent className={cls(dashboard.wrap)}>
           <Button variant="outline" size="sm" asChild>
             <a
               href="https://dash.cloudflare.com/"
@@ -229,22 +263,27 @@ function HealthCard({
 }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{label}</CardTitle>
+      <CardHeader className={cls(styles.healthHeader)}>
+        <CardTitle className={cls(styles.healthTitle)}>{label}</CardTitle>
         {status === "ok" ? (
           <CircleCheckIcon
-            className="size-4 text-emerald-600"
+            size={16}
             aria-hidden="true"
+            {...stylex.props(styles.okIcon)}
           />
         ) : (
-          <CircleXIcon className="text-destructive size-4" aria-hidden="true" />
+          <CircleXIcon
+            size={16}
+            aria-hidden="true"
+            {...stylex.props(styles.errorIcon)}
+          />
         )}
       </CardHeader>
       <CardContent>
         <Badge variant={status === "ok" ? "default" : "destructive"}>
           {status}
         </Badge>
-        <p className="text-muted-foreground mt-2 text-xs">{detail}</p>
+        <p {...stylex.props(styles.detail)}>{detail}</p>
       </CardContent>
     </Card>
   );
