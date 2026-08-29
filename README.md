@@ -297,9 +297,24 @@ never block navigation, redirects, uploads, or deletes.
 
 The owner dashboard reads those datasets in two ways. Named Analytics Engine
 SQL reports still supply the labeled shortlink, campaign, and site-event
-tables. `GET /api/dashboard/analytics/volume` queries Cloudflare GraphQL
-`workersAnalyticsEngineAdaptiveGroups` for sampled dataset totals only. The
-Worker does not query Web Analytics RUM GraphQL nodes or Workers Logs.
+tables. GraphQL Analytics, using the same account token, supplies three
+named reports:
+
+- `GET /api/dashboard/analytics/volume` queries
+  `workersAnalyticsEngineAdaptiveGroups` for sampled dataset totals.
+  Blob labels, campaigns, and engagement dimensions stay on SQL.
+- `GET /api/dashboard/analytics/rum` and
+  `GET /api/dashboard/analytics/vitals` query
+  `rumPageloadEventsAdaptiveGroups` and
+  `rumWebVitalsEventsAdaptiveGroups` for sampled page views, visits, and
+  Web Vitals p75 values. Path and user-agent dimensions are not selected.
+- `GET /api/dashboard/analytics/workers` queries
+  `workersInvocationsAdaptive` for `leenk` and `dev-leenk` invocation
+  totals. That is the GraphQL Workers metrics node. Raw Workers Logs stay
+  in Cloudflare Observability.
+
+A missing or disabled GraphQL node returns an empty report with
+`meta.entitlement` instead of invented counts.
 
 ## Deployment
 

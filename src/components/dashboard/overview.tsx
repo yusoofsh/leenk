@@ -36,10 +36,12 @@ import {
 interface OverviewSnapshot {
   activity?: DashboardResult<ActivityPage>;
   files?: DashboardResult<unknown[]>;
+  rum?: DashboardResult<AnalyticsRow[]>;
   shortlinks?: DashboardResult<Array<{ code: string }>>;
-  siteEvents?: DashboardResult<AnalyticsRow[]>;
   shortlinksClicks?: DashboardResult<AnalyticsRow[]>;
+  siteEvents?: DashboardResult<AnalyticsRow[]>;
   volume?: DashboardResult<AnalyticsRow[]>;
+  workers?: DashboardResult<AnalyticsRow[]>;
 }
 
 export function Overview() {
@@ -50,28 +52,44 @@ export function Overview() {
   useEffect(() => {
     let cancelled = false;
     const query = new URLSearchParams({ end: range.end, start: range.start });
-    const path = `/api/dashboard/analytics/site-events?${query}`;
     void Promise.all([
       dashboardFetch<ActivityPage>("/api/dashboard/activity?limit=8"),
       dashboardFetch<unknown[]>("/api/dashboard/files"),
       dashboardFetch<Array<{ code: string }>>("/api/dashboard/links"),
-      dashboardFetch<AnalyticsRow[]>(path),
+      dashboardFetch<AnalyticsRow[]>(
+        `/api/dashboard/analytics/site-events?${query}`,
+      ),
       dashboardFetch<AnalyticsRow[]>(
         `/api/dashboard/analytics/shortlinks?${query}`,
       ),
       dashboardFetch<AnalyticsRow[]>(
         `/api/dashboard/analytics/volume?${query}`,
       ),
+      dashboardFetch<AnalyticsRow[]>(`/api/dashboard/analytics/rum?${query}`),
+      dashboardFetch<AnalyticsRow[]>(
+        `/api/dashboard/analytics/workers?${query}`,
+      ),
     ]).then(
-      ([activity, files, shortlinks, siteEvents, shortlinksClicks, volume]) => {
+      ([
+        activity,
+        files,
+        shortlinks,
+        siteEvents,
+        shortlinksClicks,
+        volume,
+        rum,
+        workers,
+      ]) => {
         if (cancelled) return;
         setSnapshot({
           activity,
           files,
+          rum,
           shortlinks,
-          siteEvents,
           shortlinksClicks,
+          siteEvents,
           volume,
+          workers,
         });
       },
     );
@@ -177,26 +195,102 @@ function KpiStrip({
     0,
   );
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      <KpiCard label="Shortlink clicks" value={clicksTotal} />
-      <KpiCard label="Site events" value={siteTotal} />
-      <KpiCard label="Files" value={files.length} />
-      <KpiCard label="Shortlinks" value={links.length} />
-      <div className="col-span-full space-y-1">
-        <AnalyticsCaption range={range} />
-        {snapshot.volume && snapshot.volume.ok ? (
-          <AnalyticsCaption
-            entitlement={snapshot.volume.meta?.entitlement}
-            range={snapshot.volume.meta?.range ?? range}
-            source={snapshot.volume.meta?.source}
-          />
-        ) : null}
+    <div className="space-y-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard label="Shortlink clicks" value={formatCount(clicksTotal)} />
+        <KpiCard label="Site events" value={formatCount(siteTotal)} />
+        <KpiCard label="Files" value={formatCount(files.length)} />
+        <KpiCard label="Shortlinks" value={formatCount(links.length)} />
+        <div className="col-span-full">
+          <AnalyticsCaption range={range} />
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <GraphqlKpi
+          fallbackRange={range}
+          label="Dataset volume"
+          result={snapshot.volume}
+          valueKey="count"
+        />
+        <GraphqlKpi
+          fallbackRange={range}
+          label="Web Analytics visits"
+          result={snapshot.rum}
+          valueKey="visits"
+        />
+        <GraphqlKpi
+          fallbackRange={range}
+          label="Worker requests"
+          result={snapshot.workers}
+          valueKey="requests"
+        />
       </div>
     </div>
   );
 }
 
-function KpiCard({ label, value }: { label: string; value: number }) {
+function GraphqlKpi({
+  fallbackRange,
+  label,
+  result,
+  valueKey,
+}: {
+  fallbackRange: { end: string; start: string };
+  label: string;
+  result: DashboardResult<AnalyticsRow[]> | undefined;
+  valueKey: string;
+}) {
+  const display = graphqlDisplay(result, valueKey);
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <CardDescription className="text-xs tracking-wide uppercase">
+          {label}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-2xl font-semibold tabular-nums">{display.value}</p>
+        {result && result.ok ? (
+          <AnalyticsCaption
+            entitlement={display.entitlement}
+            node={result.meta?.node}
+            range={result.meta?.range ?? fallbackRange}
+            source={result.meta?.source}
+          />
+        ) : null}
+      </CardContent>
+    </Card>
+  );
+}
+
+function graphqlDisplay(
+  result: DashboardResult<AnalyticsRow[]> | undefined,
+  valueKey: string,
+): {
+  entitlement: "available" | "disabled" | "missing" | "unknown" | undefined;
+  value: string;
+} {
+  if (!result) {
+    return { entitlement: "unknown", value: "Checking" };
+  }
+  if (!result.ok) {
+    return { entitlement: "unknown", value: "Unavailable" };
+  }
+  const entitlement = result.meta?.entitlement;
+  if (entitlement === "missing" || entitlement === "disabled") {
+    return {
+      entitlement,
+      value: entitlement === "missing" ? "Not on schema" : "Disabled",
+    };
+  }
+  const total = result.data.reduce(
+    (sum, row) => sum + Number(row[valueKey] ?? 0),
+    0,
+  );
+  return { entitlement: entitlement ?? "available", value: formatCount(total) };
+}
+
+function KpiCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -205,9 +299,7 @@ function KpiCard({ label, value }: { label: string; value: number }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-semibold tabular-nums">
-          {formatCount(value)}
-        </p>
+        <p className="text-2xl font-semibold tabular-nums">{value}</p>
       </CardContent>
     </Card>
   );

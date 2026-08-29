@@ -318,14 +318,19 @@ account node ("Custom Events with adaptive sampling"). Its documented fields
 are `count` and `dimensions` (`dataset`, `date`, and several datetime
 buckets). It does not expose Analytics Engine blobs, doubles, or `index1`.
 
-The dashboard therefore uses GraphQL only for allowlisted dataset volume
-(`leenk_shortlinks` and `leenk_site_events`) on
-`GET /api/dashboard/analytics/volume`. Label, campaign, and engagement
-breakdowns stay on the Analytics Engine SQL reports. The Worker does not
-query RUM nodes (`rumPageloadEventsAdaptiveGroups`,
-`rumPerformanceEventsAdaptiveGroups`, `rumWebVitalsEventsAdaptive*`),
-Workers invocation traces, or Log Explorer. If the node is missing or
-disabled for an account, the volume report returns empty data with
+The dashboard therefore uses GraphQL for named reports only. A 2026-08-25
+check kept Adaptive Groups volume on
+`GET /api/dashboard/analytics/volume` because that node still has `count`
+plus `dataset` and time dimensions, not blobs. A 2026-08-29 check of the
+public dataset list (Cloudflare CMB GraphQL datasets, updated 2026-05-05)
+still lists `rumPageloadEventsAdaptiveGroups`,
+`rumWebVitalsEventsAdaptiveGroups`, `rumPerformanceEventsAdaptiveGroups`,
+`rumWebVitalsEventsAdaptive`, and `workersInvocationsAdaptive`. Named
+reports now query pageload Groups, Web Vitals Groups, and Workers
+invocations. `rumPerformanceEventsAdaptiveGroups` and raw
+`rumWebVitalsEventsAdaptive` stay unused. There is still no Workers Logs
+GraphQL node. Label, campaign, and engagement breakdowns stay on SQL. If a
+queried node is missing or disabled, the report returns empty data with
 `meta.entitlement` rather than placeholder counts.
 
 Sources: [Web Analytics overview](https://developers.cloudflare.com/web-analytics/about/),
@@ -334,10 +339,11 @@ Sources: [Web Analytics overview](https://developers.cloudflare.com/web-analytic
 [GraphQL Analytics API](https://developers.cloudflare.com/analytics/graphql-api/),
 and [GraphQL API limits](https://developers.cloudflare.com/analytics/graphql-api/limits/).
 
-For `/dashboard`, show the Analytics Engine SQL reports plus GraphQL dataset
-volume when the Adaptive Groups node is entitled. Keep Cloudflare Web
-Analytics as a product link for RUM and Web Vitals. Do not duplicate RUM
-cards.
+For `/dashboard`, show the Analytics Engine SQL reports plus the named
+GraphQL reports when each node is entitled: Adaptive Groups volume, Web
+Analytics pageload and Web Vitals Groups, and Workers invocation metrics.
+Keep Cloudflare Web Analytics and Workers Observability as product links for
+the full UIs. Do not invent counts when a node is missing or disabled.
 
 ## Workers Logs and Traces
 
@@ -403,6 +409,9 @@ The dashboard may truthfully show:
 - weighted Analytics Engine event and click counts for the retained range;
 - bounded labels, campaign dimensions, referrer origins, and event dimensions;
 - a sampling-aware time series and ranked breakdown;
+- sampled GraphQL Adaptive Groups dataset totals;
+- sampled GraphQL Web Analytics page views, visits, and Web Vitals p75;
+- sampled GraphQL Workers invocation totals for `leenk` and `dev-leenk`;
 - a short operational link to Cloudflare Web Analytics and Workers
   Observability.
 
@@ -411,10 +420,10 @@ The dashboard must not claim to show:
 - exact all-time click or engagement history beyond Analytics Engine's three
   month retention;
 - unique visitors or user identity from the current custom events;
-- Web Analytics RUM values through a custom Worker API;
+- unique visitors from Web Analytics GraphQL (page views and visits only);
 - UTM-based attribution from Web Analytics;
 - server-side URL analytics on plans without the advanced HTTP traffic product;
-- complete or long-term Workers Logs and Traces history;
+- raw Workers Logs, traces, or complete invocation history;
 - unsampled or exact totals when Cloudflare has sampled the dataset.
 
 ## Open implementation gates

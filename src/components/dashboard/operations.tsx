@@ -45,6 +45,12 @@ export function Operations() {
   const [volume, setVolume] = useState<DashboardResult<
     Array<{ count: number; dataset: string }>
   > | null>(null);
+  const [rum, setRum] = useState<DashboardResult<
+    Array<{ visits: number }>
+  > | null>(null);
+  const [workers, setWorkers] = useState<DashboardResult<
+    Array<{ requests: number }>
+  > | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -59,6 +65,12 @@ export function Operations() {
       dashboardFetch<Array<{ count: number; dataset: string }>>(
         "/api/dashboard/analytics/volume?start=2026-08-01&end=2026-08-02",
       ),
+      dashboardFetch<Array<{ visits: number }>>(
+        "/api/dashboard/analytics/rum?start=2026-08-01&end=2026-08-02",
+      ),
+      dashboardFetch<Array<{ requests: number }>>(
+        "/api/dashboard/analytics/workers?start=2026-08-01&end=2026-08-02",
+      ),
     ]).then(
       ([
         filesResult,
@@ -66,12 +78,16 @@ export function Operations() {
         activityResult,
         analyticsResult,
         volumeResult,
+        rumResult,
+        workersResult,
       ]) => {
         if (cancelled) return;
         setFiles(filesResult);
         setShortlinks(shortlinksResult);
         setActivity(activityResult);
         setVolume(volumeResult);
+        setRum(rumResult);
+        setWorkers(workersResult);
         setHealth({
           analytics: analyticsResult.ok ? "ok" : "error",
           cms: activityResult.ok ? "ok" : "error",
@@ -115,7 +131,13 @@ export function Operations() {
         <HealthCard
           label="Analytics Engine"
           status={health.analytics}
-          detail={analyticsDetail(files, health.analytics, volume)}
+          detail={analyticsDetail(
+            files,
+            health.analytics,
+            volume,
+            rum,
+            workers,
+          )}
         />
       </div>
       {!allChecked ? (
@@ -244,22 +266,30 @@ function analyticsDetail(
   files: DashboardResult<FileListEntry[]> | null,
   status: "error" | "ok" | "unknown",
   volume: DashboardResult<Array<{ count: number; dataset: string }>> | null,
+  rum: DashboardResult<Array<{ visits: number }>> | null,
+  workers: DashboardResult<Array<{ requests: number }>> | null,
 ): string {
   if (files === null) return "Checking the Analytics Engine binding";
   if (status !== "ok") {
     return "Add CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ANALYTICS_TOKEN";
   }
-  if (!volume) return "SQL reports respond";
-  if (!volume.ok)
-    return "SQL reports respond; GraphQL Analytics is unavailable";
-  const entitlement = volume.meta?.entitlement;
-  if (entitlement === "missing") {
-    return "SQL reports respond; GraphQL Adaptive Groups node is missing";
-  }
-  if (entitlement === "disabled") {
-    return "SQL reports respond; GraphQL Adaptive Groups node is disabled";
-  }
-  return "SQL reports and GraphQL dataset volume respond";
+  const parts = ["SQL reports respond"];
+  parts.push(graphqlHealth("Adaptive Groups", volume));
+  parts.push(graphqlHealth("Web Analytics RUM", rum));
+  parts.push(graphqlHealth("Workers invocations", workers));
+  return parts.join("; ");
+}
+
+function graphqlHealth(
+  label: string,
+  result: DashboardResult<unknown> | null,
+): string {
+  if (!result) return `${label} unchecked`;
+  if (!result.ok) return `${label} unavailable`;
+  const entitlement = result.meta?.entitlement;
+  if (entitlement === "missing") return `${label} node missing`;
+  if (entitlement === "disabled") return `${label} node disabled`;
+  return `${label} respond`;
 }
 
 function hasError(health: HealthState) {
