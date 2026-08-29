@@ -139,8 +139,8 @@ const styles = stylex.create({
   sheet: {
     overflowY: "auto",
     width: "100%",
-    [mq.sm]: {
-      maxWidth: "36rem",
+    maxWidth: {
+      [mq.sm]: "36rem",
     },
   },
 });

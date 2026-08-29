@@ -45,8 +45,8 @@ const styles = stylex.create({
   focusGrid: {
     display: "grid",
     gap: "1.5rem",
-    [mq.xl]: {
-      gridTemplateColumns: "repeat(5, minmax(0, 1fr))",
+    gridTemplateColumns: {
+      [mq.xl]: "repeat(5, minmax(0, 1fr))",
     },
   },
   fullSpan: {
@@ -55,11 +55,9 @@ const styles = stylex.create({
   graphqlGrid: {
     display: "grid",
     gap: "1rem",
-    [mq.sm]: {
-      gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-    },
-    [mq.xl]: {
-      gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gridTemplateColumns: {
+      [mq.sm]: "repeat(2, minmax(0, 1fr))",
+      [mq.xl]: "repeat(3, minmax(0, 1fr))",
     },
   },
   kindBadge: {
@@ -105,13 +103,13 @@ const styles = stylex.create({
     whiteSpace: "nowrap",
   },
   span2: {
-    [mq.xl]: {
-      gridColumn: "span 2 / span 2",
+    gridColumn: {
+      [mq.xl]: "span 2 / span 2",
     },
   },
   span3: {
-    [mq.xl]: {
-      gridColumn: "span 3 / span 3",
+    gridColumn: {
+      [mq.xl]: "span 3 / span 3",
     },
   },
 });

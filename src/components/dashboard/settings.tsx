@@ -29,8 +29,8 @@ const styles = stylex.create({
   preferences: {
     display: "grid",
     gap: "1.5rem",
-    [mq.sm]: {
-      maxWidth: "28rem",
+    maxWidth: {
+      [mq.sm]: "28rem",
     },
   },
 });
