@@ -20,6 +20,10 @@ const modeToggleSource = readFileSync(
   new URL("../components/mode-toggle.astro", import.meta.url),
   "utf8",
 );
+const readingSurfaceSource = readFileSync(
+  new URL("../components/reading-surface.tsx", import.meta.url),
+  "utf8",
+);
 const fullBioUrl = new URL("../content/bio/full.md", import.meta.url);
 const tldrBioUrl = new URL("../content/bio/tldr.md", import.meta.url);
 
@@ -42,22 +46,18 @@ describe("home page switch section", () => {
     expect(source).not.toContain(".md");
     expect(existsSync(fileURLToPath(fullBioUrl))).toBe(false);
     expect(existsSync(fileURLToPath(tldrBioUrl))).toBe(false);
-    // The CMS branch and the source fallback each carry the typeset classes.
     expect(source.match(/typeset typeset-portfolio/g)).toHaveLength(4);
     expect(globalStyles).toContain('@import "./typeset.css"');
   });
 
   it("keeps the compact switch close to the title and biography", () => {
-    expect(source).toContain("text-foreground");
-    expect(source).toContain("text-[0.9375rem]");
-    expect(source).toContain('class="flex flex-wrap');
-    expect(source).toContain("mb-10 text-left text-3xl");
-    expect(source).toContain("sm:mb-11");
-    expect(source).toContain("lg:mb-14");
-    expect(source).toContain("font-bold");
-    expect(source.match(/data-mode="(full|tldr)"\s+class="mt-5/g)).toHaveLength(
-      2,
-    );
+    expect(source).toContain("<ReadingSurface>");
+    expect(source).toContain("<HomeTitle>");
+    expect(source).toContain("<BioSwitchRow>");
+    expect(readingSurfaceSource).toContain('default: "1.875rem"');
+    expect(readingSurfaceSource).toContain('[mq.lg]: "3.5rem"');
+    expect(readingSurfaceSource).toContain("fontWeight: 700");
+    expect(source.match(/<BioMode mode="(full|tldr)">/g)).toHaveLength(2);
   });
 
   it("uses a compact vertical rhythm between full biography sections", () => {
@@ -71,7 +71,7 @@ describe("home page switch section", () => {
   });
 
   it("defaults to the compact TL;DR presentation", () => {
-    expect(source).toContain('data-mode="tldr"');
+    expect(source).toContain('mode="tldr"');
     expect(source).toContain("typeset-compact");
     expect(layoutSource).toContain(
       '<html lang="en" data-bio-mode="tldr" data-theme-mode="dark">',
@@ -90,6 +90,7 @@ describe("home page switch section", () => {
     expect(layoutSource).toContain(
       'import Background from "../components/background.astro"',
     );
+    expect(layoutSource).toContain("<StylexAssets />");
     expect(layoutSource).not.toContain("AstroFont");
   });
 
@@ -120,10 +121,10 @@ describe("home page switch section", () => {
 
   it("uses semantic sections and scannable lists", () => {
     const fullBiography = source.match(
-      /<div\s+data-mode="full"[\s\S]*?<div\s+data-mode="tldr"/,
+      /<BioMode mode="full">[\s\S]*?<BioMode mode="tldr">/,
     )?.[0];
     const tldrBiography = source.match(
-      /<div\s+data-mode="tldr"[\s\S]*?<\/Layout>/,
+      /<BioMode mode="tldr">[\s\S]*?<\/ReadingSurface>/,
     )?.[0];
 
     expect(fullBiography?.match(/<h2(?:\s[^>]*)?>/g)).toHaveLength(3);

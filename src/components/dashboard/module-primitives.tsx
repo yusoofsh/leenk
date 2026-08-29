@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { AlertCircleIcon, RefreshCwIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -5,6 +6,75 @@ import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import type { DashboardError } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { colors, radii } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  caption: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    margin: 0,
+  },
+  chartSkeleton: {
+    height: "13rem",
+    width: "100%",
+  },
+  empty: {
+    alignItems: "center",
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderStyle: "dashed",
+    borderWidth: 1,
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    justifyContent: "center",
+    paddingBlock: "2.5rem",
+    paddingInline: "1.5rem",
+    textAlign: "center",
+  },
+  emptyAction: {
+    marginTop: "0.5rem",
+  },
+  emptyDescription: {
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+    margin: 0,
+    maxWidth: "24rem",
+  },
+  emptyTitle: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    margin: 0,
+  },
+  legend: {
+    display: "flex",
+    gap: "0.5rem",
+  },
+  legendLg: {
+    height: "1rem",
+    width: "6rem",
+  },
+  legendSm: {
+    height: "1rem",
+    width: "4rem",
+  },
+  retry: {
+    marginTop: "0.5rem",
+  },
+  row: {
+    display: "flex",
+    gap: "1rem",
+  },
+  rowSkeleton: {
+    height: "2rem",
+  },
+  stack: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
+  },
+});
 
 export function ModuleError({
   error,
@@ -18,14 +88,19 @@ export function ModuleError({
   if (error.error === "ANALYTICS_ENGINE_NOT_CONFIGURED") {
     return (
       <Alert data-slot="analytics-not-configured">
-        <AlertCircleIcon className="size-4" aria-hidden="true" />
+        <AlertCircleIcon size={16} aria-hidden="true" />
         <AlertTitle>Analytics Engine not configured</AlertTitle>
         <AlertDescription>
           Add the CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_ANALYTICS_TOKEN bindings
           for this environment to view analytics reports.
         </AlertDescription>
-        <Button variant="outline" size="sm" className="mt-2" onClick={onRetry}>
-          <RefreshCwIcon className="size-3.5" aria-hidden="true" />
+        <Button
+          variant="outline"
+          size="sm"
+          className={cls(styles.retry)}
+          onClick={onRetry}
+        >
+          <RefreshCwIcon size={14} aria-hidden="true" />
           Retry
         </Button>
       </Alert>
@@ -33,14 +108,19 @@ export function ModuleError({
   }
   return (
     <Alert variant="destructive" data-slot="module-error">
-      <AlertCircleIcon className="size-4" aria-hidden="true" />
+      <AlertCircleIcon size={16} aria-hidden="true" />
       <AlertTitle>{title}</AlertTitle>
       <AlertDescription>
         {error.message}
         {error.status !== 0 ? ` (${error.status})` : ""}
       </AlertDescription>
-      <Button variant="outline" size="sm" className="mt-2" onClick={onRetry}>
-        <RefreshCwIcon className="size-3.5" aria-hidden="true" />
+      <Button
+        variant="outline"
+        size="sm"
+        className={cls(styles.retry)}
+        onClick={onRetry}
+      >
+        <RefreshCwIcon size={14} aria-hidden="true" />
         Retry
       </Button>
     </Alert>
@@ -57,13 +137,12 @@ export function ModuleEmpty({
   title: string;
 }) {
   return (
-    <div
-      className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed px-6 py-10 text-center"
-      data-slot="module-empty"
-    >
-      <p className="text-sm font-medium">{title}</p>
-      <p className="text-muted-foreground max-w-sm text-sm">{description}</p>
-      {action ? <div className="mt-2">{action}</div> : null}
+    <div {...stylex.props(styles.empty)} data-slot="module-empty">
+      <p {...stylex.props(styles.emptyTitle)}>{title}</p>
+      <p {...stylex.props(styles.emptyDescription)}>{description}</p>
+      {action ? (
+        <div {...stylex.props(styles.emptyAction)}>{action}</div>
+      ) : null}
     </div>
   );
 }
@@ -76,15 +155,19 @@ export function TableSkeleton({
   rows?: number;
 }) {
   return (
-    <div className="space-y-3" data-slot="module-loading" aria-hidden="true">
+    <div
+      {...stylex.props(styles.stack)}
+      data-slot="module-loading"
+      aria-hidden="true"
+    >
       {Array.from({ length: rows }, () => (
         // oxlint-disable-next-line react/no-array-index-key -- decorative skeleton rows
-        <div key={skeletonKey()} className="flex gap-4">
+        <div key={skeletonKey()} {...stylex.props(styles.row)}>
           {Array.from({ length: columns }, () => (
             // oxlint-disable-next-line react/no-array-index-key -- decorative skeleton cells
             <Skeleton
               key={skeletonKey()}
-              className="h-8"
+              className={cls(styles.rowSkeleton)}
               style={{ width: `${100 / columns}%` }}
             />
           ))}
@@ -96,11 +179,15 @@ export function TableSkeleton({
 
 export function ChartSkeleton() {
   return (
-    <div className="space-y-3" data-slot="module-loading" aria-hidden="true">
-      <Skeleton className="h-[13rem] w-full" />
-      <div className="flex gap-2">
-        <Skeleton className="h-4 w-24" />
-        <Skeleton className="h-4 w-16" />
+    <div
+      {...stylex.props(styles.stack)}
+      data-slot="module-loading"
+      aria-hidden="true"
+    >
+      <Skeleton className={cls(styles.chartSkeleton)} />
+      <div {...stylex.props(styles.legend)}>
+        <Skeleton className={cls(styles.legendLg)} />
+        <Skeleton className={cls(styles.legendSm)} />
       </div>
     </div>
   );
@@ -127,7 +214,7 @@ export function AnalyticsCaption({
     ? graphqlCaption(entitlement, node)
     : "Values are sampled and are not exact page views or unique visitors.";
   return (
-    <p className="text-muted-foreground text-xs" data-slot="analytics-caption">
+    <p {...stylex.props(styles.caption)} data-slot="analytics-caption">
       {graphql ? graphqlLead(node) : "Weighted Analytics Engine counts"},{" "}
       {range.start} to {range.end}. {note}
     </p>

@@ -1,6 +1,6 @@
 import react from "@astrojs/react";
 import { distilledCloudflare } from "@distilled.cloud/astro/cloudflare";
-import tailwindcss from "@tailwindcss/vite";
+import stylexVite from "@stylexjs/unplugin/vite";
 import { defineConfig } from "astro/config";
 import path from "path";
 import process from "node:process";
@@ -50,7 +50,21 @@ export default defineConfig({
         ],
       },
     },
-    plugins: [tailwindcss()],
+    plugins: [
+      stylexVite({
+        aliases: {
+          "~/*": [path.resolve("./src/*")],
+        },
+        cssInjectionTarget: (fileName) =>
+          fileName.includes("jsx-runtime") || fileName.includes("stylex"),
+        treeshakeCompensation: true,
+        unstable_moduleResolution: {
+          rootDir: process.cwd(),
+          type: "commonJS",
+        },
+        useCSSLayers: true,
+      }),
+    ],
     resolve: {
       alias: {
         "~": path.resolve("./src"),

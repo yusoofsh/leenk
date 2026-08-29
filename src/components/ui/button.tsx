@@ -1,65 +1,183 @@
-/* oxlint-disable */
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import * as stylex from "@stylexjs/stylex";
 import { Slot } from "radix-ui";
 
-import { cn } from "~/lib/utils";
+import { mergeStylex } from "~/lib/sx";
+import { colors, radii } from "~/styles/tokens.stylex";
 
-const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        destructive:
-          "bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40",
-        outline:
-          "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
-        secondary:
-          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
-        link: "text-primary underline-offset-4 hover:underline",
-      },
-      size: {
-        default: "h-9 px-4 py-2 has-[>svg]:px-3",
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: "h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5",
-        lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
-        icon: "size-9",
-        "icon-xs": "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        "icon-sm": "size-8",
-        "icon-lg": "size-10",
-      },
+export type ButtonVariant =
+  | "default"
+  | "destructive"
+  | "ghost"
+  | "link"
+  | "outline"
+  | "secondary";
+
+export type ButtonSize =
+  | "default"
+  | "icon"
+  | "icon-lg"
+  | "icon-sm"
+  | "icon-xs"
+  | "lg"
+  | "sm"
+  | "xs";
+
+const styles = stylex.create({
+  base: {
+    alignItems: "center",
+    borderRadius: radii.md,
+    display: "inline-flex",
+    flexShrink: 0,
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    gap: "0.5rem",
+    justifyContent: "center",
+    outline: "none",
+    transitionDuration: "150ms",
+    transitionProperty: "color, background-color, box-shadow, border-color",
+    whiteSpace: "nowrap",
+    ":disabled": {
+      opacity: 0.5,
+      pointerEvents: "none",
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
+    ":focus-visible": {
+      borderColor: colors.ring,
+      boxShadow: "0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent)",
     },
   },
-);
+  default: {
+    backgroundColor: colors.primary,
+    color: colors.primaryForeground,
+    ":hover": {
+      backgroundColor: "color-mix(in oklab, var(--primary) 90%, transparent)",
+    },
+  },
+  defaultSize: {
+    height: "2.25rem",
+    paddingBlock: "0.5rem",
+    paddingInline: "1rem",
+  },
+  destructive: {
+    backgroundColor: colors.destructive,
+    color: "white",
+    ":hover": {
+      backgroundColor:
+        "color-mix(in oklab, var(--destructive) 90%, transparent)",
+    },
+  },
+  ghost: {
+    backgroundColor: "transparent",
+    ":hover": {
+      backgroundColor: colors.accent,
+      color: colors.accentForeground,
+    },
+  },
+  icon: {
+    height: "2.25rem",
+    width: "2.25rem",
+  },
+  iconLg: {
+    height: "2.5rem",
+    width: "2.5rem",
+  },
+  iconSm: {
+    height: "2rem",
+    width: "2rem",
+  },
+  iconXs: {
+    borderRadius: radii.md,
+    height: "1.5rem",
+    width: "1.5rem",
+  },
+  lg: {
+    borderRadius: radii.md,
+    height: "2.5rem",
+    paddingInline: "1.5rem",
+  },
+  link: {
+    backgroundColor: "transparent",
+    color: colors.primary,
+    textUnderlineOffset: "4px",
+    ":hover": {
+      textDecorationLine: "underline",
+    },
+  },
+  outline: {
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderWidth: 1,
+    boxShadow: "0 1px 2px rgb(0 0 0 / 5%)",
+    ":hover": {
+      backgroundColor: colors.accent,
+      color: colors.accentForeground,
+    },
+  },
+  secondary: {
+    backgroundColor: colors.secondary,
+    color: colors.secondaryForeground,
+    ":hover": {
+      backgroundColor: "color-mix(in oklab, var(--secondary) 80%, transparent)",
+    },
+  },
+  sm: {
+    borderRadius: radii.md,
+    gap: "0.375rem",
+    height: "2rem",
+    paddingInline: "0.75rem",
+  },
+  xs: {
+    borderRadius: radii.md,
+    fontSize: "0.75rem",
+    gap: "0.25rem",
+    height: "1.5rem",
+    paddingInline: "0.5rem",
+  },
+});
 
 function Button({
-  className,
-  variant = "default",
-  size = "default",
   asChild = false,
+  className,
+  size = "default",
+  style,
+  variant = "default",
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
+}: React.ComponentProps<"button"> & {
+  asChild?: boolean;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+}) {
   const Comp = asChild ? Slot.Root : "button";
 
   return (
     <Comp
+      data-size={size}
       data-slot="button"
       data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
+      {...mergeStylex(
+        stylex.props(
+          styles.base,
+          variant === "default" && styles.default,
+          variant === "destructive" && styles.destructive,
+          variant === "ghost" && styles.ghost,
+          variant === "link" && styles.link,
+          variant === "outline" && styles.outline,
+          variant === "secondary" && styles.secondary,
+          size === "default" && styles.defaultSize,
+          size === "icon" && styles.icon,
+          size === "icon-lg" && styles.iconLg,
+          size === "icon-sm" && styles.iconSm,
+          size === "icon-xs" && styles.iconXs,
+          size === "lg" && styles.lg,
+          size === "sm" && styles.sm,
+          size === "xs" && styles.xs,
+        ),
+        className,
+        style,
+      )}
     />
   );
 }
 
-export { Button, buttonVariants };
+export { Button };

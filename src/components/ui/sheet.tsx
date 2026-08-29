@@ -1,9 +1,97 @@
-/* oxlint-disable */
 import * as React from "react";
+import * as stylex from "@stylexjs/stylex";
 import { XIcon } from "lucide-react";
 import { Dialog as SheetPrimitive } from "radix-ui";
 
-import { cn } from "~/lib/utils";
+import { mergeStylex } from "~/lib/sx";
+import { mq } from "~/styles/breakpoints.stylex";
+import { colors } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  close: {
+    borderRadius: "2px",
+    opacity: 0.7,
+    position: "absolute",
+    right: "1rem",
+    top: "1rem",
+    ":hover": {
+      opacity: 1,
+    },
+  },
+  content: {
+    backgroundColor: colors.background,
+    boxShadow: "0 10px 15px rgb(0 0 0 / 10%)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "1rem",
+    position: "fixed",
+    transitionDuration: "300ms",
+    transitionProperty: "transform",
+    transitionTimingFunction: "ease-in-out",
+    zIndex: 50,
+  },
+  description: {
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+  },
+  footer: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    marginTop: "auto",
+    padding: "1rem",
+  },
+  header: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.375rem",
+    padding: "1rem",
+  },
+  overlay: {
+    backgroundColor: "rgb(0 0 0 / 50%)",
+    inset: 0,
+    position: "fixed",
+    zIndex: 50,
+  },
+  sideBottom: {
+    borderTopWidth: 1,
+    bottom: 0,
+    height: "auto",
+    insetInline: 0,
+  },
+  sideLeft: {
+    borderRightWidth: 1,
+    height: "100%",
+    insetBlock: 0,
+    left: 0,
+    maxWidth: {
+      default: "75%",
+      [mq.sm]: "24rem",
+    },
+    width: "75%",
+  },
+  sideRight: {
+    borderLeftWidth: 1,
+    height: "100%",
+    insetBlock: 0,
+    maxWidth: {
+      default: "75%",
+      [mq.sm]: "24rem",
+    },
+    right: 0,
+    width: "75%",
+  },
+  sideTop: {
+    borderBottomWidth: 1,
+    height: "auto",
+    insetInline: 0,
+    top: 0,
+  },
+  title: {
+    color: colors.foreground,
+    fontWeight: 600,
+  },
+});
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -29,53 +117,51 @@ function SheetPortal({
 
 function SheetOverlay({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Overlay>) {
   return (
     <SheetPrimitive.Overlay
       data-slot="sheet-overlay"
-      className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
-        className,
-      )}
       {...props}
+      {...mergeStylex(stylex.props(styles.overlay), className, style)}
     />
   );
 }
 
 function SheetContent({
-  className,
   children,
-  side = "right",
+  className,
   showCloseButton = true,
+  side = "right",
+  style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
-  side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  side?: "bottom" | "left" | "right" | "top";
 }) {
   return (
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Content
         data-slot="sheet-content"
-        className={cn(
-          "fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500",
-          side === "right" &&
-            "inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm",
-          side === "left" &&
-            "inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm",
-          side === "top" &&
-            "inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
-          side === "bottom" &&
-            "inset-x-0 bottom-0 h-auto border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-          className,
-        )}
         {...props}
+        {...mergeStylex(
+          stylex.props(
+            styles.content,
+            side === "right" && styles.sideRight,
+            side === "left" && styles.sideLeft,
+            side === "top" && styles.sideTop,
+            side === "bottom" && styles.sideBottom,
+          ),
+          className,
+          style,
+        )}
       >
         {children}
         {showCloseButton && (
-          <SheetPrimitive.Close className="ring-offset-background focus:ring-ring data-[state=open]:bg-secondary absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none">
-            <XIcon className="size-4" />
+          <SheetPrimitive.Close {...stylex.props(styles.close)}>
+            <XIcon size={16} />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>
         )}
@@ -84,59 +170,69 @@ function SheetContent({
   );
 }
 
-function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
+function SheetHeader({
+  className,
+  style,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-header"
-      className={cn("flex flex-col gap-1.5 p-4", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.header), className, style)}
     />
   );
 }
 
-function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
+function SheetFooter({
+  className,
+  style,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-footer"
-      className={cn("mt-auto flex flex-col gap-2 p-4", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.footer), className, style)}
     />
   );
 }
 
 function SheetTitle({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
       data-slot="sheet-title"
-      className={cn("font-semibold text-foreground", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.title), className, style)}
     />
   );
 }
 
 function SheetDescription({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Description>) {
   return (
     <SheetPrimitive.Description
       data-slot="sheet-description"
-      className={cn("text-sm text-muted-foreground", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.description), className, style)}
     />
   );
 }
 
 export {
   Sheet,
-  SheetTrigger,
   SheetClose,
   SheetContent,
-  SheetHeader,
-  SheetFooter,
-  SheetTitle,
   SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
 };

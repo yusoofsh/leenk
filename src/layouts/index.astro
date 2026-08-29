@@ -1,5 +1,6 @@
 ---
 import Background from "../components/background.astro";
+import StylexAssets from "../components/stylex-assets.astro";
 
 import "../styles/global.css";
 
@@ -41,6 +42,7 @@ const {
       type="font/woff2"
       crossorigin
     />
+    <StylexAssets />
     <meta
       content="#f9fafb"
       media="(prefers-color-scheme: light)"
@@ -144,7 +146,7 @@ const {
   </head>
   <body data-analytics-page={analyticsPage}>
     <a
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-slate-950 focus:shadow-lg"
+      class="sr-only skip-link skip-link-public"
       href="#main-content">Skip to content</a
     >
     <main id="main-content">

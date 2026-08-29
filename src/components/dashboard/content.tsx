@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -62,6 +63,10 @@ import {
   type CmsBlock,
   type CmsRevisionRecord,
 } from "~/lib/dashboard/cms";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+import { mq } from "~/styles/breakpoints.stylex";
+import { colors, radii } from "~/styles/tokens.stylex";
 
 type BlockType = CmsBlock["type"];
 
@@ -72,6 +77,73 @@ const BLOCK_TYPE_LABELS: Record<BlockType, string> = {
   paragraph: "Paragraph",
   section: "Section",
 };
+
+const styles = stylex.create({
+  addTrigger: {
+    width: "10rem",
+  },
+  blockCard: {
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    padding: "0.75rem",
+  },
+  blockStack: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
+  },
+  blockStackSm: {
+    display: "flex",
+    flexDirection: "column",
+    fontSize: "0.875rem",
+    gap: "0.75rem",
+  },
+  bulletList: {
+    listStyleType: "disc",
+    paddingLeft: "1.25rem",
+  },
+  editorBody: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.25rem",
+    paddingBlock: "1rem",
+  },
+  heading: {
+    fontWeight: 600,
+    margin: 0,
+  },
+  linkLabel: {
+    width: "7rem",
+  },
+  medium: {
+    fontWeight: 500,
+  },
+  previewHeader: {
+    alignItems: "center",
+    display: "flex",
+    gap: "0.75rem",
+  },
+  previewTitle: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    margin: 0,
+  },
+  remove: {
+    marginTop: "0.5rem",
+  },
+  row: {
+    display: "flex",
+    gap: "0.5rem",
+  },
+  sheet: {
+    overflowY: "auto",
+    width: "100%",
+    maxWidth: {
+      [mq.sm]: "36rem",
+    },
+  },
+});
 
 interface EditorState {
   blocksFull: EditableBlock[];
@@ -241,15 +313,15 @@ export function Content() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div {...stylex.props(dashboard.page)}>
+      <div {...stylex.props(dashboard.headerRow)}>
         <div>
-          <h1 className="text-xl font-semibold">Content</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 {...stylex.props(dashboard.title)}>Content</h1>
+          <p {...stylex.props(dashboard.subtitle)}>
             Homepage document with draft, publish, and rollback
           </p>
         </div>
-        <div className="flex gap-2">
+        <div {...stylex.props(dashboard.actions)}>
           {currentDraft ? (
             <Button
               onClick={() => publish(currentDraft.id)}
@@ -279,17 +351,21 @@ export function Content() {
                 <TableHead>Title</TableHead>
                 <TableHead>State</TableHead>
                 <TableHead>Author</TableHead>
-                <TableHead className="text-right">Created</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className={cls(dashboard.cellRight)}>
+                  Created
+                </TableHead>
+                <TableHead className={cls(dashboard.cellRight)}>
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.revisions.map((revision) => (
                 <TableRow key={revision.id}>
-                  <TableCell className="tabular-nums">
+                  <TableCell className={cls(dashboard.cellNumeric)}>
                     {revision.number}
                   </TableCell>
-                  <TableCell className="font-medium">
+                  <TableCell className={cls(styles.medium)}>
                     {revision.title}
                   </TableCell>
                   <TableCell>
@@ -301,13 +377,19 @@ export function Content() {
                       {revision.state}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
+                  <TableCell className={cls(dashboard.cellMuted)}>
                     {revision.author}
                   </TableCell>
-                  <TableCell className="text-muted-foreground text-right tabular-nums">
+                  <TableCell
+                    className={cls(
+                      dashboard.cellMuted,
+                      dashboard.cellRight,
+                      dashboard.cellNumeric,
+                    )}
+                  >
                     {formatDate(revision.createdAt)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className={cls(dashboard.cellRight)}>
                     {revision.state === "archived" ? (
                       <Button
                         variant="ghost"
@@ -339,9 +421,7 @@ export function Content() {
               title={published.title}
             />
           ) : (
-            <p className="text-muted-foreground text-sm">
-              Nothing published yet.
-            </p>
+            <p {...stylex.props(dashboard.subtitle)}>Nothing published yet.</p>
           )}
         </CardContent>
       </Card>
@@ -350,7 +430,7 @@ export function Content() {
         open={editor.open}
         onOpenChange={(open) => setEditor((current) => ({ ...current, open }))}
       >
-        <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
+        <SheetContent className={cls(styles.sheet)}>
           <SheetHeader>
             <SheetTitle>Edit draft</SheetTitle>
             <SheetDescription>
@@ -358,8 +438,8 @@ export function Content() {
               archives the previous draft.
             </SheetDescription>
           </SheetHeader>
-          <div className="space-y-5 py-4">
-            <div className="space-y-2">
+          <div {...stylex.props(styles.editorBody)}>
+            <div {...stylex.props(dashboard.field)}>
               <Label htmlFor="draft-title">Title</Label>
               <Input
                 id="draft-title"
@@ -377,7 +457,7 @@ export function Content() {
                 <TabsTrigger value="full">Full</TabsTrigger>
                 <TabsTrigger value="tldr">TL;DR</TabsTrigger>
               </TabsList>
-              <TabsContent value="full" className="space-y-3">
+              <TabsContent value="full" className={cls(styles.blockStack)}>
                 <BlockEditor
                   blocks={editor.blocksFull}
                   onChange={(blocksFull) =>
@@ -385,7 +465,7 @@ export function Content() {
                   }
                 />
               </TabsContent>
-              <TabsContent value="tldr" className="space-y-3">
+              <TabsContent value="tldr" className={cls(styles.blockStack)}>
                 <BlockEditor
                   blocks={editor.blocksTldr}
                   onChange={(blocksTldr) =>
@@ -478,9 +558,9 @@ function BlockPreview({
   const [variant, setVariant] = useState<"full" | "tldr">("full");
   const blocks = variant === "full" ? blocksFull : blocksTldr;
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <p className="text-sm font-medium">{title}</p>
+    <div {...stylex.props(dashboard.stack)}>
+      <div {...stylex.props(styles.previewHeader)}>
+        <p {...stylex.props(styles.previewTitle)}>{title}</p>
         <Tabs
           value={variant}
           onValueChange={(value) =>
@@ -493,7 +573,7 @@ function BlockPreview({
           </TabsList>
         </Tabs>
       </div>
-      <div className="space-y-3 text-sm">
+      <div {...stylex.props(styles.blockStackSm)}>
         {blocks.map((block) => (
           <BlockPreviewRow key={previewKey(block)} block={block} />
         ))}
@@ -509,7 +589,7 @@ function BlockPreviewRow({ block }: { block: CmsBlock }) {
     case "section":
       return (
         <div>
-          <h3 className="font-semibold">{block.heading}</h3>
+          <h3 {...stylex.props(styles.heading)}>{block.heading}</h3>
           <p>{block.text}</p>
         </div>
       );
@@ -517,7 +597,7 @@ function BlockPreviewRow({ block }: { block: CmsBlock }) {
       return <p>{block.text}</p>;
     case "bullet_list":
       return (
-        <ul className="list-disc pl-5">
+        <ul {...stylex.props(styles.bulletList)}>
           {block.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -557,9 +637,9 @@ function BlockEditor({
   };
 
   return (
-    <div className="space-y-3">
+    <div {...stylex.props(styles.blockStack)}>
       {blocks.map((entry, index) => (
-        <div key={entry.id} className="rounded-md border p-3">
+        <div key={entry.id} {...stylex.props(styles.blockCard)}>
           <BlockField
             block={entry.block}
             onChange={(next) => updateBlock(index, next)}
@@ -567,23 +647,26 @@ function BlockEditor({
           <Button
             variant="ghost"
             size="sm"
-            className="mt-2"
+            className={cls(styles.remove)}
             onClick={() => removeBlock(index)}
             aria-label={`Remove ${BLOCK_TYPE_LABELS[entry.block.type]} block`}
           >
-            <Trash2Icon className="size-3.5" aria-hidden="true" />
+            <Trash2Icon size={14} aria-hidden="true" />
             Remove
           </Button>
         </div>
       ))}
-      <div className="flex items-center gap-2">
+      <div {...stylex.props(dashboard.wrap)}>
         <Select
           value="__add__"
           onValueChange={(value) => {
             if (isBlockType(value)) addBlock(value);
           }}
         >
-          <SelectTrigger className="w-40" aria-label="Add block">
+          <SelectTrigger
+            className={cls(styles.addTrigger)}
+            aria-label="Add block"
+          >
             <SelectValue placeholder="Add block" />
           </SelectTrigger>
           <SelectContent>
@@ -599,7 +682,7 @@ function BlockEditor({
           size="sm"
           onClick={() => addBlock("paragraph")}
         >
-          <PlusIcon className="size-3.5" aria-hidden="true" />
+          <PlusIcon size={14} aria-hidden="true" />
           Add paragraph
         </Button>
       </div>
@@ -620,7 +703,7 @@ function BlockField({
     case "paragraph":
       if (block.type === "intro" || block.type === "paragraph") {
         return (
-          <div className="space-y-2">
+          <div {...stylex.props(dashboard.field)}>
             <Label>{label} text</Label>
             <Textarea
               value={block.text}
@@ -636,7 +719,7 @@ function BlockField({
     case "section": {
       const section = block;
       return (
-        <div className="space-y-2">
+        <div {...stylex.props(dashboard.field)}>
           <Label>Section heading</Label>
           <Input
             value={section.heading}
@@ -658,11 +741,11 @@ function BlockField({
     case "bullet_list": {
       const list = block;
       return (
-        <div className="space-y-2">
+        <div {...stylex.props(dashboard.field)}>
           <Label>Bullet list items</Label>
           {list.items.map((item, index) => (
             // oxlint-disable-next-line react/no-array-index-key -- editable item rows keep position identity
-            <div key={`${item}-${index}`} className="flex gap-2">
+            <div key={`${item}-${index}`} {...stylex.props(styles.row)}>
               <Input
                 value={item}
                 aria-label={`Bullet item ${index + 1}`}
@@ -683,7 +766,7 @@ function BlockField({
                   onChange({ ...block, items });
                 }}
               >
-                <Trash2Icon className="size-3.5" aria-hidden="true" />
+                <Trash2Icon size={14} aria-hidden="true" />
               </Button>
             </div>
           ))}
@@ -692,7 +775,7 @@ function BlockField({
             size="sm"
             onClick={() => onChange({ ...block, items: [...list.items, ""] })}
           >
-            <PlusIcon className="size-3.5" aria-hidden="true" />
+            <PlusIcon size={14} aria-hidden="true" />
             Add item
           </Button>
         </div>
@@ -701,7 +784,7 @@ function BlockField({
     case "contact": {
       const contact = block;
       return (
-        <div className="space-y-2">
+        <div {...stylex.props(dashboard.field)}>
           <Label>Contact email</Label>
           <Input
             value={contact.email}
@@ -711,9 +794,12 @@ function BlockField({
           />
           <Label>Links</Label>
           {contact.links.map((link, index) => (
-            <div key={`${link.label}-${link.target}`} className="flex gap-2">
+            <div
+              key={`${link.label}-${link.target}`}
+              {...stylex.props(styles.row)}
+            >
               <Input
-                className="w-28"
+                className={cls(styles.linkLabel)}
                 value={link.label}
                 aria-label={`Link ${index + 1} label`}
                 onChange={(event) => {

@@ -1,0 +1,189 @@
+@keyframes stylex-enter {
+  from {
+    opacity: var(--stylex-enter-opacity, 1);
+    transform: translate3d(
+        var(--stylex-enter-translate-x, 0),
+        var(--stylex-enter-translate-y, 0),
+        0
+      )
+      scale(var(--stylex-enter-scale, 1));
+  }
+}
+
+@keyframes stylex-exit {
+  to {
+    opacity: var(--stylex-exit-opacity, 1);
+    transform: translate3d(
+        var(--stylex-exit-translate-x, 0),
+        var(--stylex-exit-translate-y, 0),
+        0
+      )
+      scale(var(--stylex-exit-scale, 1));
+  }
+}
+
+@keyframes stylex-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes stylex-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-in {
+  --stylex-enter-opacity: 1;
+  --stylex-enter-scale: 1;
+  --stylex-enter-translate-x: 0;
+  --stylex-enter-translate-y: 0;
+  animation-duration: 150ms;
+  animation-name: stylex-enter;
+  animation-timing-function: ease-out;
+}
+
+.animate-out {
+  --stylex-exit-opacity: 1;
+  --stylex-exit-scale: 1;
+  --stylex-exit-translate-x: 0;
+  --stylex-exit-translate-y: 0;
+  animation-duration: 150ms;
+  animation-fill-mode: forwards;
+  animation-name: stylex-exit;
+  animation-timing-function: ease-in;
+}
+
+.fade-in-0 {
+  --stylex-enter-opacity: 0;
+}
+
+.fade-out-0 {
+  --stylex-exit-opacity: 0;
+}
+
+.zoom-in-95 {
+  --stylex-enter-scale: 0.95;
+}
+
+.zoom-out-95 {
+  --stylex-exit-scale: 0.95;
+}
+
+.slide-in-from-top-2 {
+  --stylex-enter-translate-y: -0.5rem;
+}
+
+.slide-in-from-bottom-2 {
+  --stylex-enter-translate-y: 0.5rem;
+}
+
+.slide-in-from-left-2 {
+  --stylex-enter-translate-x: -0.5rem;
+}
+
+.slide-in-from-right-2 {
+  --stylex-enter-translate-x: 0.5rem;
+}
+
+.slide-in-from-top {
+  --stylex-enter-translate-y: -100%;
+}
+
+.slide-in-from-bottom {
+  --stylex-enter-translate-y: 100%;
+}
+
+.slide-in-from-left {
+  --stylex-enter-translate-x: -100%;
+}
+
+.slide-in-from-right {
+  --stylex-enter-translate-x: 100%;
+}
+
+.slide-out-to-top {
+  --stylex-exit-translate-y: -100%;
+}
+
+.slide-out-to-bottom {
+  --stylex-exit-translate-y: 100%;
+}
+
+.slide-out-to-left {
+  --stylex-exit-translate-x: -100%;
+}
+
+.slide-out-to-right {
+  --stylex-exit-translate-x: 100%;
+}
+
+.animate-pulse {
+  animation: stylex-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: stylex-spin 1s linear infinite;
+}
+
+[data-state="open"].animate-in,
+[data-state="open"] .animate-in,
+[data-state="closed"].animate-out,
+[data-state="closed"] .animate-out {
+  animation-fill-mode: both;
+}
+
+[data-state="open"][data-side="bottom"],
+[data-state="open"] [data-side="bottom"] {
+  --stylex-enter-translate-y: -0.5rem;
+}
+
+[data-slot="dialog-overlay"][data-state="open"],
+[data-slot="sheet-overlay"][data-state="open"],
+[data-slot="tooltip-content"],
+[data-slot="select-content"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-state="open"] {
+  animation-duration: 150ms;
+  animation-name: stylex-enter;
+}
+
+[data-slot="dialog-overlay"][data-state="closed"],
+[data-slot="sheet-overlay"][data-state="closed"],
+[data-slot="tooltip-content"][data-state="closed"],
+[data-slot="select-content"][data-state="closed"],
+[data-slot="dropdown-menu-content"][data-state="closed"],
+[data-slot="dropdown-menu-sub-content"][data-state="closed"] {
+  animation-duration: 150ms;
+  animation-fill-mode: forwards;
+  animation-name: stylex-exit;
+}
+
+[data-slot="dialog-content"][data-state="open"],
+[data-slot="select-content"][data-state="open"],
+[data-slot="dropdown-menu-content"][data-state="open"],
+[data-slot="dropdown-menu-sub-content"][data-state="open"] {
+  --stylex-enter-opacity: 0;
+  --stylex-enter-scale: 0.95;
+}
+
+[data-slot="dialog-content"][data-state="closed"],
+[data-slot="select-content"][data-state="closed"],
+[data-slot="dropdown-menu-content"][data-state="closed"],
+[data-slot="dropdown-menu-sub-content"][data-state="closed"],
+[data-slot="tooltip-content"][data-state="closed"] {
+  --stylex-exit-opacity: 0;
+  --stylex-exit-scale: 0.95;
+}
+
+[data-slot="sheet-content"][data-state="open"] {
+  animation-duration: 500ms;
+  animation-name: stylex-enter;
+}
+
+[data-slot="sheet-content"][data-state="closed"] {
+  animation-duration: 300ms;
+  animation-fill-mode: forwards;
+  animation-name: stylex-exit;
+}

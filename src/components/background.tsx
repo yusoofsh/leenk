@@ -6,18 +6,19 @@ import {
   useSpring,
 } from "motion/react";
 import React from "react";
+import * as stylex from "@stylexjs/stylex";
 
 import { createStarShadows, shouldTrackPointer } from "~/lib/presentation";
+import { mergeStylex } from "~/lib/sx";
 import { useReducedMotionPreference } from "~/lib/use-reduced-motion";
-import { cn } from "~/lib/utils";
 
 type BackgroundProps = React.ComponentProps<"div">;
 
 type StarLayerProps = {
   count: number;
   duration: number;
-  shouldReduceMotion: boolean;
   seed: number;
+  shouldReduceMotion: boolean;
   size: number;
 };
 
@@ -34,11 +35,69 @@ const defaultSpringTransition: SpringOptions = {
 
 const easeOut = [0.23, 1, 0.32, 1] as const;
 
+const styles = stylex.create({
+  content: {
+    alignItems: "center",
+    display: "flex",
+    justifyContent: "center",
+    minHeight: "100vh",
+    position: "relative",
+    width: "100%",
+    zIndex: 10,
+  },
+  duplicateStar: {
+    backgroundColor: "transparent",
+    borderRadius: "9999px",
+    position: "absolute",
+    top: "2000px",
+  },
+  layer: {
+    height: "2000px",
+    left: 0,
+    position: "absolute",
+    top: 0,
+    width: "100%",
+  },
+  root: {
+    backgroundImage: {
+      default: "radial-gradient(ellipse at bottom, #f5f5f5 0%, #fff 100%)",
+      ":is(.dark *)":
+        "radial-gradient(ellipse at bottom, #262626 0%, #000 100%)",
+    },
+    minHeight: "100vh",
+    overflow: "hidden",
+    position: "relative",
+    transitionDuration: "200ms",
+    transitionProperty: "background-color, background-image",
+    width: "100%",
+  },
+  star: {
+    backgroundColor: "transparent",
+    borderRadius: "9999px",
+    position: "absolute",
+  },
+  starField: {
+    color: {
+      default: "black",
+      ":is(.dark *)": "white",
+    },
+    inset: 0,
+    pointerEvents: "none",
+    position: "absolute",
+  },
+  veil: {
+    inset: 0,
+    pointerEvents: "none",
+    position: "absolute",
+    zIndex: 1,
+  },
+});
+
 function StarLayer({
   count,
   duration,
-  shouldReduceMotion,
   seed,
+  shouldReduceMotion,
   size,
 }: StarLayerProps) {
   const [boxShadow, setBoxShadow] = React.useState("");
@@ -58,7 +117,6 @@ function StarLayer({
           : "translate3d(0, -2000px, 0)",
       }}
       aria-hidden="true"
-      className="absolute top-0 left-0 h-[2000px] w-full"
       data-slot="star-layer"
       initial={{ opacity: 0, transform: "translate3d(0, 0, 0)" }}
       transition={{
@@ -72,13 +130,14 @@ function StarLayer({
               repeatType: "loop",
             },
       }}
+      {...stylex.props(styles.layer)}
     >
       <div
-        className="absolute rounded-full bg-transparent"
+        {...stylex.props(styles.star)}
         style={{ boxShadow, height: `${size}px`, width: `${size}px` }}
       />
       <div
-        className="absolute top-[2000px] rounded-full bg-transparent"
+        {...stylex.props(styles.duplicateStar)}
         style={{ boxShadow, height: `${size}px`, width: `${size}px` }}
       />
     </motion.div>
@@ -90,6 +149,7 @@ function StarsBackground({
   className,
   factor = 0.05,
   speed = 50,
+  style,
   transition = defaultSpringTransition,
   ...props
 }: StarsBackgroundProps) {
@@ -149,18 +209,14 @@ function StarsBackground({
 
   return (
     <div
-      className={cn(
-        "relative min-h-screen w-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] transition-colors duration-200 dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
-        className,
-      )}
       data-slot="stars-background"
       onPointerLeave={resetParallax}
       onPointerMove={handlePointerMove}
       {...props}
+      {...mergeStylex(stylex.props(styles.root), className, style)}
     >
       <motion.div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 text-black dark:text-white"
         data-slot="star-field"
         style={{
           transform:
@@ -168,6 +224,7 @@ function StarsBackground({
               ? "translate3d(0, 0, 0)"
               : parallaxTransform,
         }}
+        {...stylex.props(styles.starField)}
       >
         <StarLayer
           count={900}
@@ -193,11 +250,10 @@ function StarsBackground({
       </motion.div>
       <div
         aria-hidden="true"
-        className="reading-veil pointer-events-none absolute inset-0 z-[1]"
+        className="reading-veil"
+        {...stylex.props(styles.veil)}
       />
-      <div className="relative z-10 flex min-h-screen w-full items-center justify-center">
-        {children}
-      </div>
+      <div {...stylex.props(styles.content)}>{children}</div>
     </div>
   );
 }

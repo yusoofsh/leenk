@@ -1,18 +1,12 @@
-<div
-  class="not-prose flex items-center gap-1 rounded-full bg-slate-100 p-1 text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition-colors sm:gap-2 dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700"
->
-  <span
-    class="pl-1.5 text-[0.5rem] font-semibold tracking-[0.25em] sm:pl-2 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs"
-  >
-    Bio mode
-  </span>
+<div class="bio-mode-switch">
+  <span class="bio-mode-label"> Bio mode </span>
   <button
     aria-label="Switch to full bio"
     aria-pressed="true"
-    class="relative grid min-h-6 min-w-6 items-center justify-center rounded-full bg-white px-2.5 py-1 text-[0.5rem] font-semibold tracking-[0.25em] text-slate-800 uppercase shadow transition-[color,background-color,box-shadow,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 active:scale-[0.97] motion-reduce:transition-colors motion-reduce:active:scale-100 sm:px-3 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
-    data-slot="bio-mode-toggle"
-    data-analytics-event="bio_mode_changed"
+    class="bio-mode-button"
     data-analytics-dimension="tldr"
+    data-analytics-event="bio_mode_changed"
+    data-slot="bio-mode-toggle"
     type="button"
   >
     <span aria-hidden="true" data-bio-label="tldr">Switch to full bio</span>
@@ -30,10 +24,7 @@
     const root = document.documentElement;
     const syncPressedState = () => {
       const isTldrMode = root.dataset.bioMode === "tldr";
-      button.setAttribute(
-        "aria-pressed",
-        String(isTldrMode),
-      );
+      button.setAttribute("aria-pressed", String(isTldrMode));
       button.setAttribute(
         "aria-label",
         isTldrMode ? "Switch to full bio" : "Switch to TL;DR",
@@ -64,18 +55,113 @@
   })();
 </script>
 
-<style is:global>
-  [data-slot="bio-mode-toggle"] > [data-bio-label] {
-    grid-area: 1 / 1;
-    visibility: hidden;
+<style>
+  .bio-mode-switch {
+    align-items: center;
+    background: #f1f5f9;
+    border-radius: 9999px;
+    box-shadow:
+      inset 0 1px 2px rgb(15 23 42 / 8%),
+      0 0 0 1px #e2e8f0;
+    color: #475569;
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    text-transform: uppercase;
   }
 
-  [data-bio-mode="tldr"]
-    [data-slot="bio-mode-toggle"]
-    > [data-bio-label="tldr"],
-  [data-bio-mode="full"]
-    [data-slot="bio-mode-toggle"]
-    > [data-bio-label="full"] {
-    visibility: visible;
+  :global(.dark) .bio-mode-switch {
+    background: rgb(15 23 42 / 70%);
+    box-shadow:
+      inset 0 1px 2px rgb(15 23 42 / 8%),
+      0 0 0 1px #334155;
+    color: #cbd5e1;
+  }
+
+  .bio-mode-label {
+    font-size: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.25em;
+    padding-left: 0.375rem;
+  }
+
+  .bio-mode-button {
+    align-items: center;
+    background: #fff;
+    border: 0;
+    border-radius: 9999px;
+    box-shadow: 0 1px 2px rgb(15 23 42 / 12%);
+    color: #1e293b;
+    cursor: pointer;
+    display: grid;
+    font-size: 0.5rem;
+    font-weight: 600;
+    justify-content: center;
+    letter-spacing: 0.25em;
+    min-height: 1.5rem;
+    min-width: 1.5rem;
+    padding: 0.25rem 0.625rem;
+    position: relative;
+    text-transform: uppercase;
+    transition:
+      color 150ms cubic-bezier(0.23, 1, 0.32, 1),
+      background-color 150ms cubic-bezier(0.23, 1, 0.32, 1),
+      box-shadow 150ms cubic-bezier(0.23, 1, 0.32, 1),
+      transform 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  :global(.dark) .bio-mode-button {
+    background: #1e293b;
+    color: #f1f5f9;
+  }
+
+  .bio-mode-button:hover {
+    background: #f8fafc;
+  }
+
+  :global(.dark) .bio-mode-button:hover {
+    background: #334155;
+  }
+
+  .bio-mode-button:focus-visible {
+    outline: 2px solid #64748b;
+    outline-offset: 2px;
+  }
+
+  .bio-mode-button:active {
+    transform: scale(0.97);
+  }
+
+  @media (min-width: 40rem) {
+    .bio-mode-switch {
+      gap: 0.5rem;
+    }
+
+    .bio-mode-label,
+    .bio-mode-button {
+      font-size: 0.6rem;
+      letter-spacing: 0.3em;
+    }
+
+    .bio-mode-label {
+      padding-left: 0.5rem;
+    }
+
+    .bio-mode-button {
+      padding-inline: 0.75rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .bio-mode-label,
+    .bio-mode-button {
+      font-size: 0.75rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bio-mode-button:active {
+      transform: none;
+    }
   }
 </style>

@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -17,18 +18,29 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+import { mq } from "~/styles/breakpoints.stylex";
 
 const ENVIRONMENT_KEY = "leenk-dashboard-environment";
 const DEFAULT_RANGE_KEY = "leenk-dashboard-default-range";
 
+const styles = stylex.create({
+  preferences: {
+    display: "grid",
+    gap: "1.5rem",
+    maxWidth: {
+      [mq.sm]: "28rem",
+    },
+  },
+});
+
 export function Settings() {
   return (
-    <div className="space-y-6">
+    <div {...stylex.props(dashboard.page)}>
       <div>
-        <h1 className="text-xl font-semibold">Settings</h1>
-        <p className="text-muted-foreground text-sm">
-          Operator preferences only
-        </p>
+        <h1 {...stylex.props(dashboard.title)}>Settings</h1>
+        <p {...stylex.props(dashboard.subtitle)}>Operator preferences only</p>
       </div>
       <Tabs defaultValue="preferences">
         <TabsList>
@@ -92,8 +104,8 @@ function PreferencesCard() {
           Stored locally in this browser. They do not change live configuration.
         </CardDescription>
       </CardHeader>
-      <CardContent className="grid gap-6 sm:max-w-md">
-        <div className="space-y-2">
+      <CardContent className={cls(styles.preferences)}>
+        <div {...stylex.props(dashboard.field)}>
           <Label htmlFor="settings-environment">Environment</Label>
           <Select value={environment} onValueChange={saveEnvironment}>
             <SelectTrigger id="settings-environment" aria-label="Environment">
@@ -107,7 +119,7 @@ function PreferencesCard() {
             </SelectContent>
           </Select>
         </div>
-        <div className="space-y-2">
+        <div {...stylex.props(dashboard.field)}>
           <Label htmlFor="settings-range">Default analytics range</Label>
           <Select value={defaultRange} onValueChange={saveRange}>
             <SelectTrigger

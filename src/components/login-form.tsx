@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as stylex from "@stylexjs/stylex";
 
 import { Button } from "~/components/ui/button";
 import {
@@ -11,6 +12,29 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { authClient } from "~/lib/auth-client";
+import { cls } from "~/lib/sx";
+import { colors } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  card: {
+    maxWidth: "24rem",
+    width: "100%",
+  },
+  error: {
+    color: colors.destructive,
+    fontSize: "0.875rem",
+    margin: 0,
+  },
+  field: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+  },
+  form: {
+    display: "grid",
+    gap: "1rem",
+  },
+});
 
 export function LoginForm({ next }: { next: string }) {
   const [email, setEmail] = useState("");
@@ -32,7 +56,7 @@ export function LoginForm({ next }: { next: string }) {
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className={cls(styles.card)}>
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
         <CardDescription>
@@ -40,35 +64,35 @@ export function LoginForm({ next }: { next: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <form className="grid gap-4" onSubmit={submit}>
-          <div className="space-y-2">
+        <form {...stylex.props(styles.form)} onSubmit={submit}>
+          <div {...stylex.props(styles.field)}>
             <Label htmlFor="login-email">Email</Label>
             <Input
-              id="login-email"
-              type="email"
               autoComplete="email"
-              required
-              value={email}
+              id="login-email"
               onChange={(event) => setEmail(event.target.value)}
+              required
+              type="email"
+              value={email}
             />
           </div>
-          <div className="space-y-2">
+          <div {...stylex.props(styles.field)}>
             <Label htmlFor="login-password">Password</Label>
             <Input
-              id="login-password"
-              type="password"
               autoComplete="current-password"
-              required
-              value={password}
+              id="login-password"
               onChange={(event) => setPassword(event.target.value)}
+              required
+              type="password"
+              value={password}
             />
           </div>
           {error ? (
-            <p className="text-destructive text-sm" role="alert">
+            <p role="alert" {...stylex.props(styles.error)}>
               {error}
             </p>
           ) : null}
-          <Button type="submit" disabled={submitting}>
+          <Button disabled={submitting} type="submit">
             {submitting ? "Signing in..." : "Sign in"}
           </Button>
         </form>

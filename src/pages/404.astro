@@ -1,5 +1,9 @@
 ---
 import Layout from "../layouts/index.astro";
+import {
+  NotFoundHeading,
+  ReadingSurface,
+} from "../components/reading-surface";
 ---
 
 <Layout
@@ -9,25 +13,19 @@ import Layout from "../layouts/index.astro";
   robots="noindex,follow"
   title="Page not found — Yusoof Moh"
 >
-  <div
-    class="prose prose-slate dark:prose-invert prose-p:text-base prose-p:leading-relaxed sm:prose-p:text-lg md:prose-p:text-xl lg:prose-p:text-2xl xl:prose-p:text-3xl relative z-10 mx-auto my-6 w-full max-w-prose px-6 text-left font-normal sm:max-w-2xl sm:px-8 md:my-8 md:max-w-3xl lg:my-20 lg:max-w-4xl lg:px-6 xl:my-16 xl:max-w-6xl xl:px-4"
-    data-reading-surface
-  >
-    <h1
-      class="text-left text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl"
-    >
-      404. That’s an error.
-    </h1>
-    <p>
-      Resource not found. Click
-      <a
-        class="not-prose cursor-pointer font-semibold hover:underline"
-        data-analytics-dimension="home"
-        data-analytics-event="internal_link_clicked"
-        href="/"
-        >here</a
-      >
-      to go home.
-    </p>
-  </div>
+  <ReadingSurface variant="not-found">
+    <div class="typeset typeset-portfolio">
+      <NotFoundHeading>404. That’s an error.</NotFoundHeading>
+      <p>
+        Resource not found. Click
+        <a
+          data-analytics-dimension="home"
+          data-analytics-event="internal_link_clicked"
+          href="/"
+          >here</a
+        >
+        to go home.
+      </p>
+    </div>
+  </ReadingSurface>
 </Layout>

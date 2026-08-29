@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { useEffect, useState } from "react";
 
 import {
@@ -32,6 +33,86 @@ import {
   type AnalyticsRow,
   type DashboardResult,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+import { mq } from "~/styles/breakpoints.stylex";
+import { colors } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  compactHeader: {
+    paddingBottom: "0.5rem",
+  },
+  focusGrid: {
+    display: "grid",
+    gap: "1.5rem",
+    gridTemplateColumns: {
+      [mq.xl]: "repeat(5, minmax(0, 1fr))",
+    },
+  },
+  fullSpan: {
+    gridColumn: "1 / -1",
+  },
+  graphqlGrid: {
+    display: "grid",
+    gap: "1rem",
+    gridTemplateColumns: {
+      [mq.sm]: "repeat(2, minmax(0, 1fr))",
+      [mq.xl]: "repeat(3, minmax(0, 1fr))",
+    },
+  },
+  kindBadge: {
+    flexShrink: 0,
+    marginTop: "0.125rem",
+  },
+  kpiContent: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+  },
+  kpiLabel: {
+    fontSize: "0.75rem",
+    letterSpacing: "0.025em",
+    textTransform: "uppercase",
+  },
+  medium: {
+    fontWeight: 500,
+  },
+  minW0: {
+    minWidth: 0,
+  },
+  queue: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.75rem",
+  },
+  queueItem: {
+    alignItems: "flex-start",
+    display: "flex",
+    gap: "0.75rem",
+  },
+  queueMeta: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    margin: 0,
+  },
+  queueSummary: {
+    fontSize: "0.875rem",
+    margin: 0,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  span2: {
+    gridColumn: {
+      [mq.xl]: "span 2 / span 2",
+    },
+  },
+  span3: {
+    gridColumn: {
+      [mq.xl]: "span 3 / span 3",
+    },
+  },
+});
 
 interface OverviewSnapshot {
   activity?: DashboardResult<ActivityPage>;
@@ -109,11 +190,11 @@ export function Overview() {
 
   if (!ready) {
     return (
-      <div className="space-y-6" data-slot="overview-loading">
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div {...stylex.props(dashboard.page)} data-slot="overview-loading">
+        <div {...stylex.props(dashboard.statGrid)}>
           {Array.from({ length: 4 }, (_, index) => (
             <Card key={index}>
-              <CardHeader className="pb-2">
+              <CardHeader className={cls(styles.compactHeader)}>
                 <ChartSkeleton />
               </CardHeader>
             </Card>
@@ -140,7 +221,7 @@ export function Overview() {
   ].some((result) => result && !result.ok);
 
   return (
-    <div className="space-y-6">
+    <div {...stylex.props(dashboard.page)}>
       {hasErrors ? (
         <ModuleError
           error={firstError(snapshot)}
@@ -149,8 +230,8 @@ export function Overview() {
         />
       ) : null}
       <KpiStrip snapshot={snapshot} range={range} />
-      <div className="grid gap-6 xl:grid-cols-5">
-        <Card className="xl:col-span-3">
+      <div {...stylex.props(styles.focusGrid)}>
+        <Card className={cls(styles.span3)}>
           <CardHeader>
             <CardTitle>Focus queue</CardTitle>
             <CardDescription>
@@ -161,7 +242,7 @@ export function Overview() {
             <ActivityQueue snapshot={snapshot} />
           </CardContent>
         </Card>
-        <Card className="xl:col-span-2">
+        <Card className={cls(styles.span2)}>
           <CardHeader>
             <CardTitle>Recent changes</CardTitle>
             <CardDescription>Latest lifecycle events</CardDescription>
@@ -195,17 +276,17 @@ function KpiStrip({
     0,
   );
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div {...stylex.props(dashboard.stack)}>
+      <div {...stylex.props(dashboard.statGrid)}>
         <KpiCard label="Shortlink clicks" value={formatCount(clicksTotal)} />
         <KpiCard label="Site events" value={formatCount(siteTotal)} />
         <KpiCard label="Files" value={formatCount(files.length)} />
         <KpiCard label="Shortlinks" value={formatCount(links.length)} />
-        <div className="col-span-full">
+        <div {...stylex.props(styles.fullSpan)}>
           <AnalyticsCaption range={range} />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div {...stylex.props(styles.graphqlGrid)}>
         <GraphqlKpi
           fallbackRange={range}
           label="Dataset volume"
@@ -243,13 +324,13 @@ function GraphqlKpi({
   const display = graphqlDisplay(result, valueKey);
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardDescription className="text-xs tracking-wide uppercase">
+      <CardHeader className={cls(styles.compactHeader)}>
+        <CardDescription className={cls(styles.kpiLabel)}>
           {label}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <p className="text-2xl font-semibold tabular-nums">{display.value}</p>
+      <CardContent className={cls(styles.kpiContent)}>
+        <p {...stylex.props(dashboard.metric)}>{display.value}</p>
         {result && result.ok ? (
           <AnalyticsCaption
             entitlement={display.entitlement}
@@ -293,13 +374,13 @@ function graphqlDisplay(
 function KpiCard({ label, value }: { label: string; value: string }) {
   return (
     <Card>
-      <CardHeader className="pb-2">
-        <CardDescription className="text-xs tracking-wide uppercase">
+      <CardHeader className={cls(styles.compactHeader)}>
+        <CardDescription className={cls(styles.kpiLabel)}>
           {label}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-2xl font-semibold tabular-nums">{value}</p>
+        <p {...stylex.props(dashboard.metric)}>{value}</p>
       </CardContent>
     </Card>
   );
@@ -325,15 +406,15 @@ function ActivityQueue({ snapshot }: { snapshot: OverviewSnapshot }) {
     );
   }
   return (
-    <ul className="space-y-3" data-slot="focus-queue">
+    <ul {...stylex.props(styles.queue)} data-slot="focus-queue">
       {entries.map((entry) => (
-        <li key={entry.id} className="flex items-start gap-3">
-          <Badge variant="secondary" className="mt-0.5 shrink-0">
+        <li key={entry.id} {...stylex.props(styles.queueItem)}>
+          <Badge variant="secondary" className={cls(styles.kindBadge)}>
             {entry.kind}
           </Badge>
-          <div className="min-w-0">
-            <p className="truncate text-sm">{entry.summary}</p>
-            <p className="text-muted-foreground text-xs">
+          <div {...stylex.props(styles.minW0)}>
+            <p {...stylex.props(styles.queueSummary)}>{entry.summary}</p>
+            <p {...stylex.props(styles.queueMeta)}>
               {formatDate(entry.createdAt)}
             </p>
           </div>
@@ -358,14 +439,20 @@ function RecentChanges({ snapshot }: { snapshot: OverviewSnapshot }) {
       <TableHeader>
         <TableRow>
           <TableHead>Event</TableHead>
-          <TableHead className="text-right">When</TableHead>
+          <TableHead className={cls(dashboard.cellRight)}>When</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
         {activity.data.entries.slice(0, 6).map((entry) => (
           <TableRow key={entry.id}>
-            <TableCell className="font-medium">{entry.kind}</TableCell>
-            <TableCell className="text-muted-foreground text-right tabular-nums">
+            <TableCell className={cls(styles.medium)}>{entry.kind}</TableCell>
+            <TableCell
+              className={cls(
+                dashboard.cellMuted,
+                dashboard.cellRight,
+                dashboard.cellNumeric,
+              )}
+            >
               {formatDate(entry.createdAt)}
             </TableCell>
           </TableRow>

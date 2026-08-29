@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { PlusIcon, Trash2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -43,6 +44,32 @@ import {
   type DashboardResult,
   type ShortlinkListEntry,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+import { colors } from "~/styles/tokens.stylex";
+
+const MONO = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+
+const styles = stylex.create({
+  campaign: {
+    color: colors.mutedForeground,
+    maxWidth: "10rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  code: {
+    fontFamily: MONO,
+    fontWeight: 500,
+  },
+  codeCell: {
+    fontFamily: MONO,
+    fontSize: "0.875rem",
+  },
+  medium: {
+    fontWeight: 500,
+  },
+});
 
 interface CreateShortlinkState {
   campaign?: string;
@@ -141,18 +168,18 @@ export function Shortlinks() {
   const rows = records.data;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div {...stylex.props(dashboard.page)}>
+      <div {...stylex.props(dashboard.headerRow)}>
         <div>
-          <h1 className="text-xl font-semibold">Shortlinks</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 {...stylex.props(dashboard.title)}>Shortlinks</h1>
+          <p {...stylex.props(dashboard.subtitle)}>
             Link records with labels, kinds, and recent clicks
           </p>
         </div>
         <Button
           onClick={() => setCreate((current) => ({ ...current, open: true }))}
         >
-          <PlusIcon className="size-4" aria-hidden="true" />
+          <PlusIcon size={16} aria-hidden="true" />
           Create shortlink
         </Button>
       </div>
@@ -167,14 +194,14 @@ export function Shortlinks() {
                 setCreate((current) => ({ ...current, open: true }))
               }
             >
-              <PlusIcon className="size-4" aria-hidden="true" />
+              <PlusIcon size={16} aria-hidden="true" />
               Create shortlink
             </Button>
           }
         />
       ) : (
         <Card>
-          <CardContent className="p-0">
+          <CardContent className={cls(dashboard.flush)}>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -183,43 +210,54 @@ export function Shortlinks() {
                   <TableHead>Kind</TableHead>
                   <TableHead>Campaign</TableHead>
                   <TableHead>Expires</TableHead>
-                  <TableHead className="text-right">Clicks</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead className={cls(dashboard.cellRight)}>
+                    Clicks
+                  </TableHead>
+                  <TableHead className={cls(dashboard.cellRight)}>
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {rows.map((record) => (
                   <TableRow key={record.code}>
-                    <TableCell className="font-mono text-sm">
+                    <TableCell className={cls(styles.codeCell)}>
                       {record.code}
                     </TableCell>
-                    <TableCell className="max-w-48 truncate font-medium">
+                    <TableCell
+                      className={cls(dashboard.cellTruncate, styles.medium)}
+                    >
                       {record.label ?? "Unlabeled"}
                     </TableCell>
                     <TableCell>
                       <Badge variant="secondary">{record.kind}</Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground max-w-40 truncate">
+                    <TableCell className={cls(styles.campaign)}>
                       {record.campaign?.name ?? "None"}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className={cls(dashboard.cellMuted)}>
                       {record.expiresAt
                         ? formatDate(record.expiresAt)
                         : "Never"}
                     </TableCell>
-                    <TableCell className="text-right tabular-nums">
+                    <TableCell
+                      className={cls(
+                        dashboard.cellRight,
+                        dashboard.cellNumeric,
+                      )}
+                    >
                       {record.clicks === undefined
                         ? "-"
                         : formatCount(record.clicks)}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className={cls(dashboard.cellRight)}>
                       <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setDeleting(record)}
                         aria-label={`Delete ${record.code}`}
                       >
-                        <Trash2Icon className="size-3.5" aria-hidden="true" />
+                        <Trash2Icon size={14} aria-hidden="true" />
                         Delete
                       </Button>
                     </TableCell>
@@ -243,8 +281,8 @@ export function Shortlinks() {
               the Files module.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div {...stylex.props(dashboard.stack)}>
+            <div {...stylex.props(dashboard.field)}>
               <Label htmlFor="shortlink-target">Target path</Label>
               <Input
                 id="shortlink-target"
@@ -258,7 +296,7 @@ export function Shortlinks() {
                 }
               />
             </div>
-            <div className="space-y-2">
+            <div {...stylex.props(dashboard.field)}>
               <Label htmlFor="shortlink-label">Label</Label>
               <Input
                 id="shortlink-label"
@@ -271,7 +309,7 @@ export function Shortlinks() {
                 }
               />
             </div>
-            <div className="space-y-2">
+            <div {...stylex.props(dashboard.field)}>
               <Label htmlFor="shortlink-campaign">Campaign (optional)</Label>
               <Input
                 id="shortlink-campaign"
@@ -313,7 +351,7 @@ export function Shortlinks() {
             <DialogTitle>Delete this shortlink?</DialogTitle>
             <DialogDescription>
               Permanently delete{" "}
-              <span className="font-mono font-medium">{deleting?.code}</span>.
+              <span {...stylex.props(styles.code)}>{deleting?.code}</span>.
               Analytics rows are retained.
             </DialogDescription>
           </DialogHeader>

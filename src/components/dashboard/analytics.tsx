@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import { useState, type ReactNode } from "react";
 import {
   Bar,
@@ -53,6 +54,27 @@ import {
   type AnalyticsRow,
   type DashboardMeta,
 } from "~/lib/dashboard/client";
+import { cls } from "~/lib/sx";
+import { dashboard } from "~/styles/dashboard";
+import { colors, radii } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  rangeTrigger: {
+    width: "8rem",
+  },
+  reportHeader: {
+    alignItems: "flex-start",
+    display: "flex",
+    flexDirection: "row",
+    gap: "1rem",
+    justifyContent: "space-between",
+  },
+  tableFrame: {
+    borderColor: colors.border,
+    borderRadius: radii.md,
+    borderWidth: 1,
+  },
+});
 
 type ReportKey =
   | "history"
@@ -183,11 +205,11 @@ export function Analytics() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+    <div {...stylex.props(dashboard.page)}>
+      <div {...stylex.props(dashboard.headerRow)}>
         <div>
-          <h1 className="text-xl font-semibold">Analytics</h1>
-          <p className="text-muted-foreground text-sm">
+          <h1 {...stylex.props(dashboard.title)}>Analytics</h1>
+          <p {...stylex.props(dashboard.subtitle)}>
             Named SQL and GraphQL reports for the selected range
           </p>
         </div>
@@ -200,7 +222,7 @@ export function Analytics() {
           }}
           aria-label="Analytics range"
         >
-          <SelectTrigger className="w-32">
+          <SelectTrigger className={cls(styles.rangeTrigger)}>
             <SelectValue placeholder="Range" />
           </SelectTrigger>
           <SelectContent>
@@ -227,7 +249,7 @@ export function Analytics() {
         </TabsList>
         <TabsContent value={reportKey}>
           {reportKey === "rum" ? (
-            <div className="space-y-6">
+            <div {...stylex.props(dashboard.page)}>
               <ReportCard
                 description="GraphQL rumPageloadEventsAdaptiveGroups page views and visits. Paths and user-agent dimensions are not queried."
                 loading={reports.rum.loading}
@@ -277,7 +299,7 @@ export function Analytics() {
         </TabsContent>
       </Tabs>
 
-      <div className="flex flex-wrap gap-2">
+      <div {...stylex.props(dashboard.wrap)}>
         <Button variant="outline" size="sm" asChild>
           <a
             href="https://dash.cloudflare.com/"
@@ -316,7 +338,7 @@ function ReportCard({
 }) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-start justify-between gap-4">
+      <CardHeader className={cls(styles.reportHeader)}>
         <div>
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
@@ -369,7 +391,7 @@ function ReportBody({
   }
   if (meta?.entitlement === "missing" || meta?.entitlement === "disabled") {
     return (
-      <div className="space-y-4">
+      <div {...stylex.props(dashboard.stack)}>
         <GraphqlEntitlementAlert
           description={entitlementDescription(reportKey, meta.entitlement)}
           entitlement={meta.entitlement}
@@ -387,7 +409,7 @@ function ReportBody({
   }
   if (report.rows.length === 0) {
     return (
-      <div className="space-y-4">
+      <div {...stylex.props(dashboard.stack)}>
         <Alert>
           <AlertTitle>No data for this range</AlertTitle>
           <AlertDescription>{emptyDescription}</AlertDescription>
@@ -402,7 +424,7 @@ function ReportBody({
     );
   }
   return (
-    <div className="space-y-4">
+    <div {...stylex.props(dashboard.stack)}>
       {reportKey === "volume" ? (
         <VolumeChart rows={report.rows} />
       ) : reportKey === "rum" ? (
@@ -436,7 +458,7 @@ function ReportChart({
   const series = aggregateByDay(rows, valueKey);
   const configKey = valueKey === "clicks" ? "clicks" : "events";
   return (
-    <ChartContainer config={CHART_CONFIG} className="h-[16rem]">
+    <ChartContainer config={CHART_CONFIG} className={cls(dashboard.chart)}>
       {valueKey === "clicks" ? (
         <BarChart data={series} accessibilityLayer>
           <CartesianGrid vertical={false} />
@@ -477,7 +499,7 @@ function ReportChart({
 function VolumeChart({ rows }: { rows: AnalyticsRow[] }) {
   const series = aggregateVolumeByDay(rows);
   return (
-    <ChartContainer config={CHART_CONFIG} className="h-[16rem]">
+    <ChartContainer config={CHART_CONFIG} className={cls(dashboard.chart)}>
       <BarChart data={series} accessibilityLayer>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
@@ -503,7 +525,7 @@ function VolumeChart({ rows }: { rows: AnalyticsRow[] }) {
 function RumChart({ rows }: { rows: AnalyticsRow[] }) {
   const series = aggregateRumByDay(rows);
   return (
-    <ChartContainer config={CHART_CONFIG} className="h-[16rem]">
+    <ChartContainer config={CHART_CONFIG} className={cls(dashboard.chart)}>
       <BarChart data={series} accessibilityLayer>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
@@ -519,7 +541,7 @@ function RumChart({ rows }: { rows: AnalyticsRow[] }) {
 function WorkersChart({ rows }: { rows: AnalyticsRow[] }) {
   const series = aggregateWorkersByDay(rows);
   return (
-    <ChartContainer config={CHART_CONFIG} className="h-[16rem]">
+    <ChartContainer config={CHART_CONFIG} className={cls(dashboard.chart)}>
       <BarChart data={series} accessibilityLayer>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
@@ -560,7 +582,7 @@ function ReportTable({
   const hasVisits = rows.some((row) => row.visits !== undefined);
   const hasVitals = rows.some((row) => row.lcpP75 !== undefined);
   return (
-    <div className="rounded-md border">
+    <div {...stylex.props(styles.tableFrame)}>
       <Table>
         <TableHeader>
           <TableRow>
@@ -572,31 +594,43 @@ function ReportTable({
             {hasScript ? <TableHead>Worker</TableHead> : null}
             {hasScript ? <TableHead>Status</TableHead> : null}
             {hasVisits ? (
-              <TableHead className="text-right">Page views</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>
+                Page views
+              </TableHead>
             ) : null}
             {hasVisits ? (
-              <TableHead className="text-right">Visits</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>Visits</TableHead>
             ) : null}
             {hasVitals ? (
-              <TableHead className="text-right">LCP p75</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>
+                LCP p75
+              </TableHead>
             ) : null}
             {hasVitals ? (
-              <TableHead className="text-right">INP p75</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>
+                INP p75
+              </TableHead>
             ) : null}
             {hasVitals ? (
-              <TableHead className="text-right">CLS p75</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>
+                CLS p75
+              </TableHead>
             ) : null}
             {hasVitals ? (
-              <TableHead className="text-right">TTFB p75</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>
+                TTFB p75
+              </TableHead>
             ) : null}
             {hasScript ? (
-              <TableHead className="text-right">Requests</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>
+                Requests
+              </TableHead>
             ) : null}
             {hasScript ? (
-              <TableHead className="text-right">Errors</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>Errors</TableHead>
             ) : null}
             {hasVisits || hasVitals || hasScript ? null : (
-              <TableHead className="text-right">Count</TableHead>
+              <TableHead className={cls(dashboard.cellRight)}>Count</TableHead>
             )}
           </TableRow>
         </TableHeader>
@@ -604,7 +638,7 @@ function ReportTable({
           {ranked.map((row, index) => (
             <TableRow key={rowKey(row, valueKey, index)}>
               {hasDay ? (
-                <TableCell className="tabular-nums">
+                <TableCell className={cls(dashboard.cellNumeric)}>
                   {String(row.day ?? "")}
                 </TableCell>
               ) : null}
@@ -615,7 +649,7 @@ function ReportTable({
                 <TableCell>{String(row.event ?? "Unknown")}</TableCell>
               ) : null}
               {hasEvent ? (
-                <TableCell className="text-muted-foreground">
+                <TableCell className={cls(dashboard.cellMuted)}>
                   {String(row.dimension ?? "All")}
                 </TableCell>
               ) : null}
@@ -629,47 +663,65 @@ function ReportTable({
                 <TableCell>{String(row.status ?? "unknown")}</TableCell>
               ) : null}
               {hasVisits ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatCount(row.pageviews)}
                 </TableCell>
               ) : null}
               {hasVisits ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatCount(row.visits)}
                 </TableCell>
               ) : null}
               {hasVitals ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatOptional(row.lcpP75)}
                 </TableCell>
               ) : null}
               {hasVitals ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatOptional(row.inpP75)}
                 </TableCell>
               ) : null}
               {hasVitals ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatOptional(row.clsP75)}
                 </TableCell>
               ) : null}
               {hasVitals ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatOptional(row.ttfbP75)}
                 </TableCell>
               ) : null}
               {hasScript ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatCount(row.requests)}
                 </TableCell>
               ) : null}
               {hasScript ? (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatCount(row.errors)}
                 </TableCell>
               ) : null}
               {hasVisits || hasVitals || hasScript ? null : (
-                <TableCell className="text-right tabular-nums">
+                <TableCell
+                  className={cls(dashboard.cellRight, dashboard.cellNumeric)}
+                >
                   {formatCount(row[valueKey])}
                 </TableCell>
               )}

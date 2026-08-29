@@ -1,13 +1,30 @@
-/* oxlint-disable */
 import * as React from "react";
+import * as stylex from "@stylexjs/stylex";
 import { Separator as SeparatorPrimitive } from "radix-ui";
 
-import { cn } from "~/lib/utils";
+import { mergeStylex } from "~/lib/sx";
+import { colors } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  horizontal: {
+    height: "1px",
+    width: "100%",
+  },
+  root: {
+    backgroundColor: colors.border,
+    flexShrink: 0,
+  },
+  vertical: {
+    height: "100%",
+    width: "1px",
+  },
+});
 
 function Separator({
   className,
-  orientation = "horizontal",
   decorative = true,
+  orientation = "horizontal",
+  style,
   ...props
 }: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
   return (
@@ -15,11 +32,15 @@ function Separator({
       data-slot="separator"
       decorative={decorative}
       orientation={orientation}
-      className={cn(
-        "shrink-0 bg-border data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
-        className,
-      )}
       {...props}
+      {...mergeStylex(
+        stylex.props(
+          styles.root,
+          orientation === "vertical" ? styles.vertical : styles.horizontal,
+        ),
+        className,
+        style,
+      )}
     />
   );
 }

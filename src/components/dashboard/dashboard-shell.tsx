@@ -1,3 +1,4 @@
+import * as stylex from "@stylexjs/stylex";
 import {
   ActivityIcon,
   BarChart3Icon,
@@ -71,6 +72,140 @@ import {
 import { Toaster } from "~/components/ui/sonner";
 import { authClient } from "~/lib/auth-client";
 import { setThemeMode, themeMode, themePreference } from "~/lib/stores/theme";
+import { cls } from "~/lib/sx";
+import { mq } from "~/styles/breakpoints.stylex";
+import { colors, radii } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  avatar: {
+    height: "1.75rem",
+    width: "1.75rem",
+  },
+  avatarFallback: {
+    backgroundColor: colors.accent,
+    color: colors.accentForeground,
+  },
+  brandCopy: {
+    display: "grid",
+    flex: 1,
+    fontSize: "0.875rem",
+    lineHeight: 1.25,
+    textAlign: "left",
+  },
+  brandMark: {
+    alignItems: "center",
+    aspectRatio: "1 / 1",
+    backgroundColor: colors.sidebarPrimary,
+    borderRadius: radii.lg,
+    color: colors.sidebarPrimaryForeground,
+    display: "flex",
+    height: "2rem",
+    justifyContent: "center",
+    width: "2rem",
+  },
+  brandSubtitle: {
+    fontSize: "0.75rem",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  brandTitle: {
+    fontWeight: 600,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
+  desktopOnly: {
+    display: {
+      default: "none",
+      [mq.md]: "block",
+    },
+  },
+  environmentTrigger: {
+    display: {
+      default: "none",
+      [mq.sm]: "flex",
+    },
+    width: "12rem",
+  },
+  header: {
+    alignItems: "center",
+    borderBottomWidth: 1,
+    display: "flex",
+    flexShrink: 0,
+    gap: "0.5rem",
+    height: "3.5rem",
+    paddingInline: "1rem",
+  },
+  headerSeparator: {
+    marginRight: "0.5rem",
+    height: {
+      ":is([data-orientation=vertical])": "1rem",
+    },
+  },
+  identity: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.25rem",
+  },
+  identityEmail: {
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    margin: 0,
+  },
+  identityName: {
+    color: colors.mutedForeground,
+    fontSize: "0.75rem",
+    margin: 0,
+  },
+  labelNormal: {
+    fontWeight: 400,
+  },
+  main: {
+    flex: 1,
+    overflow: "auto",
+    padding: {
+      default: "1rem",
+      [mq.md]: "1.5rem",
+    },
+  },
+  menu: {
+    width: "14rem",
+  },
+  operatorButton: {
+    gap: "0.5rem",
+    height: "2.25rem",
+    paddingInline: "0.5rem",
+  },
+  operatorEmail: {
+    display: {
+      default: "none",
+      [mq.sm]: "inline",
+    },
+    fontSize: "0.875rem",
+    fontWeight: 500,
+  },
+  publicMark: {
+    backgroundColor: colors.sidebarPrimary,
+    borderRadius: radii.lg,
+    color: colors.sidebarPrimaryForeground,
+    display: "grid",
+    flexShrink: 0,
+    height: "2rem",
+    placeItems: "center",
+    width: "2rem",
+  },
+  themeButton: {
+    height: "2.25rem",
+    width: "2.25rem",
+  },
+  toolbar: {
+    alignItems: "center",
+    display: "flex",
+    gap: "0.5rem",
+    marginLeft: "auto",
+  },
+});
 
 export type DashboardModuleId =
   | "activity"
@@ -86,7 +221,7 @@ export type DashboardModuleId =
 interface DashboardModule {
   component: () => React.JSX.Element;
   group: "system" | "workspace";
-  icon: React.ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string; size?: number }>;
   id: DashboardModuleId;
   label: string;
 }
@@ -262,12 +397,14 @@ export function DashboardShell() {
             <SidebarMenuItem>
               <SidebarMenuButton size="lg" asChild>
                 <a href="/dashboard" aria-label="Leenk owner dashboard home">
-                  <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <GaugeIcon className="size-4" aria-hidden="true" />
+                  <div {...stylex.props(styles.brandMark)}>
+                    <GaugeIcon size={16} aria-hidden="true" />
                   </div>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Leenk</span>
-                    <span className="truncate text-xs">Owner console</span>
+                  <div {...stylex.props(styles.brandCopy)}>
+                    <span {...stylex.props(styles.brandTitle)}>Leenk</span>
+                    <span {...stylex.props(styles.brandSubtitle)}>
+                      Owner console
+                    </span>
                   </div>
                 </a>
               </SidebarMenuButton>
@@ -296,7 +433,7 @@ export function DashboardShell() {
                           navigate(module.id);
                         }}
                       >
-                        <module.icon className="size-4" aria-hidden="true" />
+                        <module.icon size={16} aria-hidden="true" />
                         <span>{module.label}</span>
                       </a>
                     </SidebarMenuButton>
@@ -326,7 +463,7 @@ export function DashboardShell() {
                           navigate(module.id);
                         }}
                       >
-                        <module.icon className="size-4" aria-hidden="true" />
+                        <module.icon size={16} aria-hidden="true" />
                         <span>{module.label}</span>
                       </a>
                     </SidebarMenuButton>
@@ -341,8 +478,8 @@ export function DashboardShell() {
             <SidebarMenuItem>
               <SidebarMenuButton asChild>
                 <a href="/" target="_blank" rel="noreferrer">
-                  <span className="bg-sidebar-primary text-sidebar-primary-foreground grid size-8 shrink-0 place-items-center rounded-lg">
-                    <HomeIcon className="size-4" aria-hidden="true" />
+                  <span {...stylex.props(styles.publicMark)}>
+                    <HomeIcon size={16} aria-hidden="true" />
                   </span>
                   <span>View public site</span>
                 </a>
@@ -353,27 +490,27 @@ export function DashboardShell() {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4">
-          <SidebarTrigger className="-ml-1">
-            <PanelLeftIcon className="size-4" aria-hidden="true" />
+        <header {...stylex.props(styles.header)}>
+          <SidebarTrigger>
+            <PanelLeftIcon size={16} aria-hidden="true" />
             <span className="sr-only">Toggle sidebar</span>
           </SidebarTrigger>
           <Separator
             orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
+            className={cls(styles.headerSeparator)}
           />
           <Breadcrumb>
             <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
+              <BreadcrumbItem className={cls(styles.desktopOnly)}>
                 <BreadcrumbLink href="/dashboard">Owner console</BreadcrumbLink>
               </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbSeparator className={cls(styles.desktopOnly)} />
               <BreadcrumbItem>
                 <BreadcrumbPage>{active.label}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="ml-auto flex items-center gap-2">
+          <div {...stylex.props(styles.toolbar)}>
             <Select
               value={environment}
               onValueChange={(value) => {
@@ -383,7 +520,7 @@ export function DashboardShell() {
               }}
             >
               <SelectTrigger
-                className="hidden w-48 sm:flex"
+                className={cls(styles.environmentTrigger)}
                 aria-label="Select environment"
               >
                 <SelectValue placeholder="Environment" />
@@ -402,7 +539,7 @@ export function DashboardShell() {
                 <Button
                   variant="outline"
                   size="icon"
-                  className="h-9 w-9"
+                  className={cls(styles.themeButton)}
                   aria-label="Change theme"
                 >
                   <ThemeIcon theme={theme} />
@@ -427,51 +564,49 @@ export function DashboardShell() {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="h-9 gap-2 px-2"
+                  className={cls(styles.operatorButton)}
                   aria-label="Open operator menu"
                 >
-                  <Avatar className="size-7">
-                    <AvatarFallback className="bg-accent text-accent-foreground">
+                  <Avatar className={cls(styles.avatar)}>
+                    <AvatarFallback className={cls(styles.avatarFallback)}>
                       {operatorInitials}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="hidden text-sm font-medium sm:inline">
+                  <span {...stylex.props(styles.operatorEmail)}>
                     {operatorEmail}
                   </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="font-normal">
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium">{operatorEmail}</p>
-                    <p className="text-muted-foreground text-xs">
+              <DropdownMenuContent align="end" className={cls(styles.menu)}>
+                <DropdownMenuLabel className={cls(styles.labelNormal)}>
+                  <div {...stylex.props(styles.identity)}>
+                    <p {...stylex.props(styles.identityEmail)}>
+                      {operatorEmail}
+                    </p>
+                    <p {...stylex.props(styles.identityName)}>
                       {session.data?.user?.name ?? "Operator"}
                     </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => navigate("settings")}>
-                  <SettingsIcon className="size-4" aria-hidden="true" />
+                  <SettingsIcon size={16} aria-hidden="true" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => navigate("operations")}>
-                  <WrenchIcon className="size-4" aria-hidden="true" />
+                  <WrenchIcon size={16} aria-hidden="true" />
                   Operations
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onSelect={() => void signOut()}>
-                  <LogOutIcon className="size-4" aria-hidden="true" />
+                  <LogOutIcon size={16} aria-hidden="true" />
                   Sign out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </header>
-        <main
-          id="dashboard-main"
-          className="flex-1 overflow-auto p-4 md:p-6"
-          tabIndex={-1}
-        >
+        <main id="dashboard-main" {...stylex.props(styles.main)} tabIndex={-1}>
           <active.component key={active.id} />
         </main>
       </SidebarInset>
@@ -504,10 +639,10 @@ function useClientSession() {
 function ThemeIcon({ theme }: { theme: string }) {
   const current = themeMode.get();
   if (theme === "dark" || (theme === "system" && current === "dark")) {
-    return <MoonIcon className="size-4" aria-hidden="true" />;
+    return <MoonIcon size={16} aria-hidden="true" />;
   }
   if (theme === "light" || (theme === "system" && current === "light")) {
-    return <SunIcon className="size-4" aria-hidden="true" />;
+    return <SunIcon size={16} aria-hidden="true" />;
   }
-  return <MonitorIcon className="size-4" aria-hidden="true" />;
+  return <MonitorIcon size={16} aria-hidden="true" />;
 }

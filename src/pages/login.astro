@@ -1,4 +1,5 @@
 ---
+import StylexAssets from "../components/stylex-assets.astro";
 import { LoginForm } from "../components/login-form";
 import "../styles/global.css";
 
@@ -12,8 +13,9 @@ const safeNext = nextValue.startsWith("/") ? nextValue : "/dashboard";
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
     <title>Sign in | Leenk</title>
+    <StylexAssets />
   </head>
-  <body class="bg-background text-foreground flex min-h-svh items-center justify-center p-4 font-sans antialiased">
+  <body data-shell="login">
     <LoginForm client:load next={safeNext} />
   </body>
 </html>

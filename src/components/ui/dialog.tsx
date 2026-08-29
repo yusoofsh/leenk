@@ -1,10 +1,86 @@
-/* oxlint-disable */
 import * as React from "react";
+import * as stylex from "@stylexjs/stylex";
 import { XIcon } from "lucide-react";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
-import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
+import { mergeStylex } from "~/lib/sx";
+import { mq } from "~/styles/breakpoints.stylex";
+import { colors, radii } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  close: {
+    borderRadius: "2px",
+    opacity: 0.7,
+    position: "absolute",
+    right: "1rem",
+    top: "1rem",
+    ":hover": {
+      opacity: 1,
+    },
+    ":focus": {
+      boxShadow: `0 0 0 2px ${colors.ring}`,
+      outline: "none",
+    },
+  },
+  content: {
+    backgroundColor: colors.background,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    boxShadow: "0 10px 15px rgb(0 0 0 / 10%)",
+    display: "grid",
+    gap: "1rem",
+    left: "50%",
+    maxWidth: {
+      default: "calc(100% - 2rem)",
+      [mq.sm]: "32rem",
+    },
+    outline: "none",
+    padding: "1.5rem",
+    position: "fixed",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "100%",
+    zIndex: 50,
+  },
+  description: {
+    color: colors.mutedForeground,
+    fontSize: "0.875rem",
+  },
+  footer: {
+    display: "flex",
+    flexDirection: {
+      default: "column-reverse",
+      [mq.sm]: "row",
+    },
+    gap: "0.5rem",
+    justifyContent: {
+      default: "stretch",
+      [mq.sm]: "flex-end",
+    },
+  },
+  header: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    textAlign: {
+      default: "center",
+      [mq.sm]: "left",
+    },
+  },
+  overlay: {
+    backgroundColor: "rgb(0 0 0 / 50%)",
+    inset: 0,
+    position: "fixed",
+    zIndex: 50,
+  },
+  title: {
+    fontSize: "1.125rem",
+    fontWeight: 600,
+    lineHeight: 1,
+  },
+});
 
 function Dialog({
   ...props
@@ -32,24 +108,23 @@ function DialogClose({
 
 function DialogOverlay({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
   return (
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
-      className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
-        className,
-      )}
       {...props}
+      {...mergeStylex(stylex.props(styles.overlay), className, style)}
     />
   );
 }
 
 function DialogContent({
-  className,
   children,
+  className,
   showCloseButton = true,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean;
@@ -59,19 +134,16 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"
-        className={cn(
-          "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
-          className,
-        )}
         {...props}
+        {...mergeStylex(stylex.props(styles.content), className, style)}
       >
         {children}
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            {...stylex.props(styles.close)}
           >
-            <XIcon />
+            <XIcon size={16} />
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
@@ -80,20 +152,25 @@ function DialogContent({
   );
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DialogHeader({
+  className,
+  style,
+  ...props
+}: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.header), className, style)}
     />
   );
 }
 
 function DialogFooter({
+  children,
   className,
   showCloseButton = false,
-  children,
+  style,
   ...props
 }: React.ComponentProps<"div"> & {
   showCloseButton?: boolean;
@@ -101,11 +178,8 @@ function DialogFooter({
   return (
     <div
       data-slot="dialog-footer"
-      className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        className,
-      )}
       {...props}
+      {...mergeStylex(stylex.props(styles.footer), className, style)}
     >
       {children}
       {showCloseButton && (
@@ -119,26 +193,28 @@ function DialogFooter({
 
 function DialogTitle({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.title), className, style)}
     />
   );
 }
 
 function DialogDescription({
   className,
+  style,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Description>) {
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-sm text-muted-foreground", className)}
       {...props}
+      {...mergeStylex(stylex.props(styles.description), className, style)}
     />
   );
 }

@@ -6,49 +6,84 @@ interface Props {
 const { class: className } = Astro.props;
 ---
 
-<div
-  class:list={[
-    "relative min-h-screen w-full overflow-hidden bg-[radial-gradient(ellipse_at_bottom,_#f5f5f5_0%,_#fff_100%)] transition-colors duration-200 dark:bg-[radial-gradient(ellipse_at_bottom,_#262626_0%,_#000_100%)]",
-    className,
-  ]}
-  data-slot="stars-background"
->
+<div class:list={["stars-background", className]} data-slot="stars-background">
   <div
     aria-hidden="true"
-    class="star-field pointer-events-none absolute inset-0 dark:invert"
+    class="star-field"
     data-slot="star-field"
   >
     <div class="star-layer"></div>
   </div>
-  <div
-    aria-hidden="true"
-    class="reading-veil pointer-events-none absolute inset-0 z-[1]"
-  >
-  </div>
-  <div class="relative z-10 flex min-h-screen w-full items-center justify-center">
+  <div aria-hidden="true" class="reading-veil stars-veil"></div>
+  <div class="stars-content">
     <slot />
   </div>
 </div>
 
 <style>
+  .stars-background {
+    min-height: 100vh;
+    overflow: hidden;
+    position: relative;
+    transition: background-color 200ms;
+    width: 100%;
+    background-image: radial-gradient(
+      ellipse at bottom,
+      #f5f5f5 0%,
+      #fff 100%
+    );
+  }
+
+  :global(.dark) .stars-background {
+    background-image: radial-gradient(
+      ellipse at bottom,
+      #262626 0%,
+      #000 100%
+    );
+  }
+
   .star-field {
     contain: strict;
+    inset: 0;
     opacity: 0.72;
+    pointer-events: none;
+    position: absolute;
+  }
+
+  :global(.dark) .star-field {
+    filter: invert(1);
   }
 
   .star-layer {
-    position: absolute;
-    inset: -12rem -8rem;
     background-image: url("/stars.svg");
     background-repeat: repeat;
     background-size: 320px 320px;
+    inset: -12rem -8rem;
+    position: absolute;
     transform: translate3d(0, 0, 0);
+  }
+
+  .stars-veil {
+    inset: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 1;
+  }
+
+  .stars-content {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    position: relative;
+    width: 100%;
+    z-index: 10;
   }
 
   @media (min-width: 48rem) and (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     .star-layer {
-      will-change: transform;
       animation: star-drift 180s linear infinite;
+      will-change: transform;
     }
   }
 
