@@ -6,7 +6,7 @@ A minimalist personal portfolio for Yusoof Moh, built with Astro and deployed as
 
 - Astro 7 with server-side rendering
 - React 19 islands
-- Tailwind CSS 4 and typography styles
+- StyleX 0.19 via `@stylexjs/unplugin` on Vite, with typeset CSS for Content Document HTML
 - Cloudflare Workers through Alchemy and the `@distilled.cloud/astro` adapter
 - TypeScript 7, Oxlint, Oxfmt, Husky, and lint-staged
 - Vite 8 with Rolldown and Vitest 4
@@ -59,7 +59,7 @@ src/
 ├── layouts/           Shared document layout and metadata
 ├── lib/               Stores and utilities
 ├── pages/             Astro routes and social redirects
-└── styles/            Global Tailwind styles
+└── styles/            Global CSS tokens, typeset, and StyleX vars
 
 public/                Static assets copied into the Worker bundle
 alchemy.run.ts         Alchemy stack: Worker, R2, datasets, D1, Access

@@ -1,12 +1,6 @@
-@import "tailwindcss";
 @import "./typeset.css";
-@import "tw-animate-css";
-
-@plugin "@tailwindcss/typography";
-
-@custom-variant dark (&:is(.dark *));
-
-@source "../**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}";
+@import "./sidebar.css";
+@import "./motion.css";
 
 @font-face {
   font-family: "Plus Jakarta Sans";
@@ -14,48 +8,6 @@
   font-weight: 100 900;
   font-display: optional;
   src: url("/fonts/PlusJakartaSans-VariableFont_wght.woff2") format("woff2");
-}
-
-@theme {
-  --font-display: "Plus Jakarta Sans", "sans-serif";
-}
-
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 :root {
@@ -91,6 +43,11 @@
   --sidebar-accent-foreground: oklch(0.99 0 0);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+  --color-foreground: var(--foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-ring: var(--ring);
+  --sidebar-width: 16rem;
+  --sidebar-width-icon: 3rem;
 }
 
 .dark {
@@ -127,27 +84,98 @@
   --sidebar-ring: oklch(0.552 0.016 285.938);
 }
 
-@layer base {
-  body {
-    font-family: "Plus Jakarta Sans", sans-serif;
-  }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: var(--border);
+  border-style: solid;
+  border-width: 0;
+  outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+}
 
-  * {
-    @apply border-border outline-ring/50;
-  }
-  a {
-    @apply underline decoration-2 underline-offset-2;
-  }
-  [data-bio-mode="full"] [data-mode="tldr"] {
-    display: none !important;
-  }
-  [data-bio-mode="tldr"] [data-mode="full"] {
-    display: none !important;
-  }
+html {
+  -webkit-text-size-adjust: 100%;
+  line-height: 1.5;
+  tab-size: 4;
+}
 
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  margin: 0;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  display: block;
+  max-width: 100%;
+}
+
+img,
+video {
+  height: auto;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+[data-bio-mode="full"] [data-mode="tldr"] {
+  display: none !important;
+}
+
+[data-bio-mode="tldr"] [data-mode="full"] {
+  display: none !important;
+}
+
+.reading-veil {
+  background: radial-gradient(
+    ellipse 90% 78% at center,
+    rgb(255 255 255 / 84%) 0%,
+    rgb(255 255 255 / 72%) 68%,
+    transparent 100%
+  );
+}
+
+.dark .reading-veil {
+  background: radial-gradient(
+    ellipse 90% 78% at center,
+    rgb(0 0 0 / 84%) 0%,
+    rgb(0 0 0 / 68%) 68%,
+    transparent 100%
+  );
+}
+
+@media (min-width: 40rem) {
   .reading-veil {
     background: radial-gradient(
-      ellipse 90% 78% at center,
+      ellipse 72% 68% at center,
       rgb(255 255 255 / 84%) 0%,
       rgb(255 255 255 / 72%) 68%,
       transparent 100%
@@ -156,30 +184,151 @@
 
   .dark .reading-veil {
     background: radial-gradient(
-      ellipse 90% 78% at center,
+      ellipse 72% 68% at center,
       rgb(0 0 0 / 84%) 0%,
       rgb(0 0 0 / 68%) 68%,
       transparent 100%
     );
   }
+}
 
-  @media (min-width: 40rem) {
-    .reading-veil {
-      background: radial-gradient(
-        ellipse 72% 68% at center,
-        rgb(255 255 255 / 84%) 0%,
-        rgb(255 255 255 / 72%) 68%,
-        transparent 100%
-      );
-    }
+.sr-only {
+  border-width: 0;
+  clip: rect(0, 0, 0, 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
 
-    .dark .reading-veil {
-      background: radial-gradient(
-        ellipse 72% 68% at center,
-        rgb(0 0 0 / 84%) 0%,
-        rgb(0 0 0 / 68%) 68%,
-        transparent 100%
-      );
-    }
-  }
+.skip-link:focus,
+.skip-link:focus-visible {
+  clip: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  position: fixed;
+  white-space: normal;
+  width: auto;
+}
+
+.skip-link-public:focus,
+.skip-link-public:focus-visible {
+  background: #fff;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px rgb(15 23 42 / 12%);
+  color: #020617;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  top: 1rem;
+  z-index: 50;
+}
+
+.skip-link-dashboard:focus,
+.skip-link-dashboard:focus-visible {
+  background: var(--accent);
+  border-radius: 0.375rem;
+  color: var(--accent-foreground);
+  left: 1rem;
+  padding: 0.5rem 0.75rem;
+  position: absolute;
+  top: 1rem;
+  z-index: 50;
+}
+
+body[data-shell="dashboard"] {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Plus Jakarta Sans", sans-serif;
+  min-height: 100svh;
+}
+
+body[data-shell="login"] {
+  align-items: center;
+  background: var(--background);
+  color: var(--foreground);
+  display: flex;
+  font-family: "Plus Jakarta Sans", sans-serif;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 1rem;
+}
+
+[data-slot="button"] svg,
+[data-slot="badge"] svg,
+[data-slot="select-trigger"] svg,
+[data-slot="dropdown-menu-item"] svg,
+[data-slot="select-item"] svg {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+[data-slot="button"]:not([data-size="xs"]):not([data-size="icon-xs"]) svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+[data-slot="textarea"] {
+  field-sizing: content;
+}
+
+[data-slot="table-header"] tr {
+  border-bottom-width: 1px;
+}
+
+[data-slot="table-body"] tr:last-child {
+  border-bottom-width: 0;
+}
+
+[data-slot="alert"]:has(> svg) {
+  gap: 0.75rem;
+  grid-template-columns: 1rem 1fr;
+}
+
+[data-slot="alert"] > svg {
+  height: 1rem;
+  width: 1rem;
+}
+
+[data-slot="chart"] .recharts-cartesian-axis-tick text {
+  fill: var(--muted-foreground);
+}
+
+[data-slot="chart"] .recharts-cartesian-grid line[stroke="#ccc"],
+[data-slot="chart"] .recharts-polar-grid [stroke="#ccc"],
+[data-slot="chart"] .recharts-reference-line [stroke="#ccc"] {
+  stroke: color-mix(in oklab, var(--border) 50%, transparent);
+}
+
+[data-slot="chart"] .recharts-curve.recharts-tooltip-cursor {
+  stroke: var(--border);
+}
+
+[data-slot="chart"] .recharts-dot[stroke="#fff"],
+[data-slot="chart"] .recharts-sector[stroke="#fff"] {
+  stroke: transparent;
+}
+
+[data-slot="chart"] .recharts-layer,
+[data-slot="chart"] .recharts-sector,
+[data-slot="chart"] .recharts-surface {
+  outline: none;
+}
+
+[data-slot="chart"] .recharts-radial-bar-background-sector,
+[data-slot="chart"] .recharts-rectangle.recharts-tooltip-cursor {
+  fill: var(--muted);
+}
+
+[data-slot="bio-mode-toggle"] > [data-bio-label] {
+  grid-area: 1 / 1;
+  visibility: hidden;
+}
+
+[data-bio-mode="tldr"] [data-slot="bio-mode-toggle"] > [data-bio-label="tldr"],
+[data-bio-mode="full"] [data-slot="bio-mode-toggle"] > [data-bio-label="full"] {
+  visibility: visible;
 }

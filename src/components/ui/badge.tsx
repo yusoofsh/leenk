@@ -1,49 +1,94 @@
-/* oxlint-disable */
 import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
+import * as stylex from "@stylexjs/stylex";
 import { Slot } from "radix-ui";
 
-import { cn } from "~/lib/utils";
+import { mergeStylex } from "~/lib/sx";
+import { colors } from "~/styles/tokens.stylex";
 
-const badgeVariants = cva(
-  "inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full border border-transparent px-2 py-0.5 text-xs font-medium whitespace-nowrap transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&>svg]:pointer-events-none [&>svg]:size-3",
-  {
-    variants: {
-      variant: {
-        default: "bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
-        secondary:
-          "bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
-        destructive:
-          "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40 [a&]:hover:bg-destructive/90",
-        outline:
-          "border-border text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
-        link: "text-primary underline-offset-4 [a&]:hover:underline",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
+export type BadgeVariant =
+  | "default"
+  | "destructive"
+  | "ghost"
+  | "link"
+  | "outline"
+  | "secondary";
+
+const styles = stylex.create({
+  base: {
+    alignItems: "center",
+    borderColor: "transparent",
+    borderRadius: "9999px",
+    borderWidth: 1,
+    display: "inline-flex",
+    flexShrink: 0,
+    fontSize: "0.75rem",
+    fontWeight: 500,
+    gap: "0.25rem",
+    justifyContent: "center",
+    overflow: "hidden",
+    paddingBlock: "0.125rem",
+    paddingInline: "0.5rem",
+    whiteSpace: "nowrap",
+    width: "fit-content",
   },
-);
+  default: {
+    backgroundColor: colors.primary,
+    color: colors.primaryForeground,
+  },
+  destructive: {
+    backgroundColor: colors.destructive,
+    color: "white",
+  },
+  ghost: {
+    backgroundColor: "transparent",
+  },
+  link: {
+    backgroundColor: "transparent",
+    color: colors.primary,
+    textUnderlineOffset: "4px",
+  },
+  outline: {
+    borderColor: colors.border,
+    color: colors.foreground,
+  },
+  secondary: {
+    backgroundColor: colors.secondary,
+    color: colors.secondaryForeground,
+  },
+});
 
 function Badge({
-  className,
-  variant = "default",
   asChild = false,
+  className,
+  style,
+  variant = "default",
   ...props
-}: React.ComponentProps<"span"> &
-  VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
+}: React.ComponentProps<"span"> & {
+  asChild?: boolean;
+  variant?: BadgeVariant;
+}) {
   const Comp = asChild ? Slot.Root : "span";
 
   return (
     <Comp
       data-slot="badge"
       data-variant={variant}
-      className={cn(badgeVariants({ variant }), className)}
       {...props}
+      {...mergeStylex(
+        stylex.props(
+          styles.base,
+          variant === "default" && styles.default,
+          variant === "destructive" && styles.destructive,
+          variant === "ghost" && styles.ghost,
+          variant === "link" && styles.link,
+          variant === "outline" && styles.outline,
+          variant === "secondary" && styles.secondary,
+        ),
+        className,
+        style,
+      )}
     />
   );
 }
 
-export { Badge, badgeVariants };
+export { Badge };

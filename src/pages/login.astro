@@ -13,7 +13,7 @@ const safeNext = nextValue.startsWith("/") ? nextValue : "/dashboard";
     <meta name="robots" content="noindex, nofollow" />
     <title>Sign in | Leenk</title>
   </head>
-  <body class="bg-background text-foreground flex min-h-svh items-center justify-center p-4 font-sans antialiased">
+  <body data-shell="login">
     <LoginForm client:load next={safeNext} />
   </body>
 </html>

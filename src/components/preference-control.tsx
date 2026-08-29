@@ -1,3 +1,102 @@
+import * as stylex from "@stylexjs/stylex";
+
+import { mq } from "~/styles/breakpoints.stylex";
+
+const styles = stylex.create({
+  button: {
+    alignItems: "center",
+    backgroundColor: {
+      default: "white",
+      ":hover": "#f8fafc",
+      ":is(.dark *)": "#1e293b",
+      ":hover:is(.dark *)": "#334155",
+    },
+    borderRadius: "9999px",
+    boxShadow: "0 1px 2px rgb(15 23 42 / 12%)",
+    color: {
+      default: "#1e293b",
+      ":is(.dark *)": "#f1f5f9",
+    },
+    display: "inline-flex",
+    fontSize: {
+      default: "0.5rem",
+      [mq.sm]: "0.6rem",
+      [mq.md]: "0.75rem",
+    },
+    fontWeight: 600,
+    justifyContent: "center",
+    letterSpacing: {
+      default: "0.25em",
+      [mq.sm]: "0.3em",
+    },
+    minHeight: "1.5rem",
+    minWidth: "1.5rem",
+    paddingBlock: "0.25rem",
+    paddingInline: {
+      default: "0.625rem",
+      [mq.sm]: "0.75rem",
+    },
+    position: "relative",
+    textTransform: "uppercase",
+    transitionDuration: "150ms",
+    transitionProperty: "color, background-color, box-shadow, transform",
+    transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
+    ":active": {
+      transform: "scale(0.97)",
+    },
+    ":focus-visible": {
+      outlineColor: "#64748b",
+      outlineOffset: "2px",
+      outlineStyle: "solid",
+      outlineWidth: "2px",
+    },
+    [mq.reduce]: {
+      ":active": {
+        transform: "none",
+      },
+    },
+  },
+  label: {
+    fontSize: {
+      default: "0.5rem",
+      [mq.sm]: "0.6rem",
+      [mq.md]: "0.75rem",
+    },
+    fontWeight: 600,
+    letterSpacing: {
+      default: "0.25em",
+      [mq.sm]: "0.3em",
+    },
+    paddingLeft: {
+      default: "0.375rem",
+      [mq.sm]: "0.5rem",
+    },
+  },
+  root: {
+    alignItems: "center",
+    backgroundColor: {
+      default: "#f1f5f9",
+      ":is(.dark *)": "rgb(15 23 42 / 70%)",
+    },
+    borderRadius: "9999px",
+    boxShadow: {
+      default: "inset 0 1px 2px rgb(15 23 42 / 8%), 0 0 0 1px #e2e8f0",
+      ":is(.dark *)": "inset 0 1px 2px rgb(15 23 42 / 8%), 0 0 0 1px #334155",
+    },
+    color: {
+      default: "#475569",
+      ":is(.dark *)": "#cbd5e1",
+    },
+    display: "flex",
+    gap: {
+      default: "0.25rem",
+      [mq.sm]: "0.5rem",
+    },
+    padding: "0.25rem",
+    textTransform: "uppercase",
+  },
+});
+
 type PreferenceControlProps = {
   buttonLabel: string;
   dataSlot: string;
@@ -16,17 +115,15 @@ export function PreferenceControl({
   value,
 }: PreferenceControlProps) {
   return (
-    <div className="not-prose flex items-center gap-1 rounded-full bg-slate-100 p-1 text-slate-600 uppercase shadow-inner ring-1 ring-slate-200 transition-colors sm:gap-2 dark:bg-slate-900/70 dark:text-slate-300 dark:ring-slate-700">
-      <span className="pl-1.5 text-[0.5rem] font-semibold tracking-[0.25em] sm:pl-2 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs">
-        {label}
-      </span>
+    <div {...stylex.props(styles.root)}>
+      <span {...stylex.props(styles.label)}>{label}</span>
       <button
         aria-label={buttonLabel}
         aria-pressed={pressed}
-        className="relative inline-flex min-h-6 min-w-6 items-center justify-center rounded-full bg-white px-2.5 py-1 text-[0.5rem] font-semibold tracking-[0.25em] text-slate-800 uppercase shadow transition-[color,background-color,box-shadow,transform] duration-150 ease-[cubic-bezier(0.23,1,0.32,1)] hover:bg-slate-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 active:scale-[0.97] motion-reduce:transition-colors motion-reduce:active:scale-100 sm:px-3 sm:text-[0.6rem] sm:tracking-[0.3em] md:text-xs dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
         data-slot={dataSlot}
         onClick={onToggle}
         type="button"
+        {...stylex.props(styles.button)}
       >
         {value}
       </button>

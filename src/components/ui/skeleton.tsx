@@ -1,12 +1,25 @@
-/* oxlint-disable */
-import { cn } from "~/lib/utils";
+import * as stylex from "@stylexjs/stylex";
 
-function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+import { mergeStylex } from "~/lib/sx";
+import { colors, radii } from "~/styles/tokens.stylex";
+
+const styles = stylex.create({
+  skeleton: {
+    backgroundColor: colors.accent,
+    borderRadius: radii.md,
+  },
+});
+
+function Skeleton({ className, style, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="skeleton"
-      className={cn("animate-pulse rounded-md bg-accent", className)}
       {...props}
+      {...mergeStylex(
+        stylex.props(styles.skeleton),
+        className ? `animate-pulse ${className}` : "animate-pulse",
+        style,
+      )}
     />
   );
 }

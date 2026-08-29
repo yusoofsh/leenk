@@ -1,20 +1,62 @@
-/* oxlint-disable */
 import * as React from "react";
+import * as stylex from "@stylexjs/stylex";
 
-import { cn } from "~/lib/utils";
+import { mergeStylex } from "~/lib/sx";
+import { mq } from "~/styles/breakpoints.stylex";
+import { colors, radii } from "~/styles/tokens.stylex";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
+const styles = stylex.create({
+  input: {
+    backgroundColor: {
+      default: "transparent",
+      ":is(.dark *)": "color-mix(in oklab, var(--input) 30%, transparent)",
+    },
+    borderColor: {
+      default: colors.input,
+      ":focus-visible": colors.ring,
+      ":is([aria-invalid=true])": colors.destructive,
+    },
+    borderRadius: radii.md,
+    borderWidth: 1,
+    boxShadow: "0 1px 2px rgb(0 0 0 / 5%)",
+    fontSize: {
+      default: "1rem",
+      [mq.md]: "0.875rem",
+    },
+    height: "2.25rem",
+    minWidth: 0,
+    outline: "none",
+    paddingBlock: "0.25rem",
+    paddingInline: "0.75rem",
+    transitionDuration: "150ms",
+    transitionProperty: "color, box-shadow, border-color",
+    width: "100%",
+    "::placeholder": {
+      color: colors.mutedForeground,
+    },
+    ":disabled": {
+      cursor: "not-allowed",
+      opacity: 0.5,
+      pointerEvents: "none",
+    },
+    ":focus-visible": {
+      boxShadow: "0 0 0 3px color-mix(in oklab, var(--ring) 50%, transparent)",
+    },
+  },
+});
+
+function Input({
+  className,
+  style,
+  type,
+  ...props
+}: React.ComponentProps<"input">) {
   return (
     <input
-      type={type}
       data-slot="input"
-      className={cn(
-        "h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
-        className,
-      )}
+      type={type}
       {...props}
+      {...mergeStylex(stylex.props(styles.input), className, style)}
     />
   );
 }
