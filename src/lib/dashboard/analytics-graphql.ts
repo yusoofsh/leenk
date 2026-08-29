@@ -11,6 +11,9 @@ import { dashboardError, dashboardOk } from "~/lib/dashboard/http";
 export const GRAPHQL_ANALYTICS_URL =
   "https://api.cloudflare.com/client/v4/graphql";
 export const GRAPHQL_ANALYTICS_NODE = "workersAnalyticsEngineAdaptiveGroups";
+export const GRAPHQL_RUM_NODE = "rumPageloadEventsAdaptiveGroups";
+export const GRAPHQL_VITALS_NODE = "rumWebVitalsEventsAdaptiveGroups";
+export const GRAPHQL_WORKERS_NODE = "workersInvocationsAdaptive";
 export const GRAPHQL_ANALYTICS_SOURCE = "GraphQL Analytics";
 
 export const GRAPHQL_DATASETS = [
@@ -18,7 +21,10 @@ export const GRAPHQL_DATASETS = [
   "leenk_site_events",
 ] as const;
 
+export const GRAPHQL_WORKER_SCRIPTS = ["leenk", "dev-leenk"] as const;
+
 export type GraphqlDataset = (typeof GRAPHQL_DATASETS)[number];
+export type GraphqlWorkerScript = (typeof GRAPHQL_WORKER_SCRIPTS)[number];
 
 export type GraphqlEntitlement =
   | "available"
@@ -50,6 +56,35 @@ export interface GraphqlVolumeRow {
   day: string;
 }
 
+export interface GraphqlRumRow {
+  day: string;
+  pageviews: number;
+  sampleInterval: number | null;
+  visits: number;
+}
+
+export interface GraphqlVitalsRow {
+  clsP75: number | null;
+  count: number;
+  day: string;
+  inpP75: number | null;
+  lcpP75: number | null;
+  sampleInterval: number | null;
+  ttfbP75: number | null;
+}
+
+export interface GraphqlWorkersRow {
+  cpuTimeP50: number | null;
+  cpuTimeP99: number | null;
+  day: string;
+  errors: number;
+  requests: number;
+  sampleInterval: number | null;
+  scriptName: GraphqlWorkerScript;
+  status: string;
+  subrequests: number;
+}
+
 export interface GraphqlNodeLimits {
   enabled: boolean;
   maxDuration: number | null;
@@ -57,17 +92,32 @@ export interface GraphqlNodeLimits {
   notOlderThan: number | null;
 }
 
-export type GraphqlVolumeResult =
+export type GraphqlEmptyEntitlement = "disabled" | "missing";
+
+export type GraphqlNodeResult<T> =
   | {
-      data: GraphqlVolumeRow[];
+      data: T;
       entitlement: "available";
       limits: GraphqlNodeLimits | null;
     }
   | {
       data: [];
-      entitlement: "disabled" | "missing";
+      entitlement: GraphqlEmptyEntitlement;
       limits: GraphqlNodeLimits | null;
     };
+
+export type GraphqlVolumeResult = GraphqlNodeResult<GraphqlVolumeRow[]>;
+export type GraphqlRumResult = GraphqlNodeResult<GraphqlRumRow[]>;
+export type GraphqlVitalsResult = GraphqlNodeResult<GraphqlVitalsRow[]>;
+export type GraphqlWorkersResult = GraphqlNodeResult<GraphqlWorkersRow[]>;
+
+export interface GraphqlReportInput {
+  accountId: string | undefined;
+  end: string | null;
+  fetchFn?: typeof fetch;
+  start: string | null;
+  token: string | undefined;
+}
 
 const VOLUME_QUERY = `query AnalyticsEngineVolume(
   $accountTag: string!
@@ -133,8 +183,310 @@ const VOLUME_QUERY_WITHOUT_SETTINGS = `query AnalyticsEngineVolume(
   }
 }`;
 
+const RUM_QUERY = `query WebAnalyticsRum(
+  $accountTag: string!
+  $end: Time!
+  $limit: uint64!
+  $start: Time!
+) {
+  viewer {
+    accounts(filter: { accountTag: $accountTag }) {
+      settings {
+        rumPageloadEventsAdaptiveGroups {
+          enabled
+          maxDuration
+          maxPageSize
+          notOlderThan
+        }
+      }
+      rumPageloadEventsAdaptiveGroups(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        count
+        avg {
+          sampleInterval
+        }
+        sum {
+          visits
+        }
+        dimensions {
+          date
+        }
+      }
+    }
+  }
+}`;
+
+const RUM_QUERY_WITHOUT_SETTINGS = `query WebAnalyticsRum(
+  $accountTag: string!
+  $end: Time!
+  $limit: uint64!
+  $start: Time!
+) {
+  viewer {
+    accounts(filter: { accountTag: $accountTag }) {
+      rumPageloadEventsAdaptiveGroups(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        count
+        avg {
+          sampleInterval
+        }
+        sum {
+          visits
+        }
+        dimensions {
+          date
+        }
+      }
+    }
+  }
+}`;
+
+const VITALS_QUERY = `query WebAnalyticsVitals(
+  $accountTag: string!
+  $end: Time!
+  $limit: uint64!
+  $start: Time!
+) {
+  viewer {
+    accounts(filter: { accountTag: $accountTag }) {
+      settings {
+        rumWebVitalsEventsAdaptiveGroups {
+          enabled
+          maxDuration
+          maxPageSize
+          notOlderThan
+        }
+      }
+      rumWebVitalsEventsAdaptiveGroups(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        count
+        avg {
+          sampleInterval
+        }
+        quantiles {
+          cumulativeLayoutShiftP75
+          interactionToNextPaintP75
+          largestContentfulPaintP75
+          timeToFirstByteP75
+        }
+        dimensions {
+          date
+        }
+      }
+    }
+  }
+}`;
+
+const VITALS_QUERY_WITHOUT_SETTINGS = `query WebAnalyticsVitals(
+  $accountTag: string!
+  $end: Time!
+  $limit: uint64!
+  $start: Time!
+) {
+  viewer {
+    accounts(filter: { accountTag: $accountTag }) {
+      rumWebVitalsEventsAdaptiveGroups(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        count
+        avg {
+          sampleInterval
+        }
+        quantiles {
+          cumulativeLayoutShiftP75
+          interactionToNextPaintP75
+          largestContentfulPaintP75
+          timeToFirstByteP75
+        }
+        dimensions {
+          date
+        }
+      }
+    }
+  }
+}`;
+
+const WORKERS_QUERY = `query WorkersInvocations(
+  $accountTag: string!
+  $developmentScript: string!
+  $end: Time!
+  $limit: uint64!
+  $productionScript: string!
+  $start: Time!
+) {
+  viewer {
+    accounts(filter: { accountTag: $accountTag }) {
+      settings {
+        workersInvocationsAdaptive {
+          enabled
+          maxDuration
+          maxPageSize
+          notOlderThan
+        }
+      }
+      production: workersInvocationsAdaptive(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+          scriptName: $productionScript
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        avg {
+          sampleInterval
+        }
+        dimensions {
+          date
+          scriptName
+          status
+        }
+        quantiles {
+          cpuTimeP50
+          cpuTimeP99
+        }
+        sum {
+          errors
+          requests
+          subrequests
+        }
+      }
+      development: workersInvocationsAdaptive(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+          scriptName: $developmentScript
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        avg {
+          sampleInterval
+        }
+        dimensions {
+          date
+          scriptName
+          status
+        }
+        quantiles {
+          cpuTimeP50
+          cpuTimeP99
+        }
+        sum {
+          errors
+          requests
+          subrequests
+        }
+      }
+    }
+  }
+}`;
+
+const WORKERS_QUERY_WITHOUT_SETTINGS = `query WorkersInvocations(
+  $accountTag: string!
+  $developmentScript: string!
+  $end: Time!
+  $limit: uint64!
+  $productionScript: string!
+  $start: Time!
+) {
+  viewer {
+    accounts(filter: { accountTag: $accountTag }) {
+      production: workersInvocationsAdaptive(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+          scriptName: $productionScript
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        avg {
+          sampleInterval
+        }
+        dimensions {
+          date
+          scriptName
+          status
+        }
+        quantiles {
+          cpuTimeP50
+          cpuTimeP99
+        }
+        sum {
+          errors
+          requests
+          subrequests
+        }
+      }
+      development: workersInvocationsAdaptive(
+        filter: {
+          datetime_geq: $start
+          datetime_lt: $end
+          scriptName: $developmentScript
+        }
+        limit: $limit
+        orderBy: [date_ASC]
+      ) {
+        avg {
+          sampleInterval
+        }
+        dimensions {
+          date
+          scriptName
+          status
+        }
+        quantiles {
+          cpuTimeP50
+          cpuTimeP99
+        }
+        sum {
+          errors
+          requests
+          subrequests
+        }
+      }
+    }
+  }
+}`;
+
 export function graphqlVolumeQuery(includeSettings: boolean): string {
   return includeSettings ? VOLUME_QUERY : VOLUME_QUERY_WITHOUT_SETTINGS;
+}
+
+export function graphqlRumQuery(includeSettings: boolean): string {
+  return includeSettings ? RUM_QUERY : RUM_QUERY_WITHOUT_SETTINGS;
+}
+
+export function graphqlVitalsQuery(includeSettings: boolean): string {
+  return includeSettings ? VITALS_QUERY : VITALS_QUERY_WITHOUT_SETTINGS;
+}
+
+export function graphqlWorkersQuery(includeSettings: boolean): string {
+  return includeSettings ? WORKERS_QUERY : WORKERS_QUERY_WITHOUT_SETTINGS;
 }
 
 export function toGraphqlTime(date: string): string {
@@ -147,16 +499,36 @@ export function toGraphqlTime(date: string): string {
   return `${date}T00:00:00Z`;
 }
 
-export function graphqlVolumeVariables(
+export function graphqlTimeVariables(
   accountId: string,
   range: DateRange,
 ): Record<string, unknown> {
   return {
     accountTag: accountId,
-    datasets: [...GRAPHQL_DATASETS],
     end: toGraphqlTime(range.end),
     limit: TIME_SERIES_LIMIT,
     start: toGraphqlTime(range.start),
+  };
+}
+
+export function graphqlVolumeVariables(
+  accountId: string,
+  range: DateRange,
+): Record<string, unknown> {
+  return {
+    ...graphqlTimeVariables(accountId, range),
+    datasets: [...GRAPHQL_DATASETS],
+  };
+}
+
+export function graphqlWorkersVariables(
+  accountId: string,
+  range: DateRange,
+): Record<string, unknown> {
+  return {
+    ...graphqlTimeVariables(accountId, range),
+    developmentScript: "dev-leenk",
+    productionScript: "leenk",
   };
 }
 
@@ -164,11 +536,21 @@ export function isGraphqlDataset(value: unknown): value is GraphqlDataset {
   return value === "leenk_shortlinks" || value === "leenk_site_events";
 }
 
-export function classifyGraphqlFailure(body: unknown, status: number): never {
+export function isGraphqlWorkerScript(
+  value: unknown,
+): value is GraphqlWorkerScript {
+  return value === "leenk" || value === "dev-leenk";
+}
+
+export function classifyGraphqlFailure(
+  body: unknown,
+  status: number,
+  node: string = GRAPHQL_ANALYTICS_NODE,
+): never {
   if (status === 401 || status === 403) {
     throw new GraphqlAnalyticsError();
   }
-  if (isSchemaMissing(body)) {
+  if (isSchemaMissing(body, node)) {
     throw new GraphqlAnalyticsError(
       "GRAPHQL_NODE_UNAVAILABLE",
       "GraphQL Analytics node is not available",
@@ -188,25 +570,25 @@ export function shouldRetryWithoutSettings(body: unknown): boolean {
 }
 
 export function parseGraphqlVolumeResponse(body: unknown): GraphqlVolumeResult {
-  if (!isObjectRecord(body)) {
-    throw new GraphqlAnalyticsError("GRAPHQL_ANALYTICS_INVALID_RESPONSE");
-  }
-  if (Array.isArray(body.errors) && body.errors.length > 0) {
-    classifyGraphqlFailure(body, 200);
-  }
+  return parseGraphqlNodeResponse(
+    body,
+    GRAPHQL_ANALYTICS_NODE,
+    parseVolumeRows,
+  );
+}
 
-  const accounts = viewerAccounts(body);
-  const limits = parseNodeLimits(accounts[0]?.settings);
-  if (limits && !limits.enabled) {
-    return { data: [], entitlement: "disabled", limits };
-  }
+export function parseGraphqlRumResponse(body: unknown): GraphqlRumResult {
+  return parseGraphqlNodeResponse(body, GRAPHQL_RUM_NODE, parseRumRows);
+}
 
-  const groups = accounts.flatMap((account) => {
-    const rows = account[GRAPHQL_ANALYTICS_NODE];
-    return Array.isArray(rows) ? rows : [];
-  });
-  const data = parseVolumeRows(groups);
-  return { data, entitlement: "available", limits };
+export function parseGraphqlVitalsResponse(body: unknown): GraphqlVitalsResult {
+  return parseGraphqlNodeResponse(body, GRAPHQL_VITALS_NODE, parseVitalsRows);
+}
+
+export function parseGraphqlWorkersResponse(
+  body: unknown,
+): GraphqlWorkersResult {
+  return parseGraphqlNodeResponse(body, GRAPHQL_WORKERS_NODE, parseWorkersRows);
 }
 
 export async function runGraphqlVolumeQuery(
@@ -215,41 +597,119 @@ export async function runGraphqlVolumeQuery(
   token: string,
   fetchFn: typeof fetch = fetch,
 ): Promise<GraphqlVolumeResult> {
-  const variables = graphqlVolumeVariables(accountId, range);
-  const withSettings = await postGraphql(
+  return runGraphqlNodeQuery(
+    GRAPHQL_ANALYTICS_NODE,
     graphqlVolumeQuery(true),
-    variables,
+    graphqlVolumeQuery(false),
+    graphqlVolumeVariables(accountId, range),
     token,
+    parseGraphqlVolumeResponse,
     fetchFn,
   );
-  if (shouldRetryWithoutSettings(withSettings.body)) {
-    const withoutSettings = await postGraphql(
-      graphqlVolumeQuery(false),
-      variables,
-      token,
-      fetchFn,
-    );
-    if (!withoutSettings.ok) {
-      classifyGraphqlFailure(withoutSettings.body, withoutSettings.status);
-    }
-    return parseGraphqlVolumeResponse(withoutSettings.body);
-  }
-  if (!withSettings.ok) {
-    classifyGraphqlFailure(withSettings.body, withSettings.status);
-  }
-  return parseGraphqlVolumeResponse(withSettings.body);
 }
 
-export interface GraphqlVolumeReportInput {
-  accountId: string | undefined;
-  end: string | null;
-  fetchFn?: typeof fetch;
-  start: string | null;
-  token: string | undefined;
+export async function runGraphqlRumQuery(
+  accountId: string,
+  range: DateRange,
+  token: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<GraphqlRumResult> {
+  return runGraphqlNodeQuery(
+    GRAPHQL_RUM_NODE,
+    graphqlRumQuery(true),
+    graphqlRumQuery(false),
+    graphqlTimeVariables(accountId, range),
+    token,
+    parseGraphqlRumResponse,
+    fetchFn,
+  );
+}
+
+export async function runGraphqlVitalsQuery(
+  accountId: string,
+  range: DateRange,
+  token: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<GraphqlVitalsResult> {
+  return runGraphqlNodeQuery(
+    GRAPHQL_VITALS_NODE,
+    graphqlVitalsQuery(true),
+    graphqlVitalsQuery(false),
+    graphqlTimeVariables(accountId, range),
+    token,
+    parseGraphqlVitalsResponse,
+    fetchFn,
+  );
+}
+
+export async function runGraphqlWorkersQuery(
+  accountId: string,
+  range: DateRange,
+  token: string,
+  fetchFn: typeof fetch = fetch,
+): Promise<GraphqlWorkersResult> {
+  return runGraphqlNodeQuery(
+    GRAPHQL_WORKERS_NODE,
+    graphqlWorkersQuery(true),
+    graphqlWorkersQuery(false),
+    graphqlWorkersVariables(accountId, range),
+    token,
+    parseGraphqlWorkersResponse,
+    fetchFn,
+  );
 }
 
 export async function runGraphqlVolumeReport(
-  input: GraphqlVolumeReportInput,
+  input: GraphqlReportInput,
+): Promise<Response> {
+  return runGraphqlAnalyticsReport(
+    input,
+    GRAPHQL_ANALYTICS_NODE,
+    runGraphqlVolumeQuery,
+  );
+}
+
+export async function runGraphqlRumReport(
+  input: GraphqlReportInput,
+): Promise<Response> {
+  return runGraphqlAnalyticsReport(input, GRAPHQL_RUM_NODE, runGraphqlRumQuery);
+}
+
+export async function runGraphqlVitalsReport(
+  input: GraphqlReportInput,
+): Promise<Response> {
+  return runGraphqlAnalyticsReport(
+    input,
+    GRAPHQL_VITALS_NODE,
+    runGraphqlVitalsQuery,
+  );
+}
+
+export async function runGraphqlWorkersReport(
+  input: GraphqlReportInput,
+): Promise<Response> {
+  return runGraphqlAnalyticsReport(
+    input,
+    GRAPHQL_WORKERS_NODE,
+    runGraphqlWorkersQuery,
+  );
+}
+
+interface GraphqlPostResult {
+  body: unknown;
+  ok: boolean;
+  status: number;
+}
+
+async function runGraphqlAnalyticsReport<T>(
+  input: GraphqlReportInput,
+  node: string,
+  run: (
+    accountId: string,
+    range: DateRange,
+    token: string,
+    fetchFn: typeof fetch,
+  ) => Promise<GraphqlNodeResult<T>>,
 ): Promise<Response> {
   if (!input.accountId || !input.token) return analyticsEngineUnavailable();
 
@@ -263,15 +723,15 @@ export async function runGraphqlVolumeReport(
   }
 
   try {
-    const result = await runGraphqlVolumeQuery(
+    const result = await run(
       input.accountId,
       validation.range,
       input.token,
-      input.fetchFn,
+      input.fetchFn ?? fetch,
     );
     return dashboardOk(result.data, {
       entitlement: result.entitlement,
-      node: GRAPHQL_ANALYTICS_NODE,
+      node,
       range: validation.range,
       sampled: true,
       source: GRAPHQL_ANALYTICS_SOURCE,
@@ -283,7 +743,7 @@ export async function runGraphqlVolumeReport(
     ) {
       return dashboardOk([], {
         entitlement: "missing",
-        node: GRAPHQL_ANALYTICS_NODE,
+        node,
         range: validation.range,
         sampled: true,
         source: GRAPHQL_ANALYTICS_SOURCE,
@@ -304,10 +764,41 @@ export async function runGraphqlVolumeReport(
   }
 }
 
-interface GraphqlPostResult {
-  body: unknown;
-  ok: boolean;
-  status: number;
+async function runGraphqlNodeQuery<T>(
+  node: string,
+  queryWithSettings: string,
+  queryWithoutSettings: string,
+  variables: Record<string, unknown>,
+  token: string,
+  parse: (body: unknown) => GraphqlNodeResult<T>,
+  fetchFn: typeof fetch,
+): Promise<GraphqlNodeResult<T>> {
+  const withSettings = await postGraphql(
+    queryWithSettings,
+    variables,
+    token,
+    fetchFn,
+  );
+  if (shouldRetryWithoutSettings(withSettings.body)) {
+    const withoutSettings = await postGraphql(
+      queryWithoutSettings,
+      variables,
+      token,
+      fetchFn,
+    );
+    if (!withoutSettings.ok) {
+      classifyGraphqlFailure(
+        withoutSettings.body,
+        withoutSettings.status,
+        node,
+      );
+    }
+    return parse(withoutSettings.body);
+  }
+  if (!withSettings.ok) {
+    classifyGraphqlFailure(withSettings.body, withSettings.status, node);
+  }
+  return parse(withSettings.body);
 }
 
 async function postGraphql(
@@ -339,13 +830,39 @@ async function postGraphql(
   return { body, ok: response.ok, status: response.status };
 }
 
-function parseVolumeRows(rows: unknown[]): GraphqlVolumeRow[] {
+function parseGraphqlNodeResponse<T>(
+  body: unknown,
+  node: string,
+  parseRows: (accounts: Array<Record<string, unknown>>) => T,
+): GraphqlNodeResult<T> {
+  if (!isObjectRecord(body)) {
+    throw new GraphqlAnalyticsError("GRAPHQL_ANALYTICS_INVALID_RESPONSE");
+  }
+  if (Array.isArray(body.errors) && body.errors.length > 0) {
+    classifyGraphqlFailure(body, 200, node);
+  }
+
+  const accounts = viewerAccounts(body);
+  const limits = parseNodeLimits(accounts[0]?.settings, node);
+  if (limits && !limits.enabled) {
+    return { data: [], entitlement: "disabled", limits };
+  }
+
+  const data = parseRows(accounts);
+  return { data, entitlement: "available", limits };
+}
+
+function parseVolumeRows(
+  accounts: Array<Record<string, unknown>>,
+): GraphqlVolumeRow[] {
+  const groups = accounts.flatMap((account) => {
+    const rows = account[GRAPHQL_ANALYTICS_NODE];
+    return Array.isArray(rows) ? rows : [];
+  });
   const result: GraphqlVolumeRow[] = [];
-  for (const entry of rows) {
+  for (const entry of groups) {
     if (!isObjectRecord(entry)) continue;
-    const dimensions = isObjectRecord(entry.dimensions)
-      ? entry.dimensions
-      : null;
+    const dimensions = objectValue(entry.dimensions);
     if (!dimensions) continue;
     const dataset = parseDataset(dimensions.dataset);
     const day = parseGraphqlDate(dimensions.date);
@@ -359,8 +876,110 @@ function parseVolumeRows(rows: unknown[]): GraphqlVolumeRow[] {
   return result;
 }
 
+function parseRumRows(
+  accounts: Array<Record<string, unknown>>,
+): GraphqlRumRow[] {
+  const groups = accounts.flatMap((account) => {
+    const rows = account[GRAPHQL_RUM_NODE];
+    return Array.isArray(rows) ? rows : [];
+  });
+  const result: GraphqlRumRow[] = [];
+  for (const entry of groups) {
+    if (!isObjectRecord(entry)) continue;
+    const dimensions = objectValue(entry.dimensions);
+    const day = dimensions ? parseGraphqlDate(dimensions.date) : null;
+    if (!day) continue;
+    const sum = objectValue(entry.sum);
+    const avg = objectValue(entry.avg);
+    result.push({
+      day,
+      pageviews: toFiniteNumber(entry.count),
+      sampleInterval: optionalFiniteNumber(avg?.sampleInterval),
+      visits: toFiniteNumber(sum?.visits),
+    });
+  }
+  return result;
+}
+
+function parseVitalsRows(
+  accounts: Array<Record<string, unknown>>,
+): GraphqlVitalsRow[] {
+  const groups = accounts.flatMap((account) => {
+    const rows = account[GRAPHQL_VITALS_NODE];
+    return Array.isArray(rows) ? rows : [];
+  });
+  const result: GraphqlVitalsRow[] = [];
+  for (const entry of groups) {
+    if (!isObjectRecord(entry)) continue;
+    const dimensions = objectValue(entry.dimensions);
+    const day = dimensions ? parseGraphqlDate(dimensions.date) : null;
+    if (!day) continue;
+    const quantiles = objectValue(entry.quantiles);
+    const avg = objectValue(entry.avg);
+    result.push({
+      clsP75: optionalFiniteNumber(quantiles?.cumulativeLayoutShiftP75),
+      count: toFiniteNumber(entry.count),
+      day,
+      inpP75: optionalFiniteNumber(quantiles?.interactionToNextPaintP75),
+      lcpP75: optionalFiniteNumber(quantiles?.largestContentfulPaintP75),
+      sampleInterval: optionalFiniteNumber(avg?.sampleInterval),
+      ttfbP75: optionalFiniteNumber(quantiles?.timeToFirstByteP75),
+    });
+  }
+  return result;
+}
+
+function parseWorkersRows(
+  accounts: Array<Record<string, unknown>>,
+): GraphqlWorkersRow[] {
+  const groups = accounts.flatMap((account) => {
+    const production = Array.isArray(account.production)
+      ? account.production
+      : [];
+    const development = Array.isArray(account.development)
+      ? account.development
+      : [];
+    const unaliased = Array.isArray(account[GRAPHQL_WORKERS_NODE])
+      ? account[GRAPHQL_WORKERS_NODE]
+      : [];
+    return [...production, ...development, ...unaliased];
+  });
+  const result: GraphqlWorkersRow[] = [];
+  for (const entry of groups) {
+    if (!isObjectRecord(entry)) continue;
+    const dimensions = objectValue(entry.dimensions);
+    if (!dimensions) continue;
+    const day = parseGraphqlDate(dimensions.date);
+    const scriptName = parseWorkerScript(dimensions.scriptName);
+    if (!day || !scriptName) continue;
+    const sum = objectValue(entry.sum);
+    const quantiles = objectValue(entry.quantiles);
+    const avg = objectValue(entry.avg);
+    result.push({
+      cpuTimeP50: optionalFiniteNumber(quantiles?.cpuTimeP50),
+      cpuTimeP99: optionalFiniteNumber(quantiles?.cpuTimeP99),
+      day,
+      errors: toFiniteNumber(sum?.errors),
+      requests: toFiniteNumber(sum?.requests),
+      sampleInterval: optionalFiniteNumber(avg?.sampleInterval),
+      scriptName,
+      status: parseWorkerStatus(dimensions.status),
+      subrequests: toFiniteNumber(sum?.subrequests),
+    });
+  }
+  return result;
+}
+
 function parseDataset(value: unknown): GraphqlDataset | null {
   return isGraphqlDataset(value) ? value : null;
+}
+
+function parseWorkerScript(value: unknown): GraphqlWorkerScript | null {
+  return isGraphqlWorkerScript(value) ? value : null;
+}
+
+function parseWorkerStatus(value: unknown): string {
+  return typeof value === "string" && value.length > 0 ? value : "unknown";
 }
 
 function parseGraphqlDate(value: unknown): string | null {
@@ -369,15 +988,18 @@ function parseGraphqlDate(value: unknown): string | null {
   return date ? toUtcDateString(date) : null;
 }
 
-function parseNodeLimits(value: unknown): GraphqlNodeLimits | null {
+function parseNodeLimits(
+  value: unknown,
+  node: string,
+): GraphqlNodeLimits | null {
   if (!isObjectRecord(value)) return null;
-  const node = value[GRAPHQL_ANALYTICS_NODE];
-  if (!isObjectRecord(node)) return null;
+  const settings = value[node];
+  if (!isObjectRecord(settings)) return null;
   return {
-    enabled: node.enabled !== false,
-    maxDuration: optionalFiniteNumber(node.maxDuration),
-    maxPageSize: optionalFiniteNumber(node.maxPageSize),
-    notOlderThan: optionalFiniteNumber(node.notOlderThan),
+    enabled: settings.enabled !== false,
+    maxDuration: optionalFiniteNumber(settings.maxDuration),
+    maxPageSize: optionalFiniteNumber(settings.maxPageSize),
+    notOlderThan: optionalFiniteNumber(settings.notOlderThan),
   };
 }
 
@@ -400,11 +1022,11 @@ function graphqlErrorMessages(body: unknown): string[] {
   return messages;
 }
 
-function isSchemaMissing(body: unknown): boolean {
+function isSchemaMissing(body: unknown, node: string): boolean {
   const messages = graphqlErrorMessages(body);
   const combined = messages.join("\n");
   return (
-    combined.includes(GRAPHQL_ANALYTICS_NODE) &&
+    combined.includes(node) &&
     /Cannot query field|Unknown field|does not exist/i.test(combined)
   );
 }
@@ -415,6 +1037,10 @@ function toFiniteNumber(value: unknown): number {
 
 function optionalFiniteNumber(value: unknown): number | null {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function objectValue(value: unknown): Record<string, unknown> | null {
+  return isObjectRecord(value) ? value : null;
 }
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {

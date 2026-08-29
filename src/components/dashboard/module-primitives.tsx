@@ -112,36 +112,81 @@ function skeletonKey(): string {
 
 export function AnalyticsCaption({
   entitlement,
+  node,
   range,
   source,
 }: {
   entitlement?: "available" | "disabled" | "missing" | "unknown" | undefined;
+  node?: string | undefined;
   range?: { end: string; start: string } | null;
   source?: string | undefined;
 }) {
   if (!range) return null;
   const graphql = source === "GraphQL Analytics";
   const note = graphql
-    ? graphqlCaption(entitlement)
+    ? graphqlCaption(entitlement, node)
     : "Values are sampled and are not exact page views or unique visitors.";
   return (
     <p className="text-muted-foreground text-xs" data-slot="analytics-caption">
-      {graphql
-        ? "GraphQL Adaptive Groups counts"
-        : "Weighted Analytics Engine counts"}
-      , {range.start} to {range.end}. {note}
+      {graphql ? graphqlLead(node) : "Weighted Analytics Engine counts"},{" "}
+      {range.start} to {range.end}. {note}
     </p>
   );
 }
 
+export function GraphqlEntitlementAlert({
+  description,
+  entitlement,
+  node,
+  title,
+}: {
+  description: string;
+  entitlement: "disabled" | "missing";
+  node: string;
+  title: string;
+}) {
+  return (
+    <Alert data-slot={`graphql-entitlement-${entitlement}`}>
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>
+        {description} Node: {node}.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+function graphqlLead(node: string | undefined): string {
+  if (node === "rumPageloadEventsAdaptiveGroups") {
+    return "GraphQL Web Analytics page views";
+  }
+  if (node === "rumWebVitalsEventsAdaptiveGroups") {
+    return "GraphQL Web Analytics Web Vitals";
+  }
+  if (node === "workersInvocationsAdaptive") {
+    return "GraphQL Workers invocation counts";
+  }
+  return "GraphQL Adaptive Groups counts";
+}
+
 function graphqlCaption(
   entitlement: "available" | "disabled" | "missing" | "unknown" | undefined,
+  node: string | undefined,
 ): string {
+  const nodeLabel = node ?? "this GraphQL node";
   if (entitlement === "missing") {
-    return "The workersAnalyticsEngineAdaptiveGroups node is not on this account schema. Shortlink and site-event reports still use Analytics Engine SQL.";
+    return `${nodeLabel} is not on this account schema. No counts are invented. SQL shortlink and site-event reports are unchanged.`;
   }
   if (entitlement === "disabled") {
-    return "The GraphQL node is present but disabled for this account. Shortlink and site-event reports still use Analytics Engine SQL.";
+    return `${nodeLabel} is present but disabled for this account. No counts are shown.`;
+  }
+  if (node === "rumPageloadEventsAdaptiveGroups") {
+    return "Sampled page views and visits. Not unique visitors.";
+  }
+  if (node === "rumWebVitalsEventsAdaptiveGroups") {
+    return "Sampled p75 quantiles as returned by GraphQL. Not lab scores.";
+  }
+  if (node === "workersInvocationsAdaptive") {
+    return "Sampled invocation totals for leenk and dev-leenk. Not raw Workers Logs.";
   }
   return "Dataset totals only. Labels, campaigns, and engagement dimensions stay on the Analytics Engine SQL reports. Not page views or unique visitors.";
 }

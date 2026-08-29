@@ -155,6 +155,27 @@ the same privacy and client-input rules as SQL reports.
   link-outs.
 - A missing or disabled node is a documented empty report, not a fake series.
 
+## Addendum (2026-08-29): GraphQL RUM and Workers invocations
+
+Named GraphQL reports now also cover Web Analytics RUM and Workers
+invocation metrics, still with the same privacy and client-input rules.
+
+- Clients still cannot provide a GraphQL document, dataset name, or filter.
+- `GET /api/dashboard/analytics/rum` queries
+  `rumPageloadEventsAdaptiveGroups` for `count` (page views) and
+  `sum.visits` by day. Path, referrer path, and user-agent dimensions are
+  not selected.
+- `GET /api/dashboard/analytics/vitals` queries
+  `rumWebVitalsEventsAdaptiveGroups` for p75 LCP, INP, CLS, and TTFB.
+  Element paths are not selected.
+- `GET /api/dashboard/analytics/workers` queries
+  `workersInvocationsAdaptive` for `leenk` and `dev-leenk`. There is no
+  Workers Logs GraphQL node. Raw log lines stay in Cloudflare Observability.
+- `workersAnalyticsEngineAdaptiveGroups` still cannot replace SQL for
+  labels, campaigns, or engagement dimensions.
+- A missing or disabled node remains an empty report with
+  `meta.entitlement`.
+
 ## Addendum (2026-08-25): Bun package manager
 
 CI and local verification use Bun 1.4.0 and `bun.lock`. The previous Nub and

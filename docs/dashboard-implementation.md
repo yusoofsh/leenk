@@ -26,9 +26,17 @@ share the same Better Auth session and capability boundary.
 
 ### Modules
 
-- Overview: weighted shortlink and site event KPI cards, a focus queue from
-  recent activity, and a recent changes table. Every count is labeled as a
-  weighted Analytics Engine count with the selected range.
+- Overview: weighted shortlink and site event KPI cards, GraphQL volume / RUM
+  visits / Worker request cards that show Unavailable when a node is missing
+  or disabled, a focus queue from recent activity, and a recent changes
+  table. SQL counts are labeled as weighted Analytics Engine counts. GraphQL
+  cards never invent a zero for a missing node.
+- Analytics: tabs for Shortlinks, Site events, Dataset volume, Web Analytics
+  (page views and Web Vitals), Workers invocations, and Historical (legacy
+  code-indexed) reports, a 7/30/90-day range selector, charts, ranked tables,
+  and link-outs to Cloudflare Web Analytics and Workers Observability.
+  Dataset volume is GraphQL Adaptive Groups. Web Analytics is RUM Groups.
+  Workers is `workersInvocationsAdaptive`, not raw log lines.
 - Content: revision table with state badges, a read-only published preview
   with full/TL;DR tabs, a draft editor sheet with block list editing, Save
   Draft with optimistic concurrency, a publish confirm dialog, and a rollback
@@ -41,11 +49,6 @@ share the same Better Auth session and capability boundary.
   shortlink API.
 - Campaigns: ranked campaign/source/medium breakdown with a bar chart and a
   table, sourced from the campaign report.
-- Analytics: tabs for Shortlinks, Site events, Dataset volume, and
-  Historical (legacy code-indexed) reports, a 7/30/90-day range selector,
-  charts, ranked tables, and link-outs to Cloudflare Web Analytics and
-  Workers Observability. Dataset volume is the GraphQL Adaptive Groups
-  total for `leenk_shortlinks` and `leenk_site_events`.
 - Activity: keyset-paged D1 activity entries with kind badges.
 - Operations: read-only binding health cards for the renderer, R2, D1, and
   Analytics Engine, plus Cloudflare dashboard link-outs.
@@ -71,6 +74,9 @@ is never sent to browser code or stored in local storage.
 | `/api/dashboard/analytics/shortlinks/history` | GET    | legacy `leenk_shortlinks` code-indexed report           |
 | `/api/dashboard/analytics/campaigns`          | GET    | campaign, source, medium breakdown                      |
 | `/api/dashboard/analytics/volume`             | GET    | GraphQL Adaptive Groups totals by dataset and day       |
+| `/api/dashboard/analytics/rum`                | GET    | GraphQL Web Analytics page views and visits by day      |
+| `/api/dashboard/analytics/vitals`             | GET    | GraphQL Web Analytics Web Vitals p75 by day             |
+| `/api/dashboard/analytics/workers`            | GET    | GraphQL Workers invocation totals for leenk Workers     |
 | `/api/dashboard/shortlinks`                   | GET    | R2 shortlink records with recent clicks                 |
 | `/api/dashboard/files`                        | GET    | R2 object listing                                       |
 | `/api/dashboard/cms`                          | GET    | document, published revision, revision summaries        |
@@ -92,20 +98,24 @@ JSON with a `source`, `range`, and `sampled` marker.
   and `leenk_site_events`, queried through the account-scoped SQL API with the
   `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ANALYTICS_TOKEN` bindings.
 - GraphQL Analytics: the same token calls
-  `https://api.cloudflare.com/client/v4/graphql` for the account node
-  `workersAnalyticsEngineAdaptiveGroups`. That node can group Adaptive Groups
-  `count` by `dataset` and time. It does not expose blob labels, campaign
-  fields, or engagement dimensions. The dashboard keeps those breakdowns on
-  the SQL reports. RUM nodes (`rumPageloadEventsAdaptiveGroups`,
-  `rumPerformanceEventsAdaptiveGroups`, `rumWebVitalsEventsAdaptive*`) and
-  Workers Logs or traces are not queried.
+  `https://api.cloudflare.com/client/v4/graphql`. Named reports cover
+  `workersAnalyticsEngineAdaptiveGroups` (dataset volume),
+  `rumPageloadEventsAdaptiveGroups` (page views and visits),
+  `rumWebVitalsEventsAdaptiveGroups` (Web Vitals p75), and
+  `workersInvocationsAdaptive` (leenk and dev-leenk invocation totals).
+  Adaptive Groups still does not expose blob labels, campaign fields, or
+  engagement dimensions, so those stay on SQL. RUM queries do not select
+  path or user-agent dimensions. There is no Workers Logs GraphQL node; raw
+  log lines stay in Cloudflare Observability. A missing or disabled node
+  returns empty data with `meta.entitlement`.
 - R2: the `STATIC_FILES` bucket holds static objects and shortlink records
   under the `__shortlinks/` prefix.
 - D1: the `CMS` binding holds the Content Document, Content Revisions,
   Content Blocks, and Activity Entries per the canonical schema in
   `d1/migrations/0001_init.sql`.
-- Cloudflare Web Analytics and Workers Observability are linked out to rather
-  than queried, per the research rules.
+- Cloudflare Web Analytics and Workers Observability remain product
+  link-outs for the full dashboard. The owner console also shows the named
+  GraphQL aggregates described above.
 
 ## How to run
 
@@ -119,13 +129,15 @@ token is entered in Settings under the Write token tab and is held in memory.
 
 ## What is intentionally not implemented
 
-- Web Analytics RUM and Workers Logs or Traces are not queried; the dashboard
-  links to those products instead, because neither has a supported
-  first-release data path from the Worker.
-- GraphQL Analytics is wired for `workersAnalyticsEngineAdaptiveGroups`
-  dataset volume only. The public schema (checked 2026-08-25) lists
-  `count` plus `dataset` and time dimensions. Account entitlement is probed
-  at request time: a missing or disabled node returns an empty report with
+- GraphQL Adaptive Groups still has no blob, campaign, or engagement
+  dimensions. Those reports stay on the Analytics Engine SQL API.
+- `rumPerformanceEventsAdaptiveGroups` is not queried. Page views use
+  `rumPageloadEventsAdaptiveGroups`; Web Vitals use
+  `rumWebVitalsEventsAdaptiveGroups`.
+- Raw Workers Logs, traces, and Log Explorer SQL are not queried. The
+  GraphQL report is `workersInvocationsAdaptive` invocation metrics for
+  `leenk` and `dev-leenk` only.
+- A missing or disabled GraphQL node returns an empty report with
   `meta.entitlement` of `missing` or `disabled` instead of invented counts.
   This environment had no analytics token, so live account rows were not
   queried here.
