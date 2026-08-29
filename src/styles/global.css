@@ -1,6 +1,7 @@
 @import "./typeset.css";
 @import "./sidebar.css";
 @import "./motion.css";
+@import "./stylex.css";
 
 @font-face {
   font-family: "Plus Jakarta Sans";

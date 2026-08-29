@@ -55,7 +55,8 @@ export default defineConfig({
         aliases: {
           "~/*": [path.resolve("./src/*")],
         },
-        cssInjectionTarget: (fileName) => fileName.includes("stylex"),
+        cssInjectionTarget: (fileName) =>
+          fileName.includes("jsx-runtime") || fileName.includes("stylex"),
         treeshakeCompensation: true,
         unstable_moduleResolution: {
           rootDir: process.cwd(),

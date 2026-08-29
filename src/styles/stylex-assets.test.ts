@@ -7,15 +7,19 @@ const layoutSource = readFileSync(
   "utf8",
 );
 const loginSource = readFileSync(
-  new URL("./login.astro", import.meta.url),
+  new URL("../pages/login.astro", import.meta.url),
   "utf8",
 );
 const dashboardSource = readFileSync(
-  new URL("./dashboard.astro", import.meta.url),
+  new URL("../pages/dashboard.astro", import.meta.url),
   "utf8",
 );
 const stylexAssetsSource = readFileSync(
   new URL("../components/stylex-assets.astro", import.meta.url),
+  "utf8",
+);
+const globalStyles = readFileSync(
+  new URL("./global.css", import.meta.url),
   "utf8",
 );
 const astroConfig = readFileSync(
@@ -24,17 +28,16 @@ const astroConfig = readFileSync(
 );
 
 describe("StyleX CSS shells", () => {
-  it("loads extracted StyleX from every HTML shell", () => {
-    expect(stylexAssetsSource).toContain('import "../styles/stylex.css"');
+  it("links the StyleX virtual stylesheet on every HTML shell in development", () => {
     expect(stylexAssetsSource).toContain('href="/virtual:stylex.css"');
     expect(layoutSource).toContain("<StylexAssets />");
     expect(loginSource).toContain("<StylexAssets />");
     expect(dashboardSource).toContain("<StylexAssets />");
   });
 
-  it("appends extracted StyleX to the shared stylex.css asset", () => {
-    expect(astroConfig).toContain(
-      'cssInjectionTarget: (fileName) => fileName.includes("stylex")',
-    );
+  it("appends extracted StyleX to the global CSS asset every shell already loads", () => {
+    expect(globalStyles).toContain('@import "./stylex.css"');
+    expect(astroConfig).toContain('fileName.includes("jsx-runtime")');
+    expect(astroConfig).toContain('fileName.includes("stylex")');
   });
 });
