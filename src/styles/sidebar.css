@@ -340,10 +340,11 @@
 }
 
 [data-slot="sidebar"][data-mobile="true"] {
+  --sidebar-width: 18rem;
   background: var(--sidebar);
   color: var(--sidebar-foreground);
   padding: 0;
-  width: var(--sidebar-width, 18rem);
+  width: var(--sidebar-width);
 }
 
 [data-slot="sidebar"][data-mobile="true"] > button {

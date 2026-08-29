@@ -323,6 +323,13 @@ body[data-shell="login"] {
   fill: var(--muted);
 }
 
+.toaster {
+  --border-radius: var(--radius);
+  --normal-bg: var(--popover);
+  --normal-border: var(--border);
+  --normal-text: var(--popover-foreground);
+}
+
 [data-slot="bio-mode-toggle"] > [data-bio-label] {
   grid-area: 1 / 1;
   visibility: hidden;

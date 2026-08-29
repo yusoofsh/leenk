@@ -25,9 +25,6 @@ import { mergeStylex } from "~/lib/sx";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
-const SIDEBAR_WIDTH = "16rem";
-const SIDEBAR_WIDTH_MOBILE = "18rem";
-const SIDEBAR_WIDTH_ICON = "3rem";
 const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 const styles = stylex.create({
@@ -132,11 +129,7 @@ function SidebarProvider({
         <div
           className={className}
           data-slot="sidebar-wrapper"
-          style={{
-            "--sidebar-width": SIDEBAR_WIDTH,
-            "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-            ...style,
-          }}
+          style={style}
           {...props}
         >
           {children}
@@ -177,9 +170,6 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           side={side}
-          style={{
-            "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
-          }}
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Sidebar</SheetTitle>

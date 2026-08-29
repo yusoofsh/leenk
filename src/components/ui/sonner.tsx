@@ -33,12 +33,6 @@ const Toaster = ({ ...props }: ToasterProps) => {
         success: <CircleCheckIcon size={16} />,
         warning: <TriangleAlertIcon size={16} />,
       }}
-      style={{
-        "--border-radius": "var(--radius)",
-        "--normal-bg": "var(--popover)",
-        "--normal-border": "var(--border)",
-        "--normal-text": "var(--popover-foreground)",
-      }}
       theme={theme}
     />
   );

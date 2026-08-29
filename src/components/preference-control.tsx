@@ -9,7 +9,6 @@ const styles = stylex.create({
       default: "white",
       ":hover": "#f8fafc",
       ":is(.dark *)": "#1e293b",
-      ":hover:is(.dark *)": "#334155",
     },
     borderRadius: "9999px",
     boxShadow: "0 1px 2px rgb(15 23 42 / 12%)",
@@ -38,22 +37,19 @@ const styles = stylex.create({
     },
     position: "relative",
     textTransform: "uppercase",
+    transform: {
+      default: "none",
+      ":active": "scale(0.97)",
+      [mq.reduce]: "none",
+    },
     transitionDuration: "150ms",
     transitionProperty: "color, background-color, box-shadow, transform",
     transitionTimingFunction: "cubic-bezier(0.23, 1, 0.32, 1)",
-    ":active": {
-      transform: "scale(0.97)",
-    },
     ":focus-visible": {
       outlineColor: "#64748b",
       outlineOffset: "2px",
       outlineStyle: "solid",
       outlineWidth: "2px",
-    },
-    [mq.reduce]: {
-      ":active": {
-        transform: "none",
-      },
     },
   },
   label: {
