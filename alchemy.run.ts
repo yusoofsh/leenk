@@ -57,6 +57,17 @@ export const Website = Cloudflare.Website.Astro(
       // Let the Worker handle every request first so the asset layer never
       // intercepts dashboard routes ahead of the Astro router.
       assets: { runWorkerFirst: true },
+      observability: {
+        enabled: true,
+        headSamplingRate: 1,
+        logs: {
+          enabled: true,
+          invocationLogs: true,
+          headSamplingRate: 1,
+          persist: true,
+        },
+        traces: { enabled: true, headSamplingRate: 1, persist: true },
+      },
       env: {
         STATIC_FILES: StaticFiles,
         SHORTLINK_ANALYTICS: ShortlinkAnalytics,
